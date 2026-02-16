@@ -2,13 +2,13 @@
   <div class="translation_settings">
     <div class="inline-drawer">
       <div class="inline-drawer-toggle inline-drawer-header">
-        <div class="flex items-center gap-2.5">
+        <div style="display: flex; align-items: center; gap: 10px;">
           <b>数据库配置</b>
         </div>
         <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
       </div>
       <div class="inline-drawer-content">
-        <div class="p-2.5">
+        <div style="padding: 10px;">
           <SettingsPanel/>
         </div>
       </div>
