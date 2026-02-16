@@ -1,5 +1,11 @@
 import { createApp } from 'vue'
-import './style.css'
-import App from './App.vue'
+import MainView from './app/pages/MainView.vue'
 
-createApp(App).mount('#app')
+
+const container = document.createElement('div')
+const extensionsSettings = document.querySelector('#extensions_settings')
+if (extensionsSettings) {
+    extensionsSettings.appendChild(container)
+    const app = createApp(MainView)
+    app.mount(container)
+}
