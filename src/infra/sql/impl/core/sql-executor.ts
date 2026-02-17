@@ -178,8 +178,8 @@ export class SimpleSqlExecutor implements SqlExecutor {
     }
 
     clone(): SqlExecutor {
-        const clonedStorage = this.dataStorage.clone();
-        const clonedExecutor = new SimpleSqlExecutor(clonedStorage);
+        // 只复制表结构
+        const clonedExecutor = new SimpleSqlExecutor();
 
         for (const [tableIdx, schema] of this.tableSchemas.entries()) {
             const clonedColumnSchemas: any = new Map();
