@@ -1,4 +1,4 @@
-import {DatabaseBuilder, type SqlExecutor} from "../infra/sql";
+import {DatabaseBuilder, type SqlExecutor} from "./sql";
 
 class Config {
     tableTemplate:SqlExecutor = DatabaseBuilder.buildExecutor();
