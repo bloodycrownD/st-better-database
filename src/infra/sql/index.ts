@@ -25,3 +25,4 @@ export * from './impl/core';
 export * from './impl/storage';
 export * from './impl/executors';
 export * from './impl/utils';
+export * from './database-builder.ts'

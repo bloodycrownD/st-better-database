@@ -133,4 +133,5 @@ export interface SqlExecutor {
      * @returns 新的SqlExecutor实例
      */
     clone(): SqlExecutor;
+
 }

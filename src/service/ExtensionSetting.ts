@@ -1,5 +1,7 @@
+import {DatabaseBuilder, type SqlExecutor} from "../infra/sql";
+
 class Config {
-    enabled = false;
+    tableTemplate:SqlExecutor = DatabaseBuilder.buildExecutor();
 }
 
 export class SettingsManager {
@@ -27,12 +29,12 @@ export class SettingsManager {
         this.settings = moduleSettings as typeof this.settings;
     }
 
-    get enabled() {
-        return this.settings.enabled;
+    get tableTemplate() {
+        return this.settings.tableTemplate;
     }
 
-    set enabled(v: boolean) {
-        this.settings.enabled = v;
+    set tableTemplate(v: SqlExecutor) {
+        this.settings.tableTemplate = v;
         SillyTavern.getContext().saveSettingsDebounced();
     }
 
