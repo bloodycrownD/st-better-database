@@ -3,7 +3,7 @@ import type {SqlExecutor} from "@/infra/sql";
 import {ExtensionSettingManager} from "@/infra/extension-setting-manager.ts";
 
 export class TemplateTableManagementService extends AbstractTableManagementService {
-    getExecutor(): SqlExecutor {
+    get executor(): SqlExecutor {
         return ExtensionSettingManager.instance.tableTemplate;
     }
 }
