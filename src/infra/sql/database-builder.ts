@@ -4,10 +4,10 @@ import type {DataStorage} from "./interfaces/storage/data-storage.ts";
 import {SimpleDataStorage} from "./impl/storage";
 
 export class DatabaseBuilder {
-    public static buildExecutor():SqlExecutor{
+    public static newExecutor():SqlExecutor{
         return new SimpleSqlExecutor();
     }
-    public static buildStorage():DataStorage{
+    public static newStorage():DataStorage{
         return new SimpleDataStorage();
     }
 }

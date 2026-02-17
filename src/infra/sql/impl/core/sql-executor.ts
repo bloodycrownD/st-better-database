@@ -1,10 +1,9 @@
-import type {Row, TableSchema} from '../../index';
+import {DatabaseBuilder, type Row, type TableSchema} from '../../index';
 import {ExportFormat, SqlExecutionError, SqlSyntaxError, SqlType, SqlValidationError} from '../../index';
 import type {SqlExecutor} from '../../interfaces/core/sql-executor';
 import type {SqlResult} from '../../types/result';
 import type {Statement} from '../../parser';
 import {Parser, StatementType} from '../../parser';
-import {SimpleDataStorage} from '../storage';
 import type {DataStorage} from '../../interfaces/storage/data-storage';
 import {DdlExecutor, DmlExecutor, DqlExecutor} from '../executors';
 import {RowConverter, DataExporter} from '../utils';
@@ -21,7 +20,7 @@ export class SimpleSqlExecutor implements SqlExecutor {
     private dataExporter: DataExporter;
 
     constructor(dataStorage?: DataStorage) {
-        this.dataStorage = dataStorage || new SimpleDataStorage();
+        this.dataStorage = dataStorage || DatabaseBuilder.newStorage();
         const tableIdxCounter = {value: 0};
         this.ddlExecutor = new DdlExecutor(
             this.tableSchemas,

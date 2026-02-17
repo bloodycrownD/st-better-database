@@ -1,7 +1,7 @@
 import {DatabaseBuilder, type SqlExecutor} from "./sql";
 
 class Config {
-    tableTemplate:SqlExecutor = DatabaseBuilder.buildExecutor();
+    tableTemplate:SqlExecutor = DatabaseBuilder.newExecutor();
 }
 
 export class SettingsManager {
@@ -34,6 +34,7 @@ export class SettingsManager {
     }
 
     set tableTemplate(v: SqlExecutor) {
+        v.setDataStorage(DatabaseBuilder.newStorage());
         this.settings.tableTemplate = v;
         SillyTavern.getContext().saveSettingsDebounced();
     }
