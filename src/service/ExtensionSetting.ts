@@ -2,12 +2,14 @@ class Config {
     enabled = false;
 }
 
-class SettingsManager {
+export class SettingsManager {
     static readonly MODULE_NAME = 'ST_BETTER_DATABASE';
+
+    private static readonly _instance = new SettingsManager();
 
     private readonly settings = new Config();
 
-    constructor() {
+    private constructor() {
         const {extensionSettings} = SillyTavern.getContext();
 
         if (!extensionSettings[SettingsManager.MODULE_NAME]) {
@@ -33,6 +35,8 @@ class SettingsManager {
         this.settings.enabled = v;
         SillyTavern.getContext().saveSettingsDebounced();
     }
-}
 
-export const ST_SETTINGS = new SettingsManager();
+    public static get instance(): SettingsManager {
+        return SettingsManager._instance;
+    }
+}
