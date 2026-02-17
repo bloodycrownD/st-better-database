@@ -161,13 +161,16 @@ export class DmlExecutor {
         const data = this.dataStorage.getTableData(tableIdx);
 
         for (const row of data) {
-            let currentValue = row.get(fieldIdx);
-            if (currentValue === null || currentValue === undefined) {
-                currentValue = '';
+            const matchWhere = stmt.where === undefined || stmt.where === null || this.expressionEvaluator.evaluateWhere(stmt.where, schema, tableIdx, row);
+            if (matchWhere) {
+                let currentValue = row.get(fieldIdx);
+                if (currentValue === null || currentValue === undefined) {
+                    currentValue = '';
+                }
+                const appendValue = this.expressionEvaluator.evaluateExpression(stmt.value, schema, tableIdx, row) as string;
+                row.set(fieldIdx, (currentValue as string) + appendValue);
+                affectedRows++;
             }
-            const appendValue = this.expressionEvaluator.evaluateExpression(stmt.value, schema, tableIdx, row) as string;
-            row.set(fieldIdx, (currentValue as string) + appendValue);
-            affectedRows++;
         }
 
         this.dataStorage.setTableData(tableIdx, data);

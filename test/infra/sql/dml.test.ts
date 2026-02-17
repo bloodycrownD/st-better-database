@@ -157,7 +157,7 @@ describe('DML Operations', () => {
             executor.execute('INSERT INTO users (id, name, age) VALUES (2, \'Bob\', 30)', [SqlType.DML]);
         });
 
-        it('should append to STRING column', () => {
+        it('should append to STRING column for all rows', () => {
             const sql = 'APPEND INTO users (name) VALUES (\' Smith\')';
             const result = executor.execute(sql, [SqlType.DML]);
 
@@ -168,6 +168,32 @@ describe('DML Operations', () => {
             const rows = selectResult.data as any[];
             expect(rows[0].get('name')).toBe('Alice Smith');
             expect(rows[1].get('name')).toBe('Bob Smith');
+        });
+
+        it('should append to STRING column with WHERE condition', () => {
+            const sql = 'APPEND INTO users (name) VALUES (\' Smith\') WHERE id = 1';
+            const result = executor.execute(sql, [SqlType.DML]);
+
+            expect(result.success).toBe(true);
+            expect(result.data).toBe(1);
+
+            const selectResult = executor.execute('SELECT * FROM users ORDER BY id', [SqlType.DQL]);
+            const rows = selectResult.data as any[];
+            expect(rows[0].get('name')).toBe('Alice Smith');
+            expect(rows[1].get('name')).toBe('Bob');
+        });
+
+        it('should append to STRING column with complex WHERE condition', () => {
+            const sql = 'APPEND INTO users (name) VALUES (\' Jr.\') WHERE age >= 25';
+            const result = executor.execute(sql, [SqlType.DML]);
+
+            expect(result.success).toBe(true);
+            expect(result.data).toBe(2);
+
+            const selectResult = executor.execute('SELECT * FROM users ORDER BY id', [SqlType.DQL]);
+            const rows = selectResult.data as any[];
+            expect(rows[0].get('name')).toBe('Alice Jr.');
+            expect(rows[1].get('name')).toBe('Bob Jr.');
         });
 
         it('should throw error when appending to NUMBER column', () => {
@@ -185,6 +211,22 @@ describe('DML Operations', () => {
             const selectResult = executor.execute('SELECT * FROM messages', [SqlType.DQL]);
             const row = (selectResult.data as any[])[0];
             expect(row.get('content')).toBe(' hello');
+        });
+
+        it('should append only when WHERE condition matches', () => {
+            executor.execute('INSERT INTO users (id, name, age) VALUES (3, \'Charlie\', 35)', [SqlType.DML]);
+
+            const sql = 'APPEND INTO users (name) VALUES (\' Sr.\') WHERE id = 3';
+            const result = executor.execute(sql, [SqlType.DML]);
+
+            expect(result.success).toBe(true);
+            expect(result.data).toBe(1);
+
+            const selectResult = executor.execute('SELECT * FROM users ORDER BY id', [SqlType.DQL]);
+            const rows = selectResult.data as any[];
+            expect(rows[0].get('name')).toBe('Alice');
+            expect(rows[1].get('name')).toBe('Bob');
+            expect(rows[2].get('name')).toBe('Charlie Sr.');
         });
     });
 });

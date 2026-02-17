@@ -219,8 +219,8 @@ export interface AppendNode extends AstNode {
     type: StatementType.APPEND;
     tableName: string;
     column: string;
-    rowIdx?: number;
     value: Expression;
+    where?: Expression;
 }
 
 /**

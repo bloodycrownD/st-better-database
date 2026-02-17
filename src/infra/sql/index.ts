@@ -26,4 +26,4 @@ export * from './impl/storage';
 export * from './impl/executors';
 export * from './impl/utils';
 export * from './database-builder.ts'
-export {SQLBuilder} from './sql-builder'
+export {SQLBuilder, Where} from './sql-builder'

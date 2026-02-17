@@ -528,28 +528,21 @@ export class Parser {
         this.expectType(TokenType.LPAREN);
 
         const column = this.parseIdentifier();
-
-        if (this.matchValue(',')) {
-            const rowIdx = this.parseIdentifier();
-            return {
-                type: StatementType.APPEND,
-                tableName,
-                column,
-                rowIdx: Number(rowIdx),
-                value: {type: 'value', value: ''},
-                position: this.current.position
-            };
-        }
-
         this.expectType(TokenType.RPAREN);
         this.expectValue('VALUES');
         const value = this.parseExpression();
+
+        let where: Expression | undefined;
+        if (this.matchValue('WHERE')) {
+            where = this.parseExpression();
+        }
 
         return {
             type: StatementType.APPEND,
             tableName,
             column,
             value,
+            where,
             position: this.current.position
         };
     }
