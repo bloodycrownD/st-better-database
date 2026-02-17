@@ -1,18 +1,14 @@
 import {type Row, SimpleSqlExecutor} from "@/infra/sql";
 
 export class MessageParser {
-    static rowRegex = /<row>(.*?)<\/row>/gs
-    static commitRegex = /<commit>(.*?)<\/commit>/gs
-
     static extractRowFromMessage(messageText: string): Row[] {
         if (!messageText) return []
 
         const statements: Row[] = []
+        const rowRegex = /<row>(.*?)<\/row>/gs
+
         let match
-
-        MessageParser.rowRegex.lastIndex = 0
-
-        while ((match = MessageParser.rowRegex.exec(messageText)) !== null) {
+        while ((match = rowRegex.exec(messageText)) !== null) {
             const content = match[1]?.trim()
             if (content) {
                 const parsed = JSON.parse(content) as Row[]
@@ -27,11 +23,10 @@ export class MessageParser {
         if (!messageText) return []
 
         const statements: string[] = []
+        const commitRegex = /<commit>(.*?)<\/commit>/gs
+
         let match
-
-        MessageParser.commitRegex.lastIndex = 0
-
-        while ((match = MessageParser.commitRegex.exec(messageText)) !== null) {
+        while ((match = commitRegex.exec(messageText)) !== null) {
             const content = match[1]?.trim()
             if (content) {
                 const sqlList = content.split(';').filter(s => s.trim())
@@ -46,7 +41,6 @@ export class MessageParser {
         if (!messageText) return messageText
 
         if (messageText.includes('<row>')) {
-            console.log('[MessageParser] 已存在row标签，跳过解析')
             return messageText
         }
 
@@ -55,14 +49,12 @@ export class MessageParser {
         const endPos = messageText.lastIndexOf(endTag)
 
         if (endPos === -1) {
-            console.log('[MessageParser] 未找到</commit>标签，直接返回原消息')
             return messageText
         }
 
         const startPos = messageText.lastIndexOf(startTag, endPos)
 
         if (startPos === -1) {
-            console.log('[MessageParser] 未找到<commit>标签，直接返回原消息')
             return messageText
         }
 
@@ -85,18 +77,7 @@ export class MessageParser {
 
         if (allRows.length > 0) {
             const rowTagContent = JSON.stringify(allRows)
-
-            const existingRows = MessageParser.extractRowFromMessage(result)
-
-            if (existingRows.length > 0) {
-                const mergedRows = [...existingRows, ...allRows]
-                result = result.replace(
-                    /(<row>.*)(<\/row>)/s,
-                    `$1${JSON.stringify(mergedRows)}$2`
-                )
-            } else {
-                result += `<row>${rowTagContent}</row>`
-            }
+            result += `<row>${rowTagContent}</row>`
         }
 
         return result

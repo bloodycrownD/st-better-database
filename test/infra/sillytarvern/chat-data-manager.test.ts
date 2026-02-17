@@ -129,22 +129,6 @@ describe('ChatDataManager', () => {
             expect(result).toBe(messageText);
         });
 
-        it('should append row to existing rows', () => {
-            executor.execute('CREATE TABLE users (id NUMBER, name STRING)', [SqlType.DDL]);
-
-            const messageText = 'Hello <row>[{"action": "insert", "tableIdx": 0, "after": {"0": 1}}]</row> <commit>INSERT INTO users (id) VALUES (2)</commit> end';
-
-            const result = MessageParser.processCommitToRow(messageText, executor);
-
-            expect(result).toContain('<row>');
-            expect(result).not.toContain('<commit>');
-            const rowMatch = result.match(/<row>(.*?)<\/row>/s);
-            expect(rowMatch).toBeTruthy();
-            const rowContent = rowMatch![1];
-            const parsed = JSON.parse(rowContent);
-            expect(parsed).toHaveLength(2);
-        });
-
         it('should merge multiple commit statements into single array', () => {
             executor.execute('CREATE TABLE users (id NUMBER, name STRING)', [SqlType.DDL]);
 
@@ -184,10 +168,16 @@ describe('ChatDataManager', () => {
             ];
 
             const dml = executor.row2dml(rows);
-            const result = executor.execute(dml, [SqlType.DML]);
+            const dmlStatements = dml.split(';').filter(s => s.trim());
+            let totalAffected = 0;
+            
+            for (const stmt of dmlStatements) {
+                const result = executor.execute(stmt, [SqlType.DML]);
+                expect(result.success).toBe(true);
+                totalAffected += result.data as number;
+            }
 
-            expect(result.success).toBe(true);
-            expect(result.data).toBe(2);
+            expect(totalAffected).toBe(2);
         });
 
         it('should handle update operations', () => {

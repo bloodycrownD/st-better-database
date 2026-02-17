@@ -1,4 +1,4 @@
-import type {RowData} from './core';
+import type {RowData, SqlValue} from './core';
 import {ActionType} from '@/infra/sql';
 
 /**
@@ -42,6 +42,7 @@ import {ActionType} from '@/infra/sql';
  * - INSERT操作只需要after字段
  * - DELETE操作只需要before字段
  * - UPDATE操作需要before和after字段
+ * - after/before可以是Map或普通对象（用于JSON序列化/反序列化）
  */
 export interface Row {
     /** 操作类型 */
@@ -49,7 +50,7 @@ export interface Row {
     /** 目标表ID */
     tableIdx: number;
     /** 操作前的数据状态（UPDATE/DELETE需要） */
-    before?: RowData;
+    before?: RowData | Record<number, SqlValue>;
     /** 操作后的数据状态（INSERT/APPEND/UPDATE需要） */
-    after?: RowData;
+    after?: RowData | Record<number, SqlValue>;
 }
