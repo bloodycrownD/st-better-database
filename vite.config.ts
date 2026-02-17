@@ -24,8 +24,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         inlineDynamicImports: true
-      },
-      external: [/^@st-core\/.*/, /^@st-scripts\/.*/],
+      }
     },
   }
 })

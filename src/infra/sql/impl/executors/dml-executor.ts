@@ -53,6 +53,8 @@ export class DmlExecutor {
                     }
                 } else if (colSchema.defaultValue !== undefined) {
                     rowData.set(fieldIdx, colSchema.defaultValue);
+                } else {
+                    rowData.set(fieldIdx, null);
                 }
             }
 

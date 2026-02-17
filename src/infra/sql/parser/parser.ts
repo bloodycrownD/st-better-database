@@ -83,7 +83,7 @@ export class Parser {
      * 如果当前Token是特定值，则消耗它
      */
     private matchValue(value: string): boolean {
-        if (this.current.value === value && (this.current.type === TokenType.KEYWORD || this.current.type === TokenType.OPERATOR || this.current.type === TokenType.COMMA)) {
+        if (this.current.value === value && (this.current.type === TokenType.KEYWORD || this.current.type === TokenType.OPERATOR || this.current.type === TokenType.COMMA || this.current.type === TokenType.SEMICOLON)) {
             this.nextToken();
             return true;
         }
@@ -208,6 +208,24 @@ export class Parser {
             this.nextToken();
             const right = this.parseIs();
             left = {type: 'binary', operator, left, right};
+        }
+
+        if (this.matchValue('IN')) {
+            this.expectType(TokenType.LPAREN);
+            const values: Expression[] = [];
+            values.push(this.parseExpression());
+            while (this.matchValue(',')) {
+                values.push(this.parseExpression());
+            }
+            this.expectType(TokenType.RPAREN);
+            return {type: 'in', value: left, values};
+        }
+
+        if (this.matchValue('BETWEEN')) {
+            const min = this.parseAdditive();
+            this.expectValue('AND');
+            const max = this.parseAdditive();
+            return {type: 'between', value: left, min, max};
         }
 
         return left;

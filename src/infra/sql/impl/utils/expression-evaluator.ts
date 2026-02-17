@@ -74,6 +74,19 @@ export class ExpressionEvaluator {
             return expr.not ? value !== null : value === null;
         }
 
+        if (expr.type === 'in') {
+            const value = this.evaluateExpression(expr.value, schema, tableIdx, row);
+            const values = expr.values.map((v: any) => this.evaluateExpression(v, schema, tableIdx, row));
+            return values.some((v: any) => v === value);
+        }
+
+        if (expr.type === 'between') {
+            const value = this.evaluateExpression(expr.value, schema, tableIdx, row);
+            const min = this.evaluateExpression(expr.min, schema, tableIdx, row);
+            const max = this.evaluateExpression(expr.max, schema, tableIdx, row);
+            return value >= min && value <= max;
+        }
+
         throw new Error(`Unknown expression type: ${expr.type}`);
     }
 

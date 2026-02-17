@@ -87,9 +87,13 @@ export class Lexer {
             const ch = this.peek();
             if (ch === quote) {
                 this.advance();
-                break;
-            }
-            if (ch === '\\') {
+                if (this.peek() === quote) {
+                    result += quote;
+                    this.advance();
+                } else {
+                    break;
+                }
+            } else if (ch === '\\') {
                 this.advance();
                 result += this.advance();
             } else {

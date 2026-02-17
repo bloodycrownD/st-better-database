@@ -62,8 +62,8 @@ export class DqlExecutor {
                         const bVal = b.get(colName);
 
                         if (aVal === null && bVal === null) return 0;
-                        if (aVal === null) return orderByClause.ascending ? 1 : -1;
-                        if (bVal === null) return orderByClause.ascending ? -1 : 1;
+                        if (aVal === null) return orderByClause.ascending ? -1 : 1;
+                        if (bVal === null) return orderByClause.ascending ? 1 : -1;
 
                         if (aVal < bVal) return orderByClause.ascending ? -1 : 1;
                         if (aVal > bVal) return orderByClause.ascending ? 1 : -1;
