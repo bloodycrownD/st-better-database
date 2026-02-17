@@ -1,9 +1,9 @@
-import { DatabaseBuilder, type SqlExecutor } from "./sql";
+import {DatabaseBuilder, type SqlExecutor} from "./sql";
 import {SettingsManager} from "@/infra/extension-setting.ts";
 
 class Config {
     // 默认是模板数据库
-    database: SqlExecutor = SettingsManager.instance.tableTemplate.clone();
+    tableTemplate: SqlExecutor = SettingsManager.instance.tableTemplate.clone();
 }
 
 export class ChatMetaManager {
@@ -34,12 +34,13 @@ export class ChatMetaManager {
     }
 
     get tableTemplate() {
-        return this.getMetadata().database;
+        return this.getMetadata().tableTemplate;
     }
 
     set tableTemplate(v: SqlExecutor) {
+        v.setDataStorage(DatabaseBuilder.newStorage());
         const metadata = this.getMetadata();
-        metadata.database = v;
+        metadata.tableTemplate = v;
         SillyTavern.getContext().saveMetadata();
     }
 
