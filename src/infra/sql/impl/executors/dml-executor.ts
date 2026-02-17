@@ -1,7 +1,7 @@
 import type {RowData, TableSchema} from '../../index';
 import {FieldType, SqlType, SqlValidationError} from '../../index';
-import type {SqlResult} from '../../types/result';
-import type {DataStorage} from '../../interfaces/storage/data-storage';
+import type {SqlResult} from '@/infra/sql';
+import type {DataStorage} from '@/infra/sql';
 import {ExpressionEvaluator} from '../utils';
 
 export class DmlExecutor {

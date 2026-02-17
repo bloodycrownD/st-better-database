@@ -1,5 +1,5 @@
-import type {DataStorage} from '../../interfaces/storage/data-storage';
-import type {RowData} from '../../types/core';
+import type {DataStorage} from '@/infra/sql';
+import type {RowData} from '@/infra/sql';
 
 /**
  * DataStorage实现类
