@@ -1,9 +1,9 @@
 import {ChatMetaManager} from "@/infra/chat-meta-manager";
 import {type Row, SqlType} from "@/infra/sql";
-import {ChatMessageParser} from "@/infra/sillytarvern/chat-message-parser.ts";
+import {ChatMessageUtil} from "@/infra/sillytarvern/chat-message-util.ts";
 
 export class ChatDataManager {
-    get executor() {
+    static get executor() {
         const chat = SillyTavern.getContext().chat || []
 
         const executor = ChatMetaManager.instance.tableTemplate.clone();
@@ -11,7 +11,7 @@ export class ChatDataManager {
         const rows:Row[] = [];
         for (const message of chat) {
             if (message.mes) {
-                rows.push(...ChatMessageParser.extractRowFromMessage(message.mes))
+                rows.push(...ChatMessageUtil.extractRow(message.mes))
             }
         }
 

@@ -1,21 +1,21 @@
-import {type Row, SimpleSqlExecutor} from "@/infra/sql";
+import {type Row, type SqlExecutor} from "@/infra/sql";
 
-export class ChatMessageParser {
+export class ChatMessageUtil {
     private static readonly ROW_START_TAG = '<row>'
     private static readonly ROW_END_TAG = '</row>'
     private static readonly COMMIT_START_TAG = '<commit>'
     private static readonly COMMIT_END_TAG = '</commit>'
-    private static readonly ROW_REGEX = new RegExp(`${ChatMessageParser.ROW_START_TAG}(.*?)${ChatMessageParser.ROW_END_TAG}`, 'gs')
-    private static readonly COMMIT_REGEX = new RegExp(`${ChatMessageParser.COMMIT_START_TAG}(.*?)${ChatMessageParser.COMMIT_END_TAG}`, 'gs')
+    private static readonly ROW_REGEX = new RegExp(`${ChatMessageUtil.ROW_START_TAG}(.*?)${ChatMessageUtil.ROW_END_TAG}`, 'gs')
+    private static readonly COMMIT_REGEX = new RegExp(`${ChatMessageUtil.COMMIT_START_TAG}(.*?)${ChatMessageUtil.COMMIT_END_TAG}`, 'gs')
 
-    static extractRowFromMessage(messageText: string): Row[] {
+    static extractRow(messageText: string): Row[] {
         if (!messageText) return []
 
         const statements: Row[] = []
-        ChatMessageParser.ROW_REGEX.lastIndex = 0
+        ChatMessageUtil.ROW_REGEX.lastIndex = 0
 
         let match
-        while ((match = ChatMessageParser.ROW_REGEX.exec(messageText)) !== null) {
+        while ((match = ChatMessageUtil.ROW_REGEX.exec(messageText)) !== null) {
             const content = match[1]?.trim()
             if (content) {
                 const parsed = JSON.parse(content) as Row[]
@@ -26,14 +26,14 @@ export class ChatMessageParser {
         return statements
     }
 
-    static extractCommitFromMessage(messageText: string): string[] {
+    static extractCommit(messageText: string): string[] {
         if (!messageText) return []
 
         const statements: string[] = []
-        ChatMessageParser.COMMIT_REGEX.lastIndex = 0
+        ChatMessageUtil.COMMIT_REGEX.lastIndex = 0
 
         let match
-        while ((match = ChatMessageParser.COMMIT_REGEX.exec(messageText)) !== null) {
+        while ((match = ChatMessageUtil.COMMIT_REGEX.exec(messageText)) !== null) {
             const content = match[1]?.trim()
             if (content) {
                 const sqlList = content.split(';').filter(s => s.trim())
@@ -44,18 +44,18 @@ export class ChatMessageParser {
         return statements
     }
 
-    static processCommitToRow(messageText: string, executor: SimpleSqlExecutor): string {
+    static commit2Row(messageText: string, executor: SqlExecutor): string {
         if (!messageText) return messageText
-        if (messageText.includes(ChatMessageParser.ROW_START_TAG)) return messageText
+        if (messageText.includes(ChatMessageUtil.ROW_START_TAG)) return messageText
 
-        const endPos = messageText.lastIndexOf(ChatMessageParser.COMMIT_END_TAG)
+        const endPos = messageText.lastIndexOf(ChatMessageUtil.COMMIT_END_TAG)
         if (endPos === -1) return messageText
 
-        const startPos = messageText.lastIndexOf(ChatMessageParser.COMMIT_START_TAG, endPos)
+        const startPos = messageText.lastIndexOf(ChatMessageUtil.COMMIT_START_TAG, endPos)
         if (startPos === -1) return messageText
 
-        const content = messageText.substring(startPos + ChatMessageParser.COMMIT_START_TAG.length, endPos).trim()
-        const result = messageText.substring(0, startPos) + messageText.substring(endPos + ChatMessageParser.COMMIT_END_TAG.length)
+        const content = messageText.substring(startPos + ChatMessageUtil.COMMIT_START_TAG.length, endPos).trim()
+        const result = messageText.substring(0, startPos) + messageText.substring(endPos + ChatMessageUtil.COMMIT_END_TAG.length)
 
         const allRows: Row[] = []
         const commitStatements = content.split(';').filter(s => s.trim())
@@ -74,6 +74,6 @@ export class ChatMessageParser {
         if (!allRows.length) return result
 
         const rowTagContent = JSON.stringify(allRows)
-        return `${result}${ChatMessageParser.ROW_START_TAG}${rowTagContent}${ChatMessageParser.ROW_END_TAG}`
+        return `${result}${ChatMessageUtil.ROW_START_TAG}${rowTagContent}${ChatMessageUtil.ROW_END_TAG}`
     }
 }

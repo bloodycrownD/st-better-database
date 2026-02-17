@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { SimpleSqlExecutor, SqlType } from '../../../src/infra/sql';
-import {ChatMessageParser} from "../../../src/infra/sillytarvern/chat-message-parser";
+import {ChatMessageUtil} from "../../../src/infra/sillytarvern/chat-message-util";
 
 describe('MessageParser - extractRowFromMessage', () => {
     let executor: SimpleSqlExecutor;
@@ -19,7 +19,7 @@ describe('MessageParser - extractRowFromMessage', () => {
     it('should extract single row array', () => {
         const messageText = 'Hello <row>[{"action": "insert", "tableIdx": 0, "after": {"0": 1, "1": "Alice", "2": 25}}]</row> world';
 
-        const result = ChatMessageParser.extractRowFromMessage(messageText);
+        const result = ChatMessageUtil.extractRow(messageText);
 
         expect(result).toHaveLength(1);
         expect(result[0]).toBeInstanceOf(Object);
@@ -29,35 +29,35 @@ describe('MessageParser - extractRowFromMessage', () => {
     it('should extract multiple row arrays from separate tags', () => {
         const messageText = '<row>[{"action": "insert", "tableIdx": 0, "after": {"0": 1}}]</row> <row>[{"action": "update", "tableIdx": 1, "after": {"1": 10}}]</row>';
 
-        const result = ChatMessageParser.extractRowFromMessage(messageText);
+        const result = ChatMessageUtil.extractRow(messageText);
 
         expect(result).toHaveLength(2);
     });
 
     it('should return empty array for empty message', () => {
-        const result = ChatMessageParser.extractRowFromMessage('');
+        const result = ChatMessageUtil.extractRow('');
         expect(result).toHaveLength(0);
     });
 
     it('should return empty array when no row tags found', () => {
-        const result = ChatMessageParser.extractRowFromMessage('No tags here');
+        const result = ChatMessageUtil.extractRow('No tags here');
         expect(result).toHaveLength(0);
     });
 
     it('should handle empty row tags', () => {
-        const result = ChatMessageParser.extractRowFromMessage('<row></row>');
+        const result = ChatMessageUtil.extractRow('<row></row>');
         expect(result).toHaveLength(0);
     });
 
     it('should handle row tags with only whitespace', () => {
-        const result = ChatMessageParser.extractRowFromMessage('<row>   </row>');
+        const result = ChatMessageUtil.extractRow('<row>   </row>');
         expect(result).toHaveLength(0);
     });
 
     it('should handle multiple row tags in same message', () => {
         const messageText = 'First <row>[{"action": "insert", "tableIdx": 0, "after": {"0": 1}}]</row> second <row>[{"action": "insert", "tableIdx": 0, "after": {"0": 2}}]</row>';
 
-        const result = ChatMessageParser.extractRowFromMessage(messageText);
+        const result = ChatMessageUtil.extractRow(messageText);
 
         expect(result).toHaveLength(2);
     });
@@ -65,7 +65,7 @@ describe('MessageParser - extractRowFromMessage', () => {
     it('should handle row array with multiple items', () => {
         const messageText = '<row>[{"action": "insert", "tableIdx": 0, "after": {}}, {"action": "insert", "tableIdx": 1, "after": {}}]</row>';
 
-        const result = ChatMessageParser.extractRowFromMessage(messageText);
+        const result = ChatMessageUtil.extractRow(messageText);
 
         expect(result).toHaveLength(2);
     });
