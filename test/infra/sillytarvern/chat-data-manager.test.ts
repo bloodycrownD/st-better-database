@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { SimpleSqlExecutor, SqlType } from '../../../src/infra/sql';
 import type {Row} from '../../../src/infra/sql';
 
-import {MessageParser} from "../../../src/infra/sillytarvern/message-parser";
+import {ChatMessageParser} from "../../../src/infra/sillytarvern/chat-message-parser";
 
 const mockSillyTavernContext = {
     chat: [],
@@ -34,7 +34,7 @@ describe('ChatDataManager', () => {
         it('should extract row array from message text', () => {
             const messageText = 'Hello <row>[{"action": "insert", "tableIdx": 0, "after": {"0": "张三"}}]</row> world';
 
-            const result = MessageParser.extractRowFromMessage(messageText);
+            const result = ChatMessageParser.extractRowFromMessage(messageText);
 
             expect(result).toHaveLength(1);
             expect(result[0]).toBeInstanceOf(Object);
@@ -43,30 +43,30 @@ describe('ChatDataManager', () => {
         it('should extract multiple row arrays', () => {
             const messageText = '<row>[{"action": "insert", "tableIdx": 0, "after": {}}]</row> <row>[{"action": "update", "tableIdx": 0, "after": {}}]</row>';
 
-            const result = MessageParser.extractRowFromMessage(messageText);
+            const result = ChatMessageParser.extractRowFromMessage(messageText);
 
             expect(result).toHaveLength(2);
         });
 
         it('should return empty array for empty message', () => {
-            const result = MessageParser.extractRowFromMessage('');
+            const result = ChatMessageParser.extractRowFromMessage('');
             expect(result).toHaveLength(0);
         });
 
         it('should return empty array when no row tags found', () => {
-            const result = MessageParser.extractRowFromMessage('No tags here');
+            const result = ChatMessageParser.extractRowFromMessage('No tags here');
             expect(result).toHaveLength(0);
         });
 
         it('should handle empty row tags', () => {
-            const result = MessageParser.extractRowFromMessage('<row></row>');
+            const result = ChatMessageParser.extractRowFromMessage('<row></row>');
             expect(result).toHaveLength(0);
         });
 
         it('should handle row tag with multiple items in array', () => {
             const messageText = '<row>[{"action": "insert", "tableIdx": 0, "after": {}}, {"action": "insert", "tableIdx": 1, "after": {}}]</row>';
 
-            const result = MessageParser.extractRowFromMessage(messageText);
+            const result = ChatMessageParser.extractRowFromMessage(messageText);
 
             expect(result).toHaveLength(2);
         });
@@ -76,7 +76,7 @@ describe('ChatDataManager', () => {
         it('should extract commit statements from message text', () => {
             const messageText = 'Hello <commit>INSERT INTO users (name) VALUES ("Alice")</commit> world';
 
-            const result = MessageParser.extractCommitFromMessage(messageText);
+            const result = ChatMessageParser.extractCommitFromMessage(messageText);
 
             expect(result).toHaveLength(1);
             expect(result[0]).toContain('INSERT INTO users');
@@ -85,13 +85,13 @@ describe('ChatDataManager', () => {
         it('should extract multiple commit statements separated by semicolon', () => {
             const messageText = '<commit>INSERT INTO users (name) VALUES ("Alice");UPDATE users SET age = 25</commit>';
 
-            const result = MessageParser.extractCommitFromMessage(messageText);
+            const result = ChatMessageParser.extractCommitFromMessage(messageText);
 
             expect(result).toHaveLength(2);
         });
 
         it('should return empty array for empty message', () => {
-            const result = MessageParser.extractCommitFromMessage('');
+            const result = ChatMessageParser.extractCommitFromMessage('');
             expect(result).toHaveLength(0);
         });
     });
@@ -102,7 +102,7 @@ describe('ChatDataManager', () => {
 
             const messageText = 'Data <commit>INSERT INTO users (id, name) VALUES (1, "Alice")</commit> end';
 
-            const result = MessageParser.processCommitToRow(messageText, executor);
+            const result = ChatMessageParser.processCommitToRow(messageText, executor);
 
             expect(result).toContain('<row>');
             expect(result).not.toContain('<commit>');
@@ -116,7 +116,7 @@ describe('ChatDataManager', () => {
         it('should return original message if row already exists', () => {
             const messageText = 'Hello <row>[{"action": "insert"}]</row> <commit>INSERT INTO users</commit>';
 
-            const result = MessageParser.processCommitToRow(messageText, executor);
+            const result = ChatMessageParser.processCommitToRow(messageText, executor);
 
             expect(result).toBe(messageText);
         });
@@ -124,7 +124,7 @@ describe('ChatDataManager', () => {
         it('should return original message if no commit tag found', () => {
             const messageText = 'Hello world';
 
-            const result = MessageParser.processCommitToRow(messageText, executor);
+            const result = ChatMessageParser.processCommitToRow(messageText, executor);
 
             expect(result).toBe(messageText);
         });
@@ -134,7 +134,7 @@ describe('ChatDataManager', () => {
 
             const messageText = '<commit>INSERT INTO users (id, name) VALUES (1, "Alice");INSERT INTO users (id, name) VALUES (2, "Bob")</commit>';
 
-            const result = MessageParser.processCommitToRow(messageText, executor);
+            const result = ChatMessageParser.processCommitToRow(messageText, executor);
 
             const rowMatch = result.match(/<row>(.*?)<\/row>/s);
             expect(rowMatch).toBeTruthy();
@@ -170,7 +170,7 @@ describe('ChatDataManager', () => {
             const dml = executor.row2dml(rows);
             const dmlStatements = dml.split(';').filter(s => s.trim());
             let totalAffected = 0;
-            
+
             for (const stmt of dmlStatements) {
                 const result = executor.execute(stmt, [SqlType.DML]);
                 expect(result.success).toBe(true);
