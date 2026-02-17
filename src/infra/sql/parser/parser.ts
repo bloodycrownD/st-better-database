@@ -394,6 +394,7 @@ export class Parser {
         let columnName: string | undefined;
         let columnDef: ColumnDef | undefined;
         let newTableName: string | undefined;
+        let newColumnName: string | undefined;
         let comment: string | undefined;
 
         if (this.matchValue('ADD')) {
@@ -405,9 +406,16 @@ export class Parser {
             opType = AlterTableOpType.DROP_COLUMN;
             columnName = this.parseIdentifier();
         } else if (this.matchValue('RENAME')) {
-            this.expectValue('TO');
-            opType = AlterTableOpType.RENAME;
-            newTableName = this.parseIdentifier();
+            if (this.matchValue('COLUMN')) {
+                opType = AlterTableOpType.RENAME_COLUMN;
+                columnName = this.parseIdentifier();
+                this.expectValue('TO');
+                newColumnName = this.parseIdentifier();
+            } else {
+                this.expectValue('TO');
+                opType = AlterTableOpType.RENAME;
+                newTableName = this.parseIdentifier();
+            }
         } else if (this.matchValue('MODIFY')) {
             this.expectValue('COLUMN');
             opType = AlterTableOpType.MODIFY_COLUMN_COMMENT;
@@ -443,6 +451,7 @@ export class Parser {
             columnName,
             columnDef,
             newTableName,
+            newColumnName,
             comment,
             position: this.current.position
         };

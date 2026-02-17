@@ -359,6 +359,10 @@ export class DDLBuilder {
         return `ALTER TABLE ${tableName} MODIFY COLUMN ${columnName} ${columnType} COMMENT ${this.formatValue(comment)}`;
     }
 
+    static alterTableRenameColumn(tableName: string, columnName: string, newColumnName: string): string {
+        return `ALTER TABLE ${tableName} RENAME COLUMN ${columnName} TO ${newColumnName}`;
+    }
+
     static alterTableComment(tableName: string, comment: string): string {
         return `ALTER TABLE ${tableName} COMMENT ${this.formatValue(comment)}`;
     }

@@ -170,5 +170,23 @@ describe('Parser - CREATE TABLE with Comments', () => {
         expect(stmt.columnName).toBe('id');
         expect(stmt.comment).toBe('Updated primary key');
     });
+
+    it('should parse ALTER TABLE RENAME COLUMN', () => {
+        const sql = 'ALTER TABLE users RENAME COLUMN name TO username';
+        const result = Parser.parse(sql);
+
+        if (result.errors.length > 0) {
+            console.log('Parse errors:', result.errors);
+        }
+        expect(result.errors.length).toBe(0);
+        expect(result.statements.length).toBe(1);
+        expect(result.statements[0].type).toBe(StatementType.ALTER_TABLE);
+        
+        const stmt = result.statements[0] as any;
+        expect(stmt.tableName).toBe('users');
+        expect(stmt.opType).toBe('RENAME_COLUMN');
+        expect(stmt.columnName).toBe('name');
+        expect(stmt.newColumnName).toBe('username');
+    });
 });
 

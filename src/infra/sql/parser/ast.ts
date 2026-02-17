@@ -77,6 +77,7 @@ export enum AlterTableOpType {
     ADD_COLUMN = 'ADD_COLUMN',
     DROP_COLUMN = 'DROP_COLUMN',
     RENAME = 'RENAME',
+    RENAME_COLUMN = 'RENAME_COLUMN',
     MODIFY_COLUMN_COMMENT = 'MODIFY_COLUMN_COMMENT',
     ALTER_TABLE_COMMENT = 'ALTER_TABLE_COMMENT'
 }
@@ -91,6 +92,7 @@ export interface AlterTableNode extends AstNode {
     columnName?: string;
     columnDef?: ColumnDef;
     newTableName?: string;
+    newColumnName?: string;
     comment?: string;
 }
 

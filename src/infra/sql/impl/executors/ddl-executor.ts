@@ -140,6 +140,42 @@ export class DdlExecutor {
                 }
                 break;
 
+            case 'RENAME_COLUMN':
+                if (stmt.columnName && stmt.newColumnName) {
+                    const colName = stmt.columnName;
+                    const newColName = stmt.newColumnName;
+                    const fieldIdx = schema.fieldName2id.get(colName);
+                    if (fieldIdx === undefined) {
+                        throw new SqlValidationError(
+                            `Column '${colName}' does not exist in table '${tableName}'`,
+                            `ALTER TABLE ${tableName} RENAME COLUMN ${colName} TO ${newColName}`
+                        );
+                    }
+                    if (schema.fieldName2id.has(newColName)) {
+                        throw new SqlValidationError(
+                            `Column '${newColName}' already exists in table '${tableName}'`,
+                            `ALTER TABLE ${tableName} RENAME COLUMN ${colName} TO ${newColName}`
+                        );
+                    }
+
+                    schema.id2fieldName.set(fieldIdx, newColName);
+                    schema.fieldName2id.delete(colName);
+                    schema.fieldName2id.set(newColName, fieldIdx);
+
+                    const columnSchema = schema.columnSchemas.get(fieldIdx);
+                    if (columnSchema) {
+                        columnSchema.name = newColName;
+                    }
+
+                    return {
+                        success: true,
+                        message: `Column '${colName}' renamed to '${newColName}' in table '${tableName}'`,
+                        data: 0,
+                        type: SqlType.DDL
+                    };
+                }
+                break;
+
             case 'MODIFY_COLUMN_COMMENT':
                 if (stmt.columnName && stmt.comment !== undefined) {
                     const colName = stmt.columnName;
