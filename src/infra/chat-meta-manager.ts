@@ -38,6 +38,7 @@ export class ChatMetaManager {
     }
 
     set tableTemplate(v: SqlExecutor) {
+        //清空数据
         v.setDataStorage(DatabaseBuilder.newStorage());
         const metadata = this.getMetadata();
         metadata.tableTemplate = v;

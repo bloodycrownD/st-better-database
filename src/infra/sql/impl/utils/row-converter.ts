@@ -23,7 +23,7 @@ export class RowConverter {
         statements: any[],
         tableSchemas: Map<number, TableSchema>,
         getTableIdxByName: (tableName: string) => number | undefined
-    ): string {
+    ): Row[] {
         const rows: Row[] = [];
 
         for (const stmt of statements) {
@@ -43,7 +43,7 @@ export class RowConverter {
             }
         }
 
-        return JSON.stringify(rows, null, 2);
+        return rows;
     }
 
     row2dml(

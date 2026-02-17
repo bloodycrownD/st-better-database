@@ -1,5 +1,5 @@
 import type {RowData} from './core';
-import {ActionType} from '../enums/action-type';
+import {ActionType} from '@/infra/sql';
 
 /**
  * Row格式操作数据

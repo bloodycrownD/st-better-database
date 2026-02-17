@@ -4,6 +4,7 @@ import {ChatMetaManager} from "@/infra/chat-meta-manager.ts";
 
 export class ChatTableManagementService extends AbstractTableManagementService {
     getExecutor(): SqlExecutor {
+        //返回的是ChatMeta的tableTemplate本体，不是clone，所以操作会改变ChatMeta的tableTemplate
         return ChatMetaManager.instance.tableTemplate;
     }
 }

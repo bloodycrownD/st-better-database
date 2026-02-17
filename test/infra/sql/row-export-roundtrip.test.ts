@@ -19,8 +19,8 @@ describe('Row Export - Round-trip conversion', () => {
 
     it('should preserve data through dml2row and row2dml', () => {
         const originalDml = 'INSERT INTO users (id, name, age) VALUES (3, \'Charlie\', 35)';
-        const rowJson = executor.dml2row(originalDml);
-        const convertedDml = executor.row2dml(rowJson);
+        const rows = executor.dml2row(originalDml);
+        const convertedDml = executor.row2dml(rows);
 
         expect(convertedDml).toContain('INSERT INTO users');
     });

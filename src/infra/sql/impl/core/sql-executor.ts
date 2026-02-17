@@ -167,14 +167,13 @@ export class SimpleSqlExecutor implements SqlExecutor {
         );
     }
 
-    dml2row(sql: string): string {
+    dml2row(sql: string): Row[] {
         const parseResult = Parser.parse(sql);
         return this.rowConverter.dml2row(parseResult.statements, this.tableSchemas, this.getTableIdxByName.bind(this));
     }
 
-    row2dml(rows: string): string {
-        const parsedRows = JSON.parse(rows) as Row[];
-        return this.rowConverter.row2dml(parsedRows, this.tableSchemas, this.getTableNameByIdx.bind(this));
+    row2dml(rows: Row[]): string {
+        return this.rowConverter.row2dml(rows, this.tableSchemas, this.getTableNameByIdx.bind(this));
     }
 
     clone(): SqlExecutor {

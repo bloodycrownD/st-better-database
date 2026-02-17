@@ -1,5 +1,6 @@
 import type {DataStorage} from '../storage/data-storage';
 import type {SqlResult} from '../../types/result';
+import type {Row} from '../../types/row';
 import {ExportFormat, SqlType} from '../../index';
 
 /**
@@ -78,38 +79,38 @@ export interface SqlExecutor {
     /**
      * 将DML语句转换为Row格式
      *
-     * 将INSERT/UPDATE/DELETE/APPEND语句解析为Row JSON格式
+     * 将INSERT/UPDATE/DELETE/APPEND语句解析为Row对象数组
      * 支持多条SQL语句，用分号';'分隔
      *
      * 转换示例：
      * ```
      * INSERT INTO users (name, age) VALUES ('张三', 25);
      * ↓
-     * [{"action": "insert", "tableIdx": 0, "after": {"1": "张三", "2": 25}}]
+     * [{action: "insert", tableIdx: 0, after: {1: "张三", 2: 25}}]
      * ```
      *
      * @param sql DML语句字符串，多条用';'分隔
-     * @returns Row格式的JSON数组字符串
+     * @returns Row对象数组
      */
-    dml2row(sql: string): string;
+    dml2row(sql: string): Row[];
 
     /**
      * 将Row格式转换为DML语句
      *
-     * 将Row JSON格式转换回INSERT/UPDATE/DELETE/APPEND语句
-     * 支持批量转换，输入为JSON数组字符串
+     * 将Row对象数组转换回INSERT/UPDATE/DELETE/APPEND语句
+     * 支持批量转换
      *
      * 转换示例：
      * ```
-     * [{"action": "insert", "tableIdx": 0, "after": {"1": "张三"}}]
+     * [{action: "insert", tableIdx: 0, after: {1: "张三"}}]
      * ↓
      * INSERT INTO users (name) VALUES ('张三');
      * ```
      *
-     * @param rows Row格式的JSON数组字符串
+     * @param rows Row对象数组
      * @returns DML语句字符串，多条用';'分隔
      */
-    row2dml(rows: string): string;
+    row2dml(rows: Row[]): string;
 
     /**
      * 根据表名获取表ID
