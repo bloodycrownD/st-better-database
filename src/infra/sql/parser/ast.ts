@@ -57,6 +57,7 @@ export interface ColumnDef {
     type: FieldType;
     primitiveKey?: boolean;
     defaultValue?: string | number | null;
+    comment?: string;
 }
 
 /**
@@ -66,6 +67,7 @@ export interface CreateTableNode extends AstNode {
     type: StatementType.CREATE_TABLE;
     tableName: string;
     columns: ColumnDef[];
+    comment?: string;
 }
 
 /**
@@ -74,7 +76,9 @@ export interface CreateTableNode extends AstNode {
 export enum AlterTableOpType {
     ADD_COLUMN = 'ADD_COLUMN',
     DROP_COLUMN = 'DROP_COLUMN',
-    RENAME = 'RENAME'
+    RENAME = 'RENAME',
+    MODIFY_COLUMN_COMMENT = 'MODIFY_COLUMN_COMMENT',
+    ALTER_TABLE_COMMENT = 'ALTER_TABLE_COMMENT'
 }
 
 /**
@@ -87,6 +91,7 @@ export interface AlterTableNode extends AstNode {
     columnName?: string;
     columnDef?: ColumnDef;
     newTableName?: string;
+    comment?: string;
 }
 
 /**

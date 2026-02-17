@@ -332,11 +332,15 @@ export class AppendWrapper extends AbstractWrapper<AppendWrapper> {
 }
 
 export class DDLBuilder {
-    static createTable(tableName: string, columns: Map<string, string>): string {
+    static createTable(tableName: string, columns: Map<string, string>, comment?: string): string {
         const columnDefs = Array.from(columns.entries())
             .map(([name, type]) => `${name} ${type}`)
             .join(', ');
-        return `CREATE TABLE ${tableName} (${columnDefs})`;
+        let sql = `CREATE TABLE ${tableName} (${columnDefs})`;
+        if (comment) {
+            sql += ` COMMENT ${this.formatValue(comment)}`;
+        }
+        return sql;
     }
 
     static alterTableAddColumn(tableName: string, columnName: string, columnType: string): string {
@@ -351,8 +355,20 @@ export class DDLBuilder {
         return `ALTER TABLE ${tableName} RENAME TO ${newTableName}`;
     }
 
+    static alterTableModifyColumnComment(tableName: string, columnName: string, columnType: string, comment: string): string {
+        return `ALTER TABLE ${tableName} MODIFY COLUMN ${columnName} ${columnType} COMMENT ${this.formatValue(comment)}`;
+    }
+
+    static alterTableComment(tableName: string, comment: string): string {
+        return `ALTER TABLE ${tableName} COMMENT ${this.formatValue(comment)}`;
+    }
+
     static dropTable(tableName: string): string {
         return `DROP TABLE ${tableName}`;
+    }
+
+    private static formatValue(value: string): string {
+        return `"${value}"`;
     }
 }
 

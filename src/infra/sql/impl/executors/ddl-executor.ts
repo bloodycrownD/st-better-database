@@ -81,7 +81,7 @@ export class DdlExecutor {
                         type: colDef.type,
                         primitiveKey: colDef.primitiveKey || false,
                         defaultValue: colDef.defaultValue,
-                        comment: ''
+                        comment: colDef.comment || ''
                     });
 
                     return {
@@ -134,6 +134,44 @@ export class DdlExecutor {
                     return {
                         success: true,
                         message: `Table renamed from '${tableName}' to '${newTableName}'`,
+                        data: 0,
+                        type: SqlType.DDL
+                    };
+                }
+                break;
+
+            case 'MODIFY_COLUMN_COMMENT':
+                if (stmt.columnName && stmt.comment !== undefined) {
+                    const colName = stmt.columnName;
+                    const fieldIdx = schema.fieldName2id.get(colName);
+                    if (fieldIdx === undefined) {
+                        throw new SqlValidationError(
+                            `Column '${colName}' does not exist in table '${tableName}'`,
+                            `ALTER TABLE ${tableName} MODIFY COLUMN ${colName}`
+                        );
+                    }
+
+                    const columnSchema = schema.columnSchemas.get(fieldIdx);
+                    if (columnSchema) {
+                        columnSchema.comment = stmt.comment;
+                    }
+
+                    return {
+                        success: true,
+                        message: `Column '${colName}' comment updated in table '${tableName}'`,
+                        data: 0,
+                        type: SqlType.DDL
+                    };
+                }
+                break;
+
+            case 'ALTER_TABLE_COMMENT':
+                if (stmt.comment !== undefined) {
+                    schema.comment = stmt.comment;
+
+                    return {
+                        success: true,
+                        message: `Table '${tableName}' comment updated`,
                         data: 0,
                         type: SqlType.DDL
                     };

@@ -22,4 +22,6 @@ export interface TableSchema {
     columnSchemas: Map<number, ColumnSchema>;
     /** 字段ID计数器，用于分配新字段ID */
     counter: number;
+    /** 表注释 */
+    comment?: string;
 }

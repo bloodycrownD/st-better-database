@@ -46,6 +46,39 @@ describe('DDL Operations', () => {
             expect(idx1).toBe(0);
             expect(idx2).toBe(1);
         });
+
+        it('should create a table with comment', () => {
+            const sql = 'CREATE TABLE users (id NUMBER, name STRING, age NUMBER) COMMENT "User information table"';
+            const result = executor.execute(sql, [SqlType.DDL]);
+
+            expect(result.success).toBe(true);
+            expect(result.message).toContain("Table 'users' created successfully");
+
+            const tableIdx = executor.getTableIdxByName('users');
+            expect(tableIdx).toBeDefined();
+        });
+
+        it('should create a table with column comments', () => {
+            const sql = 'CREATE TABLE users (id NUMBER COMMENT "Primary key", name STRING COMMENT "User name", age NUMBER COMMENT "User age")';
+            const result = executor.execute(sql, [SqlType.DDL]);
+
+            expect(result.success).toBe(true);
+            expect(result.message).toContain("Table 'users' created successfully");
+
+            const tableIdx = executor.getTableIdxByName('users');
+            expect(tableIdx).toBeDefined();
+        });
+
+        it('should create a table with both table and column comments', () => {
+            const sql = 'CREATE TABLE users (id NUMBER COMMENT "Primary key", name STRING COMMENT "User name", age NUMBER COMMENT "User age") COMMENT "User information table"';
+            const result = executor.execute(sql, [SqlType.DDL]);
+
+            expect(result.success).toBe(true);
+            expect(result.message).toContain("Table 'users' created successfully");
+
+            const tableIdx = executor.getTableIdxByName('users');
+            expect(tableIdx).toBeDefined();
+        });
     });
 
     describe('ALTER TABLE - ADD COLUMN', () => {
@@ -149,6 +182,46 @@ describe('DDL Operations', () => {
 
             const result = executor.execute('SELECT * FROM users', [SqlType.DQL]);
             expect((result.data as any[]).length).toBe(0);
+        });
+    });
+
+    describe('ALTER TABLE - MODIFY COLUMN COMMENT', () => {
+        beforeEach(() => {
+            executor.execute('CREATE TABLE users (id NUMBER, name STRING, age NUMBER)', [SqlType.DDL]);
+        });
+
+        it('should modify column comment', () => {
+            const sql = 'ALTER TABLE users MODIFY COLUMN name STRING COMMENT "Updated comment"';
+            const result = executor.execute(sql, [SqlType.DDL]);
+
+            expect(result.success).toBe(true);
+            expect(result.message).toContain("Column 'name' comment updated in table 'users'");
+        });
+
+        it('should throw error when modifying non-existent column comment', () => {
+            expect(() => {
+                executor.execute('ALTER TABLE users MODIFY COLUMN nonexist STRING COMMENT "Comment"', [SqlType.DDL]);
+            }).toThrow(SqlValidationError);
+        });
+    });
+
+    describe('ALTER TABLE - COMMENT', () => {
+        beforeEach(() => {
+            executor.execute('CREATE TABLE users (id NUMBER, name STRING, age NUMBER) COMMENT "Original comment"', [SqlType.DDL]);
+        });
+
+        it('should modify table comment', () => {
+            const sql = 'ALTER TABLE users COMMENT "Updated table comment"';
+            const result = executor.execute(sql, [SqlType.DDL]);
+
+            expect(result.success).toBe(true);
+            expect(result.message).toContain("Table 'users' comment updated");
+        });
+
+        it('should throw error when modifying non-existent table comment', () => {
+            expect(() => {
+                executor.execute('ALTER TABLE nonexist COMMENT "Comment"', [SqlType.DDL]);
+            }).toThrow(SqlValidationError);
         });
     });
 });

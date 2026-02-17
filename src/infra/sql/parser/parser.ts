@@ -3,6 +3,7 @@ import {
     AlterTableOpType,
     type ColumnDef,
     type ColumnExpression,
+    type CreateTableNode,
     type Expression,
     type JoinClause,
     type OrderByClause,
@@ -141,6 +142,15 @@ export class Parser {
                 column.defaultValue = null;
             } else {
                 throw new Error(`Expected default value at position ${this.current.position}`);
+            }
+        }
+
+        if (this.matchValue('COMMENT')) {
+            if (this.isCurrentType(TokenType.STRING)) {
+                column.comment = this.current.value;
+                this.nextToken();
+            } else {
+                throw new Error(`Expected string value for COMMENT at position ${this.current.position}`);
             }
         }
 
@@ -354,12 +364,23 @@ export class Parser {
 
         this.expectType(TokenType.RPAREN);
 
-        return {
+        const table: CreateTableNode = {
             type: StatementType.CREATE_TABLE,
             tableName,
             columns,
             position: this.current.position
         };
+
+        if (this.matchValue('COMMENT')) {
+            if (this.isCurrentType(TokenType.STRING)) {
+                table.comment = this.current.value;
+                this.nextToken();
+            } else {
+                throw new Error(`Expected string value for COMMENT at position ${this.current.position}`);
+            }
+        }
+
+        return table;
     }
 
     /**
@@ -373,6 +394,7 @@ export class Parser {
         let columnName: string | undefined;
         let columnDef: ColumnDef | undefined;
         let newTableName: string | undefined;
+        let comment: string | undefined;
 
         if (this.matchValue('ADD')) {
             this.expectValue('COLUMN');
@@ -386,8 +408,32 @@ export class Parser {
             this.expectValue('TO');
             opType = AlterTableOpType.RENAME;
             newTableName = this.parseIdentifier();
+        } else if (this.matchValue('MODIFY')) {
+            this.expectValue('COLUMN');
+            opType = AlterTableOpType.MODIFY_COLUMN_COMMENT;
+            columnName = this.parseIdentifier();
+            this.parseFieldType();
+            if (this.matchValue('PRIMARY')) {
+                this.expectValue('KEY');
+            }
+            if (this.matchValue('COMMENT')) {
+                if (this.isCurrentType(TokenType.STRING)) {
+                    comment = this.current.value;
+                    this.nextToken();
+                } else {
+                    throw new Error(`Expected string value for COMMENT at position ${this.current.position}`);
+                }
+            }
+        } else if (this.matchValue('COMMENT')) {
+            opType = AlterTableOpType.ALTER_TABLE_COMMENT;
+            if (this.isCurrentType(TokenType.STRING)) {
+                comment = this.current.value;
+                this.nextToken();
+            } else {
+                throw new Error(`Expected string value for COMMENT at position ${this.current.position}`);
+            }
         } else {
-            throw new Error(`Expected ADD, DROP or RENAME after ALTER TABLE at position ${this.current.position}`);
+            throw new Error(`Expected ADD, DROP, RENAME, MODIFY COLUMN or COMMENT after ALTER TABLE at position ${this.current.position}`);
         }
 
         return {
@@ -397,6 +443,7 @@ export class Parser {
             columnName,
             columnDef,
             newTableName,
+            comment,
             position: this.current.position
         };
     }

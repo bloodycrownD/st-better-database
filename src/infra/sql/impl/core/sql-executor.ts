@@ -182,12 +182,24 @@ export class SimpleSqlExecutor implements SqlExecutor {
         const clonedExecutor = new SimpleSqlExecutor(clonedStorage);
 
         for (const [tableIdx, schema] of this.tableSchemas.entries()) {
+            const clonedColumnSchemas: any = new Map();
+            for (const [fieldIdx, colSchema] of schema.columnSchemas.entries()) {
+                clonedColumnSchemas.set(fieldIdx, {
+                    name: colSchema.name,
+                    type: colSchema.type,
+                    primitiveKey: colSchema.primitiveKey,
+                    defaultValue: colSchema.defaultValue,
+                    comment: colSchema.comment
+                });
+            }
+
             clonedExecutor.tableSchemas.set(tableIdx, {
                 tableName: schema.tableName,
                 id2fieldName: new Map(schema.id2fieldName),
                 fieldName2id: new Map(schema.fieldName2id),
-                columnSchemas: new Map(schema.columnSchemas),
-                counter: schema.counter
+                columnSchemas: clonedColumnSchemas,
+                counter: schema.counter,
+                comment: schema.comment
             });
         }
 

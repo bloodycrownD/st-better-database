@@ -307,6 +307,12 @@ describe('SQLBuilder', () => {
             expect(sql).toBe('CREATE TABLE users (name STRING, age NUMBER)');
         });
 
+        it('should build CREATE TABLE with table comment', () => {
+            const columns = new Map([['name', 'STRING'], ['age', 'NUMBER']]);
+            const sql = SQLBuilder.ddl().createTable('users', columns, 'User information table');
+            expect(sql).toBe('CREATE TABLE users (name STRING, age NUMBER) COMMENT "User information table"');
+        });
+
         it('should build ALTER TABLE ADD COLUMN', () => {
             const sql = SQLBuilder.ddl().alterTableAddColumn('users', 'email', 'STRING');
             expect(sql).toBe('ALTER TABLE users ADD COLUMN email STRING');
@@ -325,6 +331,16 @@ describe('SQLBuilder', () => {
         it('should build DROP TABLE', () => {
             const sql = SQLBuilder.ddl().dropTable('users');
             expect(sql).toBe('DROP TABLE users');
+        });
+
+        it('should build ALTER TABLE MODIFY COLUMN COMMENT', () => {
+            const sql = SQLBuilder.ddl().alterTableModifyColumnComment('users', 'name', 'STRING', 'Updated comment');
+            expect(sql).toBe('ALTER TABLE users MODIFY COLUMN name STRING COMMENT "Updated comment"');
+        });
+
+        it('should build ALTER TABLE COMMENT', () => {
+            const sql = SQLBuilder.ddl().alterTableComment('users', 'Updated table comment');
+            expect(sql).toBe('ALTER TABLE users COMMENT "Updated table comment"');
         });
     });
 });
