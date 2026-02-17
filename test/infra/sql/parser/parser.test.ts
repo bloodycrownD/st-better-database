@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Parser, StatementType } from '../../../../src/infra/sql/parser';
+import { Parser, StatementType } from '../../../../src/infra/sql';
 
 describe('Parser - UPDATE Statement', () => {
     it('should parse UPDATE with WHERE clause', () => {
