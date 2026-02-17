@@ -1,9 +1,9 @@
 import {DatabaseBuilder, type SqlExecutor} from "./sql";
-import {SettingsManager} from "@/infra/extension-setting.ts";
+import {ExtensionSettingManager} from "@/infra/extension-setting-manager.ts";
 
 class Config {
     // 默认是模板数据库
-    tableTemplate: SqlExecutor = SettingsManager.instance.tableTemplate.clone();
+    tableTemplate: SqlExecutor = ExtensionSettingManager.instance.tableTemplate.clone();
 }
 
 export class ChatMetaManager {

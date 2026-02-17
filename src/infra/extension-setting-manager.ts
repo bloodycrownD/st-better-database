@@ -4,21 +4,21 @@ class Config {
     tableTemplate:SqlExecutor = DatabaseBuilder.newExecutor();
 }
 
-export class SettingsManager {
+export class ExtensionSettingManager {
     static readonly MODULE_NAME = 'ST_BETTER_DATABASE';
 
-    private static readonly _instance = new SettingsManager();
+    private static readonly _instance = new ExtensionSettingManager();
 
     private readonly settings = new Config();
 
     private constructor() {
         const {extensionSettings} = SillyTavern.getContext();
 
-        if (!extensionSettings[SettingsManager.MODULE_NAME]) {
-            extensionSettings[SettingsManager.MODULE_NAME] = structuredClone(this.settings);
+        if (!extensionSettings[ExtensionSettingManager.MODULE_NAME]) {
+            extensionSettings[ExtensionSettingManager.MODULE_NAME] = structuredClone(this.settings);
         }
 
-        const moduleSettings = extensionSettings[SettingsManager.MODULE_NAME]!;
+        const moduleSettings = extensionSettings[ExtensionSettingManager.MODULE_NAME]!;
 
         for (const key of Object.keys(this.settings)) {
             if (!Object.prototype.hasOwnProperty.call(moduleSettings, key)) {
@@ -39,7 +39,7 @@ export class SettingsManager {
         SillyTavern.getContext().saveSettingsDebounced();
     }
 
-    public static get instance(): SettingsManager {
-        return SettingsManager._instance;
+    public static get instance(): ExtensionSettingManager {
+        return ExtensionSettingManager._instance;
     }
 }
