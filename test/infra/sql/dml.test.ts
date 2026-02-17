@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { SimpleSqlExecutor } from '../../../src/infra/sql';
 import { SqlType, SqlValidationError } from '../../../src/infra/sql';
 
@@ -7,7 +7,15 @@ describe('DML Operations', () => {
 
     beforeEach(() => {
         executor = new SimpleSqlExecutor();
-        executor.execute('CREATE TABLE users (id NUMBER, name STRING, age NUMBER)', [SqlType.DDL]);
+        const result = executor.execute('CREATE TABLE users (id NUMBER, name STRING, age NUMBER)', [SqlType.DDL]);
+        if (!result.success) {
+            throw new Error(`Failed to create table: ${result.message}`);
+        }
+    });
+
+    afterEach(() => {
+        executor = null as any;
+        if (global.gc) global.gc();
     });
 
     describe('INSERT', () => {

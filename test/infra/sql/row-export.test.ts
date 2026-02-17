@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { SimpleSqlExecutor } from '../../../src/infra/sql';
 import { SqlType, ActionType,ExportFormat } from '../../../src/infra/sql';
 
@@ -10,6 +10,11 @@ describe('Row Conversion and Export', () => {
         executor.execute('CREATE TABLE users (id NUMBER, name STRING, age NUMBER)', [SqlType.DDL]);
         executor.execute('INSERT INTO users (id, name, age) VALUES (1, \'Alice\', 25)', [SqlType.DML]);
         executor.execute('INSERT INTO users (id, name, age) VALUES (2, \'Bob\', 30)', [SqlType.DML]);
+    });
+
+    afterEach(() => {
+        executor = null as any;
+        if (global.gc) global.gc();
     });
 
     describe('dml2row', () => {

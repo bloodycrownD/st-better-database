@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { SimpleSqlExecutor } from '../../../src/infra/sql';
 import { SqlType } from '../../../src/infra/sql';
 
@@ -11,6 +11,11 @@ describe('DQL Operations', () => {
         executor.execute('INSERT INTO users (id, name, age) VALUES (1, \'Alice\', 25)', [SqlType.DML]);
         executor.execute('INSERT INTO users (id, name, age) VALUES (2, \'Bob\', 30)', [SqlType.DML]);
         executor.execute('INSERT INTO users (id, name, age) VALUES (3, \'Charlie\', 35)', [SqlType.DML]);
+    });
+
+    afterEach(() => {
+        executor = null as any;
+        if (global.gc) global.gc();
     });
 
     describe('SELECT - Basic', () => {

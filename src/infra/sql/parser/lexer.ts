@@ -9,7 +9,7 @@ const KEYWORDS = new Set([
     'DROP', 'ADD', 'COLUMN', 'RENAME', 'TO', 'APPEND',
     'AND', 'OR', 'NOT', 'NULL', 'IS', 'BETWEEN', 'IN',
     'ORDER', 'BY', 'ASC', 'DESC', 'INNER', 'LEFT', 'JOIN',
-    'ON', 'DISTINCT', 'STRING', 'NUMBER', 'PRIMARY', 'KEY'
+    'ON', 'DISTINCT', 'STRING', 'NUMBER', 'PRIMARY', 'KEY', 'DEFAULT'
 ]);
 
 /**

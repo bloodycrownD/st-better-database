@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { SimpleSqlExecutor } from '../../../src/infra/sql';
 import { SqlType, SqlValidationError } from '../../../src/infra/sql';
 
@@ -7,6 +7,11 @@ describe('DDL Operations', () => {
 
     beforeEach(() => {
         executor = new SimpleSqlExecutor();
+    });
+
+    afterEach(() => {
+        executor = null as any;
+        if (global.gc) global.gc();
     });
 
     describe('CREATE TABLE', () => {

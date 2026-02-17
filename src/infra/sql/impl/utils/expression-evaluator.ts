@@ -55,16 +55,21 @@ export class ExpressionEvaluator {
                     return Boolean(left) && Boolean(right);
                 case 'OR':
                     return Boolean(left) || Boolean(right);
+                case 'IS':
+                    return left === right;
+                case 'IS NOT':
+                    return left !== right;
                 default:
                     throw new Error(`Unknown operator: ${expr.operator}`);
             }
         }
 
         if (expr.type === 'null') {
-            if (row === null) {
-                throw new Error('Cannot evaluate null expression without row context');
+            // Check if this is a simple NULL value (from parser: {type: 'null', value: {type: 'value', value: null}})
+            if (expr.value && expr.value.type === 'value' && expr.value.value === null) {
+                return null;
             }
-
+            // Otherwise, this is an IS NULL / IS NOT NULL expression
             const value = this.evaluateExpression(expr.value, schema, tableIdx, row);
             return expr.not ? value !== null : value === null;
         }

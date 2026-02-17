@@ -25,6 +25,7 @@ export class DmlExecutor {
         for (const valueRow of stmt.values) {
             const rowData = new Map<number, any>();
 
+            const providedColumns = new Map<string, number>();
             for (let i = 0; i < stmt.columns.length; i++) {
                 const colName = stmt.columns[i];
                 const fieldIdx = schema.fieldName2id.get(colName);
@@ -34,15 +35,24 @@ export class DmlExecutor {
                         `INSERT INTO ${tableName}`
                     );
                 }
+                providedColumns.set(colName, i);
+            }
 
-                const colSchema = schema.columnSchemas.get(fieldIdx)!;
-                const expr = valueRow[i];
-                const value = this.expressionEvaluator.evaluateExpression(expr, schema, tableIdx, null);
+            for (const [fieldIdx, colSchema] of schema.columnSchemas.entries()) {
+                const colName = colSchema.name;
+                const providedIdx = providedColumns.get(colName);
 
-                if (value === null && colSchema.defaultValue !== undefined) {
+                if (providedIdx !== undefined) {
+                    const expr = valueRow[providedIdx];
+                    const value = this.expressionEvaluator.evaluateExpression(expr, schema, tableIdx, null);
+
+                    if (value === null && colSchema.defaultValue !== undefined) {
+                        rowData.set(fieldIdx, colSchema.defaultValue);
+                    } else {
+                        rowData.set(fieldIdx, value);
+                    }
+                } else if (colSchema.defaultValue !== undefined) {
                     rowData.set(fieldIdx, colSchema.defaultValue);
-                } else {
-                    rowData.set(fieldIdx, value);
                 }
             }
 
@@ -69,7 +79,7 @@ export class DmlExecutor {
         const data = this.dataStorage.getTableData(tableIdx);
 
         for (const row of data) {
-            const matchWhere = stmt.where === null || this.expressionEvaluator.evaluateWhere(stmt.where, schema, tableIdx, row);
+            const matchWhere = stmt.where === undefined || stmt.where === null || this.expressionEvaluator.evaluateWhere(stmt.where, schema, tableIdx, row);
             if (matchWhere) {
                 for (const set of stmt.sets) {
                     const fieldIdx = schema.fieldName2id.get(set.column);
@@ -106,7 +116,7 @@ export class DmlExecutor {
         const newData: RowData[] = [];
 
         for (const row of data) {
-            const matchWhere = stmt.where === null || this.expressionEvaluator.evaluateWhere(stmt.where, schema, tableIdx, row);
+            const matchWhere = stmt.where === undefined || stmt.where === null || this.expressionEvaluator.evaluateWhere(stmt.where, schema, tableIdx, row);
             if (!matchWhere) {
                 newData.push(row);
             }
@@ -149,9 +159,12 @@ export class DmlExecutor {
         const data = this.dataStorage.getTableData(tableIdx);
 
         for (const row of data) {
-            const currentValue = row.get(fieldIdx) as string || '';
+            let currentValue = row.get(fieldIdx);
+            if (currentValue === null || currentValue === undefined) {
+                currentValue = '';
+            }
             const appendValue = this.expressionEvaluator.evaluateExpression(stmt.value, schema, tableIdx, row) as string;
-            row.set(fieldIdx, currentValue + appendValue);
+            row.set(fieldIdx, (currentValue as string) + appendValue);
             affectedRows++;
         }
 

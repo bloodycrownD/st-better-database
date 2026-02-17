@@ -50,7 +50,7 @@ export class Parser {
      * 检查当前Token值
      */
     private isCurrentValue(value: string): boolean {
-        return this.current.type === TokenType.KEYWORD && this.current.value === value;
+        return (this.current.type === TokenType.KEYWORD || this.current.type === TokenType.OPERATOR) && this.current.value === value;
     }
 
     /**
@@ -131,17 +131,17 @@ export class Parser {
         }
 
         if (this.matchValue('DEFAULT')) {
-            const token = this.current;
             if (this.isCurrentType(TokenType.STRING)) {
-                column.defaultValue = token.value;
+                column.defaultValue = this.current.value;
+                this.nextToken();
             } else if (this.isCurrentType(TokenType.NUMBER)) {
-                column.defaultValue = Number(token.value);
+                column.defaultValue = Number(this.current.value);
+                this.nextToken();
             } else if (this.matchValue('NULL')) {
                 column.defaultValue = null;
             } else {
                 throw new Error(`Expected default value at position ${this.current.position}`);
             }
-            this.nextToken();
         }
 
         return column;
@@ -225,11 +225,13 @@ export class Parser {
                 if (right.type === 'null') {
                     return {type: 'null', value: left, not: true};
                 }
+                return {type: 'binary', operator: 'IS NOT', left, right};
             } else {
                 const right = this.parseAdditive();
                 if (right.type === 'null') {
                     return {type: 'null', value: left};
                 }
+                return {type: 'binary', operator: 'IS', left, right};
             }
         }
 
@@ -288,7 +290,7 @@ export class Parser {
             return {type: 'null', value: {type: 'value', value: null}};
         }
 
-        if (this.isCurrentType(TokenType.IDENTIFIER)) {
+        if (this.isCurrentType(TokenType.IDENTIFIER) || this.isCurrentType(TokenType.KEYWORD)) {
             return this.parseColumnExpression();
         }
 
@@ -453,16 +455,16 @@ export class Parser {
         this.expectValue('SET');
 
         const sets: SetClause[] = [];
-        sets.push({
-            column: this.parseIdentifier(),
-            value: this.parseExpression()
-        });
+        const column = this.parseIdentifier();
+        this.expectValue('=');
+        const value = this.parseExpression();
+        sets.push({column, value});
 
         while (this.matchValue(',')) {
-            sets.push({
-                column: this.parseIdentifier(),
-                value: this.parseExpression()
-            });
+            const col = this.parseIdentifier();
+            this.expectValue('=');
+            const val = this.parseExpression();
+            sets.push({column: col, value: val});
         }
 
         let where: Expression | undefined;
