@@ -1,0 +1,39 @@
+{
+  "testTable": {
+    "tableName": "users",
+    "id2fieldName": {
+      "0": "id",
+      "1": "name",
+      "2": "age"
+    },
+    "fieldName2id": {
+      "id": 0,
+      "name": 1,
+      "age": 2
+    },
+    "columnSchemas": {
+      "0": {
+        "name": "id",
+        "type": "NUMBER",
+        "primitiveKey": true,
+        "defaultValue": null,
+        "comment": ""
+      },
+      "1": {
+        "name": "name",
+        "type": "STRING",
+        "primitiveKey": false,
+        "defaultValue": null,
+        "comment": ""
+      },
+      "2": {
+        "name": "age",
+        "type": "NUMBER",
+        "primitiveKey": false,
+        "defaultValue": null,
+        "comment": ""
+      }
+    },
+    "counter": 3
+  }
+}

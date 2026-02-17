@@ -1,4 +1,4 @@
-import { createApp } from 'vue'
+import {createApp} from 'vue'
 import MainView from './app/pages/MainView.vue'
 
 

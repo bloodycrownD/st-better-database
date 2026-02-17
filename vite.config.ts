@@ -8,8 +8,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-      '@st-core': fileURLToPath(new URL('../../../../', import.meta.url)),
-      '@st-scripts': fileURLToPath(new URL('../../../', import.meta.url)),
     },
   },
   define: {
@@ -25,19 +23,7 @@ export default defineConfig({
     cssCodeSplit: false,
     rollupOptions: {
       output: {
-        inlineDynamicImports: true,
-        paths: (id) => {
-          if (id === '@st-core/script.js') {
-            return '/script.js'
-          }
-          if (id === '@st-scripts/extensions.js') {
-            return '/scripts/extensions.js'
-          }
-          if (id === '@st-scripts/popup.js') {
-            return '/scripts/popup.js'
-          }
-          return id
-        },
+        inlineDynamicImports: true
       },
       external: [/^@st-core\/.*/, /^@st-scripts\/.*/],
     },
