@@ -1,41 +1,95 @@
 <template>
   <div class="form-container">
     <div class="form-item">
-      <label class="form-label">新列名</label>
-      <input v-model="newColumnName" class="form-input" type="text" placeholder="请输入新列名" />
+      <label class="form-label">当前列名</label>
+      <input :value="column.name" class="form-input" type="text" disabled />
     </div>
+
+    <div class="form-item">
+      <label class="form-label">
+        新列名
+        <span class="required">*</span>
+      </label>
+      <input
+        v-model="newColumnName"
+        class="form-input"
+        :class="{ 'has-error': getFieldError('columnName') }"
+        type="text"
+        placeholder="请输入新列名"
+      />
+      <div v-if="getFieldError('columnName')" class="field-error">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        {{ getFieldError('columnName') }}
+      </div>
+      <div class="field-hint">只能包含字母、数字和下划线，不能以数字开头</div>
+    </div>
+
     <div class="form-actions">
       <Button @click="handleCancel">取消</Button>
-      <Button @click="handleSave">保存</Button>
+      <Button type="primary" :disabled="isSubmitting || !hasChanged" @click="handleSave">
+        <i v-if="isSubmitting" class="fa-solid fa-spinner fa-spin"></i>
+        <span>保存</span>
+      </Button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue';
+import {computed, ref, watch} from 'vue';
 import Button from '../../shared/Button.vue';
 import type {ColumnSchema} from '@/infra/sql';
+import {useFormValidation} from '../../../composables/useFormValidation';
 
-const props = defineProps<{
+interface Props {
   column: ColumnSchema;
-}>();
+  existingColumns?: ColumnSchema[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  existingColumns: () => []
+});
 
 const emit = defineEmits<{
   save: [newName: string];
   cancel: [];
 }>();
 
-const newColumnName = ref('');
+const {getFieldError, validateEditColumnNameForm, clearErrors} = useFormValidation();
+const isSubmitting = ref(false);
+const newColumnName = ref(props.column.name);
+
+const hasChanged = computed(() => {
+  return newColumnName.value.trim() !== props.column.name;
+});
+
+// 当 props.column 变化时更新
+watch(() => props.column, (newVal) => {
+  newColumnName.value = newVal.name;
+  clearErrors();
+}, {deep: true});
 
 const handleSave = () => {
-  if (!newColumnName.value) {
-    alert('请输入新列名');
+  clearErrors();
+  isSubmitting.value = true;
+
+  const result = validateEditColumnNameForm(
+    newColumnName.value,
+    props.column.name,
+    props.existingColumns
+  );
+
+  if (!result.valid) {
+    isSubmitting.value = false;
     return;
   }
-  emit('save', newColumnName.value);
+
+  emit('save', newColumnName.value.trim());
+  isSubmitting.value = false;
 };
 
 const handleCancel = () => {
+  newColumnName.value = props.column.name;
+  clearErrors();
   emit('cancel');
 };
 </script>
@@ -57,6 +111,10 @@ const handleCancel = () => {
   color: var(--SmartThemeBodyColor);
 }
 
+.required {
+  color: #ef4444;
+}
+
 .form-input {
   width: 100%;
   padding: 10px 12px;
@@ -66,10 +124,11 @@ const handleCancel = () => {
   color: var(--SmartThemeBodyColor);
   font-size: 14px;
   outline: none;
-  transition: border-color 0.2s;
+  transition: all 0.2s;
 
   &:focus {
     border-color: var(--SmartThemeBorderColor);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--SmartThemeBorderColor) 30%, transparent);
   }
 
   &::placeholder {
@@ -79,7 +138,35 @@ const handleCancel = () => {
   &:disabled {
     background: color-mix(in srgb, var(--SmartThemeBorderColor) 30%, transparent);
     cursor: not-allowed;
+    color: color-mix(in srgb, var(--SmartThemeBodyColor) 50%, transparent);
   }
+
+  &.has-error {
+    border-color: #ef4444;
+
+    &:focus {
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+    }
+  }
+}
+
+.field-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #ef4444;
+  margin-top: 6px;
+
+  i {
+    font-size: 14px;
+  }
+}
+
+.field-hint {
+  font-size: 12px;
+  color: color-mix(in srgb, var(--SmartThemeBodyColor) 50%, transparent);
+  margin-top: 6px;
 }
 
 .form-actions {
@@ -87,5 +174,22 @@ const handleCancel = () => {
   gap: 12px;
   justify-content: flex-end;
   margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--SmartThemeBorderColor);
+}
+
+// 移动端适配
+@media (max-width: 768px) {
+  .form-container {
+    padding: 16px;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+
+    > * {
+      width: 100%;
+    }
+  }
 }
 </style>

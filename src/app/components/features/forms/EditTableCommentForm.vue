@@ -2,11 +2,21 @@
   <div class="form-container">
     <div class="form-item">
       <label class="form-label">表注释</label>
-      <textarea v-model="comment" class="form-textarea" rows="3" placeholder="请输入表注释（可选）"></textarea>
+      <textarea
+        v-model="comment"
+        class="form-textarea"
+        rows="4"
+        placeholder="请输入表注释（可选）"
+        maxlength="500"
+      ></textarea>
+      <div class="char-count">{{ comment.length }}/500</div>
     </div>
     <div class="form-actions">
       <Button @click="handleCancel">取消</Button>
-      <Button @click="handleSave">保存</Button>
+      <Button type="primary" :disabled="isSubmitting" @click="handleSave">
+        <i v-if="isSubmitting" class="fa-solid fa-spinner fa-spin"></i>
+        <span>保存</span>
+      </Button>
     </div>
   </div>
 </template>
@@ -25,12 +35,16 @@ const emit = defineEmits<{
 }>();
 
 const comment = ref(props.comment || '');
+const isSubmitting = ref(false);
 
 const handleSave = () => {
+  isSubmitting.value = true;
   emit('save', comment.value);
+  isSubmitting.value = false;
 };
 
 const handleCancel = () => {
+  comment.value = props.comment || '';
   emit('cancel');
 };
 </script>
@@ -62,10 +76,13 @@ const handleCancel = () => {
   font-size: 14px;
   outline: none;
   resize: vertical;
-  transition: border-color 0.2s;
+  min-height: 80px;
+  transition: all 0.2s;
+  font-family: inherit;
 
   &:focus {
     border-color: var(--SmartThemeBorderColor);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--SmartThemeBorderColor) 30%, transparent);
   }
 
   &::placeholder {
@@ -73,10 +90,34 @@ const handleCancel = () => {
   }
 }
 
+.char-count {
+  text-align: right;
+  font-size: 12px;
+  color: color-mix(in srgb, var(--SmartThemeBodyColor) 50%, transparent);
+  margin-top: 6px;
+}
+
 .form-actions {
   display: flex;
   gap: 12px;
   justify-content: flex-end;
   margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--SmartThemeBorderColor);
+}
+
+// 移动端适配
+@media (max-width: 768px) {
+  .form-container {
+    padding: 16px;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+
+    > * {
+      width: 100%;
+    }
+  }
 }
 </style>

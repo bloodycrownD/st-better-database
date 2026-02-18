@@ -24,8 +24,10 @@
           <template #template>
             <TemplateManagementTab
               :table-service="tableManagementService"
+              :tables="tables"
               :selected-table="selectedTable"
               @refresh="refreshTables"
+              @update:selected-table="handleTableSelect"
             />
           </template>
           <template #sql>
