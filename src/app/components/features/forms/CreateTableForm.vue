@@ -22,6 +22,7 @@
             <span>主键</span>
           </label>
           <input v-model="column.defaultValue" class="form-input column-default" type="text" placeholder="默认值（可选）" />
+          <input v-model="column.comment" class="form-input column-comment" type="text" placeholder="注释（可选）" />
           <button class="remove-btn" @click="removeColumn(index)">
             <i class="fa-solid fa-trash"></i>
           </button>
@@ -60,7 +61,8 @@ const addColumn = () => {
   formData.columns.push({
     name: '',
     type: FieldType.STRING,
-    primitiveKey: false
+    primitiveKey: false,
+    comment: ''
   });
 };
 
@@ -153,6 +155,10 @@ const handleCancel = () => {
 }
 
 .column-default {
+  flex: 2;
+}
+
+.column-comment {
   flex: 2;
 }
 

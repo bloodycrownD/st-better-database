@@ -29,7 +29,7 @@
             />
           </template>
           <template #sql>
-            <SqlPanelTab :sql-executor-service="sqlExecutorService" />
+            <SqlPanelTab :sql-executor-service="sqlExecutorService" @refresh="refreshTables" />
           </template>
         </TabContainer>
       </TableDrawerLayout>

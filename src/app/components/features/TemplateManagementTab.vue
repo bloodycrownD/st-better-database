@@ -74,7 +74,7 @@
               <div v-if="column.comment" class="column-comment">{{ column.comment }}</div>
             </div>
             <div class="column-actions">
-              <Button v-if="column.comment" size="small" @click="openEditColumnCommentModal(fieldId, column)">
+              <Button size="small" @click="openEditColumnCommentModal(fieldId, column)">
                 <i class="fa-solid fa-comment"></i>
               </Button>
               <Button type="danger" size="small" @click="openDropColumnModal(fieldId, column)">
@@ -157,6 +157,7 @@ const currentTable = computed<TableSchema>(() => {
 });
 
 const columnList = computed<Array<[number, ColumnSchema]>>(() => {
+  if (!currentTable.value.columnSchemas) return [];
   return Array.from(currentTable.value.columnSchemas.entries());
 });
 
@@ -184,7 +185,7 @@ const formatValue = (value: any): string => {
 };
 
 const handleCreateTable = (data: {tableName: string; columns: ColumnSchema[]; comment?: string}) => {
-  props.tableService.createTable(data.tableName, data.columns);
+  props.tableService.createTable(data.tableName, data.columns, data.comment);
   showCreateTableModal.value = false;
   emit('refresh');
 };
@@ -265,7 +266,7 @@ const handleDropColumn = () => {
 
 const handleExportDDL = () => {
   if (currentTable.value.tableName) {
-    exportedDDL.value = props.tableService.export(currentTable.value.tableName);
+    exportedDDL.value = props.tableService.exportDDL(currentTable.value.tableName);
     showDDLModal.value = true;
   }
 };

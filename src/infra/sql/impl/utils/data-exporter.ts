@@ -1,5 +1,5 @@
 import type {Row, RowData, TableSchema} from '@/infra/sql';
-import {ActionType, ExportFormat, SqlExecutionError} from '@/infra/sql';
+import {ActionType, ExportFormat, SqlExecutionError, SQLBuilder} from '@/infra/sql';
 import type {DataStorage} from '@/infra/sql';
 import {MarkdownExporter} from './markdown';
 
@@ -44,6 +44,8 @@ export class DataExporter {
                 return this.exportAsRowJson(schema, data, tableIdx);
             case ExportFormat.TABLE_SCHEMA:
                 return JSON.stringify(schema, null, 2);
+            case ExportFormat.DDL:
+                return this.exportAsDDL(schema);
             case ExportFormat.MARKDOWN:
                 return this.exportAsMarkdown(schema, data);
             default:
@@ -95,5 +97,24 @@ export class DataExporter {
 
     private exportAsMarkdown(schema: TableSchema, data: RowData[]): string {
         return MarkdownExporter.exportTable(schema, data);
+    }
+
+    private exportAsDDL(schema: TableSchema): string {
+        const columnDefs = new Map<string, string>();
+        const columnComments = new Map<string, string>();
+        for (const [fieldIdx] of schema.id2fieldName.entries()) {
+            const colSchema = schema.columnSchemas.get(fieldIdx);
+            if (colSchema) {
+                const typeDef = colSchema.type + (colSchema.primitiveKey ? ' PRIMARY KEY' : '');
+                columnDefs.set(colSchema.name, typeDef);
+                console.log('[Exporter] Column:', colSchema.name, 'Comment:', colSchema.comment);
+                if (colSchema.comment) {
+                    columnComments.set(colSchema.name, colSchema.comment);
+                }
+            }
+        }
+        console.log('[Exporter] Table:', schema.tableName, 'Comment:', schema.comment);
+        console.log('[Exporter] ColumnComments:', columnComments);
+        return SQLBuilder.ddl().createTable(schema.tableName, columnDefs, schema.comment, columnComments);
     }
 }

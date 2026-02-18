@@ -9,6 +9,8 @@ export enum ExportFormat {
     ROW_JSON = 'ROW_JSON',
     /** 表结构定义 */
     TABLE_SCHEMA = 'TABLE_SCHEMA',
+    /** DDL语句格式 */
+    DDL = 'DDL',
     /** MARKDOWN 格式 */
     MARKDOWN = 'MARKDOWN',
 }

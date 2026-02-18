@@ -40,6 +40,10 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const emit = defineEmits<{
+  refresh: [];
+}>();
+
 const sqlText = ref('');
 const result = ref<SqlResult>({success: false, message: '', data: 0, type: 'DQL' as any});
 
@@ -68,6 +72,9 @@ const handleExecute = () => {
   }
   try {
     result.value = props.sqlExecutorService.execute(sqlText.value);
+    if (result.value.success) {
+      emit('refresh');
+    }
   } catch (error) {
     result.value = {
       success: false,

@@ -332,19 +332,29 @@ export class AppendWrapper extends AbstractWrapper<AppendWrapper> {
 }
 
 export class DDLBuilder {
-    static createTable(tableName: string, columns: Map<string, string>, comment?: string): string {
+    static createTable(tableName: string, columns: Map<string, string>, comment?: string, columnComments?: Map<string, string>): string {
         const columnDefs = Array.from(columns.entries())
-            .map(([name, type]) => `${name} ${type}`)
-            .join(', ');
-        let sql = `CREATE TABLE ${tableName} (${columnDefs})`;
+            .map(([name, type]) => {
+                let colDef = `    ${name} ${type}`;
+                if (columnComments && columnComments.has(name)) {
+                    colDef += ` COMMENT ${this.formatValue(columnComments.get(name)!)}`;
+                }
+                return colDef;
+            })
+            .join(',\n');
+        let sql = `CREATE TABLE ${tableName} (\n${columnDefs}\n)`;
         if (comment) {
             sql += ` COMMENT ${this.formatValue(comment)}`;
         }
         return sql;
     }
 
-    static alterTableAddColumn(tableName: string, columnName: string, columnType: string): string {
-        return `ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${columnType}`;
+    static alterTableAddColumn(tableName: string, columnName: string, columnType: string, comment?: string): string {
+        let sql = `ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${columnType}`;
+        if (comment) {
+            sql += ` COMMENT ${this.formatValue(comment)}`;
+        }
+        return sql;
     }
 
     static alterTableDropColumn(tableName: string, columnName: string): string {

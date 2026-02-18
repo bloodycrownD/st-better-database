@@ -6,9 +6,10 @@ export interface TableManagementService {
      * 创建表
      * @param tableName 表名
      * @param columns 列定义
+     * @param comment 表注释
      * @returns 创建结果
      */
-    createTable(tableName: string, columns: Array<ColumnSchema>): SqlResult;
+    createTable(tableName: string, columns: Array<ColumnSchema>, comment?: string): SqlResult;
 
     /**
      * 删除表
@@ -62,12 +63,20 @@ export interface TableManagementService {
      * @param comment
      */
     alterTableComment(tableName: string, comment: string): SqlResult;
+
     /**
-     * 导出建表语句
+     * 导出表数据
+     * @param tableName 表名
+     * @returns INSERT SQL语句
+     */
+    exportData(tableName: string): string;
+
+    /**
+     * 导出表DDL
      * @param tableName 表名
      * @returns CREATE TABLE SQL语句
      */
-    export(tableName: string): string;
+    exportDDL(tableName: string): string;
 
     /**
      * 获取所有表

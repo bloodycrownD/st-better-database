@@ -5,14 +5,17 @@ import type {TableManagementService} from "@/service/interfaces/table-management
 export abstract class AbstractTableManagementService implements TableManagementService{
     abstract get executor():SqlExecutor;
 
-    createTable(tableName: string, columns: Array<ColumnSchema>): SqlResult {
+    createTable(tableName: string, columns: Array<ColumnSchema>, comment?: string): SqlResult {
         const columnDefs = new Map<string, string>();
+        const columnComments = new Map<string, string>();
         columns.forEach(col => {
             const typeDef = col.type + (col.primitiveKey ? ' PRIMARY KEY' : '');
             columnDefs.set(col.name, typeDef);
+            if (col.comment) {
+                columnComments.set(col.name, col.comment);
+            }
         });
-        const comment = columns.find(col => col.comment)?.comment;
-        const sql = SQLBuilder.ddl().createTable(tableName, columnDefs, comment);
+        const sql = SQLBuilder.ddl().createTable(tableName, columnDefs, comment, columnComments);
         return this.executor.execute(sql, [SqlType.DDL]);
     }
 
@@ -23,7 +26,8 @@ export abstract class AbstractTableManagementService implements TableManagementS
 
     addColumn(tableName: string, columnName: string, columnType: ColumnSchema): SqlResult {
         const typeDef = columnType.type + (columnType.primitiveKey ? ' PRIMARY KEY' : '');
-        const sql = SQLBuilder.ddl().alterTableAddColumn(tableName, columnName, typeDef);
+        const sql = SQLBuilder.ddl().alterTableAddColumn(tableName, columnName, typeDef, columnType.comment);
+        console.log('[TableService] ADD COLUMN SQL:', sql);
         return this.executor.execute(sql, [SqlType.DDL]);
     }
 
@@ -61,8 +65,12 @@ export abstract class AbstractTableManagementService implements TableManagementS
         return this.executor.execute(sql, [SqlType.DDL]);
     }
 
-    export(tableName: string): string {
-        return this.executor.export(ExportFormat.TABLE_SCHEMA, tableName);
+    exportData(tableName: string): string {
+        return this.executor.export(ExportFormat.INSERT_SQL, tableName);
+    }
+
+    exportDDL(tableName: string): string {
+        return this.executor.export(ExportFormat.DDL, tableName);
     }
 
     getTables(): TableSchema[] {

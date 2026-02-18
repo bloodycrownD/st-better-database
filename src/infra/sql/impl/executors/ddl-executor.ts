@@ -20,6 +20,9 @@ export class DdlExecutor {
         const tableIdx = this.allocateTableIdx();
         const columns = stmt.columns;
 
+        console.log('[DDL] Create Table columns:', columns);
+        console.log('[DDL] Table comment:', stmt.comment);
+
         const id2fieldName = new Map<number, string>();
         const fieldName2id = new Map<string, number>();
         const columnSchemas = new Map<number, ColumnSchema>();
@@ -29,13 +32,15 @@ export class DdlExecutor {
             const fieldIdx = counter++;
             id2fieldName.set(fieldIdx, col.name);
             fieldName2id.set(col.name, fieldIdx);
-            columnSchemas.set(fieldIdx, {
+            const colSchema = {
                 name: col.name,
                 type: col.type,
                 primitiveKey: col.primitiveKey || false,
                 defaultValue: col.defaultValue,
-                comment: ''
-            });
+                comment: col.comment || ''
+            };
+            console.log('[DDL] Creating column:', colSchema);
+            columnSchemas.set(fieldIdx, colSchema);
         }
 
         const schema: TableSchema = {
@@ -43,7 +48,8 @@ export class DdlExecutor {
             id2fieldName,
             fieldName2id,
             columnSchemas,
-            counter
+            counter,
+            comment: stmt.comment || ''
         };
 
         this.tableSchemas.set(tableIdx, schema);
@@ -66,6 +72,7 @@ export class DdlExecutor {
             case 'ADD_COLUMN':
                 if (stmt.columnDef) {
                     const colDef = stmt.columnDef;
+                    console.log('[DDL] ADD COLUMN:', colDef);
                     if (schema.fieldName2id.has(colDef.name)) {
                         throw new SqlValidationError(
                             `Column '${colDef.name}' already exists in table '${tableName}'`,
@@ -76,13 +83,15 @@ export class DdlExecutor {
                     const fieldIdx = schema.counter++;
                     schema.id2fieldName.set(fieldIdx, colDef.name);
                     schema.fieldName2id.set(colDef.name, fieldIdx);
-                    schema.columnSchemas.set(fieldIdx, {
+                    const colSchema = {
                         name: colDef.name,
                         type: colDef.type,
                         primitiveKey: colDef.primitiveKey || false,
                         defaultValue: colDef.defaultValue,
                         comment: colDef.comment || ''
-                    });
+                    };
+                    console.log('[DDL] Created column schema:', colSchema);
+                    schema.columnSchemas.set(fieldIdx, colSchema);
 
                     return {
                         success: true,
@@ -180,6 +189,7 @@ export class DdlExecutor {
                 if (stmt.columnName && stmt.comment !== undefined) {
                     const colName = stmt.columnName;
                     const fieldIdx = schema.fieldName2id.get(colName);
+                    console.log('[DDL] ALTER COLUMN COMMENT:', {tableName, colName, comment: stmt.comment, fieldIdx});
                     if (fieldIdx === undefined) {
                         throw new SqlValidationError(
                             `Column '${colName}' does not exist in table '${tableName}'`,
@@ -190,6 +200,7 @@ export class DdlExecutor {
                     const columnSchema = schema.columnSchemas.get(fieldIdx);
                     if (columnSchema) {
                         columnSchema.comment = stmt.comment;
+                        console.log('[DDL] Column schema updated:', columnSchema);
                     }
 
                     return {

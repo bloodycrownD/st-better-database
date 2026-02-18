@@ -1,10 +1,6 @@
 <template>
   <div class="form-container">
     <div class="form-item">
-      <label class="form-label">当前列名</label>
-      <input :value="column.name" class="form-input" type="text" disabled />
-    </div>
-    <div class="form-item">
       <label class="form-label">新列名</label>
       <input v-model="newColumnName" class="form-input" type="text" placeholder="请输入新列名" />
     </div>
