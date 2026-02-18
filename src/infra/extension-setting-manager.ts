@@ -4,6 +4,22 @@ class Config {
     tableTemplate:SqlExecutor = DatabaseBuilder.newExecutor();
 }
 
+export function createAutoSaveProxy(executor: SqlExecutor, onSave: () => void): SqlExecutor {
+    return new Proxy(executor, {
+        get(target, prop) {
+            const value = (target as any)[prop];
+            if (typeof value === 'function' &&prop === 'execute') {
+                return function (...args: any[]) {
+                    const result = value.apply(target, args);
+                    onSave();
+                    return result;
+                };
+            }
+            return value;
+        }
+    });
+}
+
 export class ExtensionSettingManager {
     static readonly MODULE_NAME = 'ST_BETTER_DATABASE';
 
@@ -30,7 +46,9 @@ export class ExtensionSettingManager {
     }
 
     get tableTemplate() {
-        return this.settings.tableTemplate;
+        return createAutoSaveProxy(this.settings.tableTemplate, () => {
+            SillyTavern.getContext().saveSettingsDebounced();
+        });
     }
 
     set tableTemplate(v: SqlExecutor) {

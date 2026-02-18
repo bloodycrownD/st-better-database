@@ -1,5 +1,5 @@
 import {DatabaseBuilder, type SqlExecutor} from "./sql";
-import {ExtensionSettingManager} from "@/infra/extension-setting-manager.ts";
+import {createAutoSaveProxy, ExtensionSettingManager} from "@/infra/extension-setting-manager.ts";
 
 class Config {
     // 默认是模板数据库
@@ -34,7 +34,9 @@ export class ChatMetaManager {
     }
 
     get tableTemplate() {
-        return this.getMetadata().tableTemplate;
+        return createAutoSaveProxy(this.getMetadata().tableTemplate, () => {
+            SillyTavern.getContext().saveSettingsDebounced();
+        });
     }
 
     set tableTemplate(v: SqlExecutor) {
