@@ -1,9 +1,5 @@
 import {DatabaseBuilder, type SqlExecutor} from "./sql";
 
-class Config {
-    tableTemplate:SqlExecutor = DatabaseBuilder.newExecutor();
-}
-
 export function createAutoSaveProxy(executor: SqlExecutor, onSave: () => void): SqlExecutor {
     return new Proxy(executor, {
         get(target, prop) {
@@ -25,35 +21,30 @@ export class ExtensionSettingManager {
 
     private static readonly _instance = new ExtensionSettingManager();
 
-    private readonly settings = new Config();
+    private _tableTemplateCache: SqlExecutor | null = null;
 
     private constructor() {
         const {extensionSettings} = SillyTavern.getContext();
 
         if (!extensionSettings[ExtensionSettingManager.MODULE_NAME]) {
-            extensionSettings[ExtensionSettingManager.MODULE_NAME] = structuredClone(this.settings);
+            extensionSettings[ExtensionSettingManager.MODULE_NAME] = {
+                tableTemplate: null
+            };
         }
-
-        const moduleSettings = extensionSettings[ExtensionSettingManager.MODULE_NAME]!;
-
-        for (const key of Object.keys(this.settings)) {
-            if (!Object.prototype.hasOwnProperty.call(moduleSettings, key)) {
-                moduleSettings[key] = this.settings[key as keyof typeof this.settings];
-            }
-        }
-
-        this.settings = moduleSettings as typeof this.settings;
     }
 
     get tableTemplate() {
-        return createAutoSaveProxy(this.settings.tableTemplate, () => {
+        if (!this._tableTemplateCache) {
+            this._tableTemplateCache = DatabaseBuilder.newExecutor();
+        }
+        return createAutoSaveProxy(this._tableTemplateCache, () => {
             SillyTavern.getContext().saveSettingsDebounced();
         });
     }
 
     set tableTemplate(v: SqlExecutor) {
         v.setDataStorage(DatabaseBuilder.newStorage());
-        this.settings.tableTemplate = v;
+        this._tableTemplateCache = v;
         SillyTavern.getContext().saveSettingsDebounced();
     }
 

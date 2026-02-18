@@ -1,48 +1,35 @@
 import {ChatSqlExecutor, type SqlExecutor} from "./sql";
 import {createAutoSaveProxy, ExtensionSettingManager} from "@/infra/extension-setting-manager.ts";
 
-class Config {
-    // 默认是模板数据库
-    tableTemplate: SqlExecutor = new ChatSqlExecutor(ExtensionSettingManager.instance.tableTemplate);
-}
-
 export class ChatMetaManager {
     static readonly MODULE_NAME = 'ST_BETTER_DATABASE';
 
     private static readonly _instance = new ChatMetaManager();
 
-    private readonly defaultSettings = new Config();
+    private _tableTemplateCache: SqlExecutor | null = null;
 
-    private constructor() {}
-
-    private getMetadata() {
+    private constructor() {
         const { chatMetadata } = SillyTavern.getContext();
 
         if (!chatMetadata[ChatMetaManager.MODULE_NAME]) {
-            chatMetadata[ChatMetaManager.MODULE_NAME] = structuredClone(this.defaultSettings);
+            chatMetadata[ChatMetaManager.MODULE_NAME] = {
+                tableTemplate: null
+            };
         }
-
-        const moduleMetadata = chatMetadata[ChatMetaManager.MODULE_NAME]!;
-
-        for (const key of Object.keys(this.defaultSettings)) {
-            if (!Object.prototype.hasOwnProperty.call(moduleMetadata, key)) {
-                moduleMetadata[key] = this.defaultSettings[key as keyof typeof this.defaultSettings];
-            }
-        }
-
-        return moduleMetadata as typeof this.defaultSettings;
     }
 
     get tableTemplate() {
-        return createAutoSaveProxy(this.getMetadata().tableTemplate, () => {
+        if (!this._tableTemplateCache) {
+            const template = ExtensionSettingManager.instance.tableTemplate;
+            this._tableTemplateCache = new ChatSqlExecutor(template);
+        }
+        return createAutoSaveProxy(this._tableTemplateCache, () => {
             SillyTavern.getContext().saveSettingsDebounced();
         });
     }
 
     set tableTemplate(v: SqlExecutor) {
-        //清空数据
-        const metadata = this.getMetadata();
-        metadata.tableTemplate = new ChatSqlExecutor(v);
+        this._tableTemplateCache = new ChatSqlExecutor(v);
         SillyTavern.getContext().saveMetadata();
     }
 
