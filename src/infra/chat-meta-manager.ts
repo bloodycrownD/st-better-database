@@ -1,9 +1,9 @@
-import {DatabaseBuilder, type SqlExecutor} from "./sql";
+import {ChatSqlExecutor, type SqlExecutor} from "./sql";
 import {createAutoSaveProxy, ExtensionSettingManager} from "@/infra/extension-setting-manager.ts";
 
 class Config {
     // 默认是模板数据库
-    tableTemplate: SqlExecutor = ExtensionSettingManager.instance.tableTemplate.clone();
+    tableTemplate: SqlExecutor = new ChatSqlExecutor(ExtensionSettingManager.instance.tableTemplate);
 }
 
 export class ChatMetaManager {
@@ -41,9 +41,8 @@ export class ChatMetaManager {
 
     set tableTemplate(v: SqlExecutor) {
         //清空数据
-        v.setDataStorage(DatabaseBuilder.newStorage());
         const metadata = this.getMetadata();
-        metadata.tableTemplate = v;
+        metadata.tableTemplate = new ChatSqlExecutor(v);
         SillyTavern.getContext().saveMetadata();
     }
 

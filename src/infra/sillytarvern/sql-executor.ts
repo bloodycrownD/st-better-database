@@ -9,7 +9,7 @@ export class ChatSqlExecutor implements SqlExecutor {
     private readonly tableTemplate: SqlExecutor;
 
     constructor(tableTemplate: SqlExecutor) {
-        this.tableTemplate = tableTemplate;
+        this.tableTemplate = tableTemplate.clone();
     }
 
     clone(): SqlExecutor {

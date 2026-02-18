@@ -129,7 +129,6 @@ export interface SqlExecutor {
     /**
      * 克隆执行器
      * 创建当前执行器的深拷贝，只复制表结构映射
-     * 用于创建数据快照或分支
      *
      * @returns 新的SqlExecutor实例
      */
