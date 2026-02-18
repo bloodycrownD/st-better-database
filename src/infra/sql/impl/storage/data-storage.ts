@@ -54,4 +54,38 @@ export class SimpleDataStorage implements DataStorage {
     clear(): void {
         this.data.clear();
     }
+
+    /**
+     * 序列化数据存储
+     */
+    serialize(): object {
+        const serializedData: any = {};
+        this.data.forEach((rows, tableIdx) => {
+            serializedData[tableIdx] = rows.map(row => Object.fromEntries(row));
+        });
+        return serializedData;
+    }
+
+    /**
+     * 反序列化数据存储
+     */
+    deserialize(data: object): void {
+        this.data.clear();
+        const dataObj = data as any;
+        Object.keys(dataObj).forEach(tableIdx => {
+            const idx = parseInt(tableIdx);
+            const rows = dataObj[tableIdx];
+            if (Array.isArray(rows)) {
+                this.data.set(idx, rows.map((row: any) => {
+                    const rowData = new Map<number, any>();
+                    Object.entries(row).forEach(([key, value]) => {
+                        rowData.set(parseInt(key), value);
+                    });
+                    return rowData;
+                }));
+            } else {
+                this.data.set(idx, []);
+            }
+        });
+    }
 }

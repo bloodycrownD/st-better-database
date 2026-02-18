@@ -136,4 +136,18 @@ export interface SqlExecutor {
      */
     clone(): SqlExecutor;
 
+    /**
+     * 序列化执行器
+     * 将表结构和数据转换为JSON对象，用于持久化或传输
+     * @returns JSON对象
+     */
+    serialize(): object;
+
+    /**
+     * 反序列化执行器
+     * 从JSON对象恢复表结构和数据
+     * @param data 序列化的JSON对象
+     */
+    deserialize(data: object): void;
+
 }

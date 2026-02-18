@@ -211,4 +211,89 @@ export class SimpleSqlExecutor implements SqlExecutor {
 
         return clonedExecutor;
     }
+
+    serialize(): object {
+        const serializedSchemas: any = {};
+        for (const [tableIdx, schema] of this.tableSchemas.entries()) {
+            const serializedColumns: any = {};
+            for (const [fieldIdx, colSchema] of schema.columnSchemas.entries()) {
+                serializedColumns[fieldIdx] = {
+                    name: colSchema.name,
+                    type: colSchema.type,
+                    primitiveKey: colSchema.primitiveKey,
+                    defaultValue: colSchema.defaultValue,
+                    comment: colSchema.comment
+                };
+            }
+
+            serializedSchemas[tableIdx] = {
+                tableName: schema.tableName,
+                id2fieldName: Object.fromEntries(schema.id2fieldName),
+                fieldName2id: Object.fromEntries(schema.fieldName2id),
+                columnSchemas: serializedColumns,
+                counter: schema.counter,
+                comment: schema.comment
+            };
+        }
+
+        return {
+            tableSchemas: serializedSchemas,
+            tableName2Idx: Object.fromEntries(this.tableName2Idx),
+            tableIdxCounter: this.tableIdxCounter,
+            dataStorage: this.dataStorage.serialize()
+        };
+    }
+
+    deserialize(data: object): void {
+        const dataObj = data as any;
+
+        this.tableSchemas.clear();
+        this.tableName2Idx.clear();
+
+        if (dataObj.tableSchemas) {
+            Object.keys(dataObj.tableSchemas).forEach(tableIdx => {
+                const idx = parseInt(tableIdx);
+                const schema = dataObj.tableSchemas[tableIdx];
+
+                const columnSchemas: any = new Map();
+                if (schema.columnSchemas) {
+                    Object.keys(schema.columnSchemas).forEach(fieldIdx => {
+                        const fIdx = parseInt(fieldIdx);
+                        const colSchema = schema.columnSchemas[fieldIdx];
+                        columnSchemas.set(fIdx, colSchema);
+                    });
+                }
+
+                const id2fieldName: Map<number, string> = new Map();
+                if (schema.id2fieldName) {
+                    Object.keys(schema.id2fieldName).forEach(key => {
+                        id2fieldName.set(parseInt(key), schema.id2fieldName[key]);
+                    });
+                }
+
+                this.tableSchemas.set(idx, {
+                    tableName: schema.tableName,
+                    id2fieldName: id2fieldName,
+                    fieldName2id: schema.fieldName2id ? new Map(Object.entries(schema.fieldName2id)) : new Map(),
+                    columnSchemas: columnSchemas,
+                    counter: schema.counter || 0,
+                    comment: schema.comment
+                });
+            });
+        }
+
+        if (dataObj.tableName2Idx) {
+            Object.keys(dataObj.tableName2Idx).forEach(tableName => {
+                this.tableName2Idx.set(tableName, dataObj.tableName2Idx[tableName]);
+            });
+        }
+
+        this.tableIdxCounter = dataObj.tableIdxCounter || 0;
+
+        if (dataObj.dataStorage) {
+            this.dataStorage.deserialize(dataObj.dataStorage);
+        } else {
+            this.dataStorage.clear();
+        }
+    }
 }

@@ -22,6 +22,7 @@ export class ExtensionSettingManager {
     private static readonly _instance = new ExtensionSettingManager();
 
     private _tableTemplateCache: SqlExecutor | null = null;
+    private _tableTemplateProxy: SqlExecutor | null = null;
 
     private constructor() {
         const {extensionSettings} = SillyTavern.getContext();
@@ -31,21 +32,54 @@ export class ExtensionSettingManager {
                 tableTemplate: null
             };
         }
+
+        this._loadFromSettings();
     }
 
-    get tableTemplate() {
+    private _loadFromSettings(): void {
+        const {extensionSettings} = SillyTavern.getContext();
+        const settings = extensionSettings[ExtensionSettingManager.MODULE_NAME];
+
+        if (settings && settings.tableTemplate) {
+            try {
+                this._tableTemplateCache = DatabaseBuilder.newExecutor();
+                this._tableTemplateCache.deserialize(settings.tableTemplate);
+            } catch (e) {
+                console.error('Failed to deserialize tableTemplate:', e);
+                this._tableTemplateCache = null;
+            }
+        }
+    }
+
+    private _saveToSettings(): void {
+        const {extensionSettings} = SillyTavern.getContext();
+        extensionSettings[ExtensionSettingManager.MODULE_NAME].tableTemplate = this._tableTemplateCache?.serialize();
+        SillyTavern.getContext().saveSettingsDebounced();
+    }
+
+    get tableTemplate(): SqlExecutor {
         if (!this._tableTemplateCache) {
             this._tableTemplateCache = DatabaseBuilder.newExecutor();
         }
-        return createAutoSaveProxy(this._tableTemplateCache, () => {
-            SillyTavern.getContext().saveSettingsDebounced();
-        });
+
+        if (!this._tableTemplateProxy) {
+            this._tableTemplateProxy = createAutoSaveProxy(this._tableTemplateCache, () => this._saveToSettings());
+        }
+
+        return this._tableTemplateProxy;
     }
 
-    set tableTemplate(v: SqlExecutor) {
-        v.setDataStorage(DatabaseBuilder.newStorage());
-        this._tableTemplateCache = v;
-        SillyTavern.getContext().saveSettingsDebounced();
+    set tableTemplate(v: SqlExecutor | object) {
+        if (typeof v === 'object' && 'serialize' in v) {
+            const serialized = (v as any).serialize();
+            this._tableTemplateCache = DatabaseBuilder.newExecutor();
+            this._tableTemplateCache.deserialize(serialized);
+        } else {
+            this._tableTemplateCache = v as SqlExecutor;
+        }
+
+        this._tableTemplateProxy = null;
+        this._saveToSettings();
     }
 
     public static get instance(): ExtensionSettingManager {

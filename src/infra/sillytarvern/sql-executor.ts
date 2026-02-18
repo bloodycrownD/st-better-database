@@ -136,4 +136,17 @@ export class ChatSqlExecutor implements SqlExecutor {
     setDataStorage(_: DataStorage): void {
     }
 
+    serialize(): object {
+        return {
+            tableTemplate: this.tableTemplate.serialize()
+        };
+    }
+
+    deserialize(data: object): void {
+        const dataObj = data as any;
+        if (dataObj.tableTemplate) {
+            this.tableTemplate.deserialize(dataObj.tableTemplate);
+        }
+    }
+
 }

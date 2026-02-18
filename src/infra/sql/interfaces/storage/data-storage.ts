@@ -40,4 +40,18 @@ export interface DataStorage {
      * 清空所有数据
      */
     clear(): void;
+
+    /**
+     * 序列化数据存储
+     * 将数据转换为JSON对象，用于持久化或传输
+     * @returns JSON对象
+     */
+    serialize(): object;
+
+    /**
+     * 反序列化数据存储
+     * 从JSON对象恢复数据
+     * @param data 序列化的JSON对象
+     */
+    deserialize(data: object): void;
 }
