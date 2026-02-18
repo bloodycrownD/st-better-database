@@ -26,7 +26,7 @@ export class ChatSqlExecutor implements SqlExecutor {
             return {success: true, message: '无SQL语句', data: 0, type: SqlType.DML};
         }
 
-        let result: SqlResult | undefined;
+        let affectedRows = 0;
         let dmlBuffer: string[] = [];
         let ddlBuffer: string[] = [];
 
@@ -45,7 +45,8 @@ export class ChatSqlExecutor implements SqlExecutor {
                 dmlBuffer.push(currentSql);
             } else if (sqlType === SqlType.DDL) {
                 if (dmlBuffer.length > 0) {
-                    result = this.executeDml(dmlBuffer.join(';\n'));
+                    const result = this.executeDml(dmlBuffer.join(';\n'));
+                    affectedRows += result.data as number;
                     dmlBuffer = [];
                 }
                 ddlBuffer.push(currentSql);
@@ -55,7 +56,8 @@ export class ChatSqlExecutor implements SqlExecutor {
                     ddlBuffer = [];
                 }
                 if (dmlBuffer.length > 0) {
-                    result = this.executeDml(dmlBuffer.join(';\n'));
+                    const result = this.executeDml(dmlBuffer.join(';\n'));
+                    affectedRows += result.data as number;
                     dmlBuffer = [];
                 }
                 return this.storage.execute(currentSql, [SqlType.DQL]);
@@ -66,10 +68,11 @@ export class ChatSqlExecutor implements SqlExecutor {
             this.tableTemplate.execute(ddlBuffer.join(';\n'), [SqlType.DDL]);
         }
         if (dmlBuffer.length > 0) {
-            result = this.executeDml(dmlBuffer.join(';\n'));
+            const result = this.executeDml(dmlBuffer.join(';\n'));
+            affectedRows += result.data as number;
         }
 
-        return result || {success: true, message: '执行成功', data: 0, type: SqlType.DML};
+        return {success: true, message: '执行成功', data: affectedRows, type: SqlType.DML};
     }
 
     private detectSqlType(sql: string): SqlType {
