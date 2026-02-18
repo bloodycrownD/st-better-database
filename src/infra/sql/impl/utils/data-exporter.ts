@@ -1,6 +1,6 @@
 import type {Row, RowData, TableSchema} from '../../index';
 import {ActionType, ExportFormat, SqlExecutionError} from '../../index';
-import type {DataStorage} from '../../interfaces/storage/data-storage';
+import type {DataStorage} from '@/infra/sql';
 
 export class DataExporter {
     export(
