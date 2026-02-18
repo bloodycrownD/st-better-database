@@ -123,10 +123,12 @@ const handleTabClick = (key: string) => {
 @media (max-width: 768px) {
   .tab-header {
     .tab-item {
-      min-width: 100px;
+      width: 40vw;
+      flex-shrink: 0;
       justify-content: center;
       padding: 14px 16px;
       font-size: 13px;
+      white-space: nowrap;
     }
   }
 
