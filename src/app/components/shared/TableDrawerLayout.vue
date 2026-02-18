@@ -13,7 +13,6 @@
         <slot></slot>
       </div>
     </div>
-    <DrawerToggle :fab="true" :expanded="drawerExpanded" @toggle="handleDrawerToggle" />
   </div>
 </template>
 
