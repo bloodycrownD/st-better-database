@@ -1,6 +1,6 @@
-import type {DataStorage} from '../storage/data-storage';
-import type {SqlResult} from '../../types/result';
-import type {Row} from '../../types/row';
+import type {DataStorage} from '@/infra/sql';
+import type {SqlResult} from '@/infra/sql';
+import type {Row} from '@/infra/sql';
 import {ExportFormat, SqlType} from '../../index';
 
 /**

@@ -1,5 +1,5 @@
-import type {Row, RowData, TableSchema} from '../../index';
-import {ActionType, ExportFormat, SqlExecutionError} from '../../index';
+import type {Row, RowData, TableSchema} from '@/infra/sql';
+import {ActionType, ExportFormat, SqlExecutionError} from '@/infra/sql';
 import type {DataStorage} from '@/infra/sql';
 
 export class DataExporter {

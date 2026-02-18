@@ -1,8 +1,8 @@
-import type {TableSchema} from '../../index';
-import {SqlType} from '../../index';
+import type {TableSchema} from '@/infra/sql';
+import {SqlType} from '@/infra/sql';
 import type {SqlResult} from '@/infra/sql';
 import type {DataStorage} from '@/infra/sql';
-import {ExpressionEvaluator} from '../utils';
+import {ExpressionEvaluator} from '@/infra/sql';
 
 export class DqlExecutor {
     private expressionEvaluator: ExpressionEvaluator;

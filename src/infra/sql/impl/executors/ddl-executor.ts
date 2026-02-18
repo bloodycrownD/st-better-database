@@ -1,5 +1,5 @@
-import type {ColumnSchema, TableSchema} from '../../index';
-import {SqlType, SqlValidationError} from '../../index';
+import type {ColumnSchema, TableSchema} from '@/infra/sql';
+import {SqlType, SqlValidationError} from '@/infra/sql';
 import type {SqlResult} from '@/infra/sql';
 import type {DataStorage} from '@/infra/sql';
 

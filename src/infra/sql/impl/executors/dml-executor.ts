@@ -1,8 +1,8 @@
-import type {RowData, TableSchema} from '../../index';
-import {FieldType, SqlType, SqlValidationError} from '../../index';
+import type {RowData, TableSchema} from '@/infra/sql';
+import {FieldType, SqlType, SqlValidationError} from '@/infra/sql';
 import type {SqlResult} from '@/infra/sql';
 import type {DataStorage} from '@/infra/sql';
-import {ExpressionEvaluator} from '../utils';
+import {ExpressionEvaluator} from '@/infra/sql';
 
 export class DmlExecutor {
     private expressionEvaluator: ExpressionEvaluator;

@@ -1,4 +1,4 @@
-import type {RowData} from '../../types/core';
+import type {RowData} from '@/infra/sql';
 
 /**
  * 数据存储接口

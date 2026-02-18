@@ -1,4 +1,4 @@
-import type {RowData, TableSchema} from '../../index';
+import type {RowData, TableSchema} from '@/infra/sql';
 
 export class ExpressionEvaluator {
     evaluateExpression(
