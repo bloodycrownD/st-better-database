@@ -15,6 +15,9 @@
         @select-table="handleTableSelect"
       >
         <TabContainer v-model:active-tab="activeTab" :tabs="tabs">
+          <template #tables>
+            <TableListDrawer :tables="tables" :selected-table="selectedTable" @select="handleTableSelect" />
+          </template>
           <template #template>
             <TemplateManagementTab
               :table-service="tableManagementService"
@@ -36,6 +39,7 @@ import {ref, watch} from 'vue';
 import PopupModal from '../shared/PopupModal.vue';
 import TableDrawerLayout from '../shared/TableDrawerLayout.vue';
 import TabContainer from '../shared/TabContainer.vue';
+import TableListDrawer from '../shared/TableListDrawer.vue';
 import TemplateManagementTab from './TemplateManagementTab.vue';
 import SqlPanelTab from './SqlPanelTab.vue';
 import type {TabItem} from '../shared/TabContainer.vue';
@@ -51,6 +55,7 @@ const selectedTable = ref<string>('');
 const tables = ref<TableSchema[]>([]);
 
 const tabs: TabItem[] = [
+  {key: 'tables', label: '表格列表', icon: 'fa-solid fa-list', mobileOnly: true},
   {key: 'template', label: '模版管理', icon: 'fa-solid fa-table'},
   {key: 'sql', label: 'SQL面板', icon: 'fa-solid fa-code'}
 ];

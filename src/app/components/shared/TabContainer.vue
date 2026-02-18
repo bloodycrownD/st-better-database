@@ -2,7 +2,7 @@
   <div class="tab-container">
     <div class="tab-header">
       <div
-        v-for="tab in tabs"
+        v-for="tab in visibleTabs"
         :key="tab.key"
         :class="['tab-item', { active: activeTab === tab.key }]"
         @click="handleTabClick(tab.key)"
@@ -20,10 +20,14 @@
 </template>
 
 <script setup lang="ts">
+import {computed, ref, onMounted, onUnmounted} from 'vue';
+
 export interface TabItem {
   key: string;
   label: string;
   icon?: string;
+  mobileOnly?: boolean;
+  desktopOnly?: boolean;
 }
 
 interface Props {
@@ -31,11 +35,34 @@ interface Props {
   activeTab: string;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
 const emit = defineEmits<{
   'update:activeTab': [value: string];
 }>();
+
+const windowWidth = ref(window.innerWidth);
+
+const handleResize = () => {
+  windowWidth.value = window.innerWidth;
+};
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+});
+
+const visibleTabs = computed(() => {
+  const isMobile = windowWidth.value <= 768;
+  return props.tabs.filter(tab => {
+    if (tab.mobileOnly && !isMobile) return false;
+    if (tab.desktopOnly && isMobile) return false;
+    return true;
+  });
+});
 
 const handleTabClick = (key: string) => {
   emit('update:activeTab', key);
