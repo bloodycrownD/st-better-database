@@ -1,6 +1,7 @@
 <template>
-  <Transition name="modal">
-    <div v-if="visible" class="popup-modal-overlay" @click.self="handleMaskClick">
+  <Teleport to="body">
+    <Transition name="modal">
+      <div v-if="visible" class="popup-modal-overlay" @click.self="handleMaskClick">
       <div class="popup-modal">
         <div v-if="title || closable || $slots.titlePrefix" class="popup-modal-header">
           <div class="popup-modal-title">
@@ -20,6 +21,7 @@
       </div>
     </div>
   </Transition>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -61,7 +63,7 @@ const handleMaskClick = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 9999;
   padding: 20px;
 }
 

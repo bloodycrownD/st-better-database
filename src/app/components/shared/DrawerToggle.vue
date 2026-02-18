@@ -32,20 +32,21 @@ const handleClick = () => {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 8px;
+  padding: 7.2px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--SmartThemeBodyColor);
   transition: all 0.2s;
-  border-radius: 4px;
+  border-radius: 3.6px;
+  transform: scale(0.9);
 
   &:hover {
     background: color-mix(in srgb, var(--SmartThemeBorderColor) 30%, transparent);
   }
 
   &:active {
-    transform: scale(0.95);
+    transform: scale(0.855);
   }
 
   &.fab {
@@ -82,8 +83,8 @@ const handleClick = () => {
 }
 
 .hamburger-icon {
-  width: 24px;
-  height: 18px;
+  width: 21.6px;
+  height: 16.2px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -92,9 +93,9 @@ const handleClick = () => {
 
 .line {
   width: 100%;
-  height: 2px;
+  height: 1.8px;
   background: var(--SmartThemeBodyColor);
-  border-radius: 2px;
+  border-radius: 1.8px;
   transition: all 0.3s ease;
 }
 </style>
