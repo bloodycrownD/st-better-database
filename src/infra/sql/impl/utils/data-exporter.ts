@@ -1,6 +1,7 @@
 import type {Row, RowData, TableSchema} from '@/infra/sql';
 import {ActionType, ExportFormat, SqlExecutionError} from '@/infra/sql';
 import type {DataStorage} from '@/infra/sql';
+import {MarkdownExporter} from './markdown';
 
 export class DataExporter {
     export(
@@ -43,6 +44,8 @@ export class DataExporter {
                 return this.exportAsRowJson(schema, data, tableIdx);
             case ExportFormat.TABLE_SCHEMA:
                 return JSON.stringify(schema, null, 2);
+            case ExportFormat.MARKDOWN:
+                return this.exportAsMarkdown(schema, data);
             default:
                 throw new SqlExecutionError(`Unknown export format: ${format}`);
         }
@@ -88,5 +91,9 @@ export class DataExporter {
         }
 
         return JSON.stringify(rows, null, 2);
+    }
+
+    private exportAsMarkdown(schema: TableSchema, data: RowData[]): string {
+        return MarkdownExporter.exportTable(schema, data);
     }
 }
