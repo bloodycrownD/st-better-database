@@ -45,8 +45,7 @@ export class ChatSqlExecutor implements SqlExecutor {
                 dmlBuffer.push(currentSql);
             } else if (sqlType === SqlType.DDL) {
                 if (dmlBuffer.length > 0) {
-                    const result = this.executeDml(dmlBuffer.join(';\n'));
-                    affectedRows += result.data as number;
+                    affectedRows += this.executeDml(dmlBuffer.join(';\n'));
                     dmlBuffer = [];
                 }
                 ddlBuffer.push(currentSql);
@@ -56,8 +55,7 @@ export class ChatSqlExecutor implements SqlExecutor {
                     ddlBuffer = [];
                 }
                 if (dmlBuffer.length > 0) {
-                    const result = this.executeDml(dmlBuffer.join(';\n'));
-                    affectedRows += result.data as number;
+                    affectedRows += this.executeDml(dmlBuffer.join(';\n'));
                     dmlBuffer = [];
                 }
                 return this.storage.execute(currentSql, [SqlType.DQL]);
@@ -68,8 +66,7 @@ export class ChatSqlExecutor implements SqlExecutor {
             this.tableTemplate.execute(ddlBuffer.join(';\n'), [SqlType.DDL]);
         }
         if (dmlBuffer.length > 0) {
-            const result = this.executeDml(dmlBuffer.join(';\n'));
-            affectedRows += result.data as number;
+            affectedRows += this.executeDml(dmlBuffer.join(';\n'));
         }
 
         return {success: true, message: '执行成功', data: affectedRows, type: SqlType.DML};
@@ -90,14 +87,14 @@ export class ChatSqlExecutor implements SqlExecutor {
 
         throw new Error(`无法识别SQL类型: ${sql}`);
     }
-    private executeDml(sql: string): SqlResult {
+    private executeDml(sql: string): number {
         const rows = this.tableTemplate.dml2row(sql);
         ChatMessageManager.processLastRows(content => {
             const origin = JSON.parse(content) as Row[];
             origin.push(...rows)
             return `<commit>${JSON.stringify(origin)}</commit>`;
         })
-        return {success: true, message: '执行成功', data: rows.length, type: SqlType.DML};
+        return rows.length;
     }
 
     export(format: ExportFormat, table?: string): string {
