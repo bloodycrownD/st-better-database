@@ -80,6 +80,12 @@ const handleTabClick = (key: string) => {
   display: flex;
   border-bottom: 1px solid var(--SmartThemeBorderColor);
   background: color-mix(in srgb, var(--SmartThemeBorderColor) 30%, transparent);
+  overflow-x: auto;
+  scrollbar-width: none;
+  
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .tab-item {
@@ -117,20 +123,15 @@ const handleTabClick = (key: string) => {
 @media (max-width: 768px) {
   .tab-header {
     .tab-item {
-      flex: 1;
+      min-width: 100px;
       justify-content: center;
-      padding: 14px 12px;
+      padding: 14px 16px;
       font-size: 13px;
     }
   }
 
   .tab-item {
-    flex-direction: column;
-    gap: 4px;
-
-    i {
-      font-size: 16px;
-    }
+    gap: 6px;
   }
 }
 </style>

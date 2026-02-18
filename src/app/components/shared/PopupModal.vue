@@ -2,8 +2,11 @@
   <Transition name="modal">
     <div v-if="visible" class="popup-modal-overlay" @click.self="handleMaskClick">
       <div class="popup-modal">
-        <div v-if="title || closable" class="popup-modal-header">
-          <div class="popup-modal-title">{{ title }}</div>
+        <div v-if="title || closable || $slots.titlePrefix" class="popup-modal-header">
+          <div class="popup-modal-title">
+            <slot name="titlePrefix"></slot>
+            <span>{{ title }}</span>
+          </div>
           <div v-if="closable" class="popup-modal-close" @click="handleClose">
             <i class="fa-solid fa-xmark"></i>
           </div>
@@ -86,6 +89,9 @@ const handleMaskClick = () => {
   font-size: 18px;
   font-weight: 600;
   color: var(--SmartThemeBodyColor);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .popup-modal-close {

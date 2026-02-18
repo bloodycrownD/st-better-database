@@ -1,8 +1,5 @@
 <template>
   <div class="table-drawer-layout">
-    <div class="layout-header">
-      <DrawerToggle :expanded="drawerExpanded" @toggle="handleDrawerToggle" />
-    </div>
     <div class="layout-content">
       <Transition name="drawer-slide">
         <div v-if="drawerExpanded" class="layout-drawer">
@@ -18,7 +15,6 @@
 
 <script setup lang="ts">
 import type {TableSchema} from '@/infra/sql';
-import DrawerToggle from './DrawerToggle.vue';
 import TableListDrawer from './TableListDrawer.vue';
 
 interface Props {
@@ -34,10 +30,6 @@ const emit = defineEmits<{
   selectTable: [tableName: string];
 }>();
 
-const handleDrawerToggle = () => {
-  emit('update:drawerExpanded', !props.drawerExpanded);
-};
-
 const handleTableSelect = (tableName: string) => {
   emit('selectTable', tableName);
 };
@@ -49,14 +41,6 @@ const handleTableSelect = (tableName: string) => {
   flex-direction: column;
   height: 100%;
   min-height: 500px;
-}
-
-.layout-header {
-  padding: 8px 16px;
-  border-bottom: 1px solid var(--SmartThemeBorderColor);
-  background: color-mix(in srgb, var(--SmartThemeBorderColor) 30%, transparent);
-  display: flex;
-  align-items: center;
 }
 
 .layout-content {
@@ -91,10 +75,6 @@ const handleTableSelect = (tableName: string) => {
 @media (max-width: 768px) {
   .table-drawer-layout {
     min-height: 400px;
-  }
-
-  .layout-header {
-    display: none;
   }
 
   .layout-content {

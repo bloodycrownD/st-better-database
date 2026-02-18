@@ -8,6 +8,9 @@
       :closable="true"
       @close="handleClose"
     >
+      <template #titlePrefix>
+        <DrawerToggle :expanded="drawerExpanded" @toggle="handleDrawerToggle" />
+      </template>
       <TableDrawerLayout
         v-model:drawer-expanded="drawerExpanded"
         :tables="tables"
@@ -40,6 +43,7 @@ import PopupModal from '../shared/PopupModal.vue';
 import TableDrawerLayout from '../shared/TableDrawerLayout.vue';
 import TabContainer from '../shared/TabContainer.vue';
 import TableListDrawer from '../shared/TableListDrawer.vue';
+import DrawerToggle from '../shared/DrawerToggle.vue';
 import TemplateManagementTab from './TemplateManagementTab.vue';
 import SqlPanelTab from './SqlPanelTab.vue';
 import type {TabItem} from '../shared/TabContainer.vue';
@@ -66,6 +70,10 @@ const refreshTables = () => {
 
 const handleTableSelect = (tableName: string) => {
   selectedTable.value = tableName;
+};
+
+const handleDrawerToggle = () => {
+  drawerExpanded.value = !drawerExpanded.value;
 };
 
 const handleClose = () => {
