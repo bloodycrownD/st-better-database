@@ -50,7 +50,7 @@
         </div>
       </template>
       <template #right>
-        <Button>
+        <Button @click="handleTemplateManagementClick">
           <i class="fa-solid fa-gear" style="margin-right: 6px;"></i>
           模版管理
         </Button>
@@ -74,10 +74,22 @@
       </template>
     </CardItem>
   </div>
+
+  <TemplateManagementPanel ref="templateManagementPanelRef">
+    <template #default></template>
+  </TemplateManagementPanel>
 </template>
 
 <script setup lang="ts">
-import CardItem from '../shared/CardItem.vue'
-import ToggleSwitch from '../shared/ToggleSwitch.vue'
-import Button from '../shared/Button.vue'
+import {ref} from 'vue';
+import CardItem from '../shared/CardItem.vue';
+import ToggleSwitch from '../shared/ToggleSwitch.vue';
+import Button from '../shared/Button.vue';
+import TemplateManagementPanel from './TemplateManagementPanel.vue';
+
+const templateManagementPanelRef = ref<InstanceType<typeof TemplateManagementPanel>>();
+
+const handleTemplateManagementClick = () => {
+  templateManagementPanelRef.value?.open();
+};
 </script>
