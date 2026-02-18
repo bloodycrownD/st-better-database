@@ -65,13 +65,7 @@ export abstract class AbstractTableManagementService implements TableManagementS
         return this.executor.export(ExportFormat.TABLE_SCHEMA, tableName);
     }
 
-    getTables(): TableSchema {
-        return {
-            tableName: '',
-            id2fieldName: new Map<number, string>(),
-            fieldName2id: new Map<string, number>(),
-            columnSchemas: new Map<number, ColumnSchema>(),
-            counter: 0
-        };
+    getTables(): TableSchema[] {
+        return this.executor.getTables();
     }
 }

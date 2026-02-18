@@ -73,5 +73,5 @@ export interface TableManagementService {
      * 获取所有表
      * @returns 表结构信息
      */
-    getTables(): TableSchema;
+    getTables(): TableSchema[];
 }

@@ -1,4 +1,4 @@
-import {type DataStorage, ExportFormat, type Row, type SqlExecutor, type SqlResult, SqlType} from "@/infra/sql";
+import {type DataStorage, ExportFormat, type Row, type SqlExecutor, type SqlResult, SqlType, type TableSchema} from "@/infra/sql";
 import {ChatMessageManager} from "@/infra/sillytarvern/chat-message-manager.ts";
 
 export class ChatSqlExecutor implements SqlExecutor {
@@ -10,6 +10,10 @@ export class ChatSqlExecutor implements SqlExecutor {
 
     constructor(tableTemplate: SqlExecutor) {
         this.tableTemplate = tableTemplate.clone();
+    }
+
+    getTables(): TableSchema[] {
+        return this.tableTemplate.getTables();
     }
 
     clone(): SqlExecutor {

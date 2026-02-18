@@ -43,6 +43,10 @@ export class SimpleSqlExecutor implements SqlExecutor {
         this.dataExporter = new DataExporter();
     }
 
+    getTables(): TableSchema[] {
+        return Array.from(this.tableSchemas.values());
+    }
+
     execute(sql: string, sqlTypes: SqlType[]): SqlResult {
         try {
             const parseResult = Parser.parse(sql);

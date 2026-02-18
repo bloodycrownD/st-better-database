@@ -1,4 +1,4 @@
-import type {DataStorage} from '@/infra/sql';
+import type {DataStorage, TableSchema} from '@/infra/sql';
 import type {SqlResult} from '@/infra/sql';
 import type {Row} from '@/infra/sql';
 import {ExportFormat, SqlType} from '../../index';
@@ -125,6 +125,8 @@ export interface SqlExecutor {
      * @returns 表名，不存在返回undefined
      */
     getTableNameByIdx(tableIdx: number): string | undefined;
+
+    getTables(): TableSchema[];
 
     /**
      * 克隆执行器
