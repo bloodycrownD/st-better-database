@@ -1,25 +1,25 @@
 <template>
   <div class="form-container">
     <div class="form-item">
-      <label class="form-label">当前列名</label>
-      <input :value="column.name" class="form-input" type="text" disabled />
+      <label class="form-label">当前表名</label>
+      <input :value="tableName" class="form-input" type="text" disabled />
     </div>
 
     <div class="form-item">
       <label class="form-label">
-        新列名
+        新表名
         <span class="required">*</span>
       </label>
       <input
-        v-model="newColumnName"
+        v-model="newTableName"
         class="form-input"
-        :class="{ 'has-error': getFieldError('columnName') }"
+        :class="{ 'has-error': getFieldError('tableName') }"
         type="text"
-        placeholder="请输入新列名"
+        placeholder="请输入新表名"
       />
-      <div v-if="getFieldError('columnName')" class="field-error">
+      <div v-if="getFieldError('tableName')" class="field-error">
         <i class="fa-solid fa-circle-exclamation"></i>
-        {{ getFieldError('columnName') }}
+        {{ getFieldError('tableName') }}
       </div>
       <div class="field-hint">只能包含字母、数字和下划线，不能以数字开头</div>
     </div>
@@ -36,17 +36,17 @@
 
 <script setup lang="ts">
 import {computed, ref, watch} from 'vue';
-import Button from '../../shared/Button.vue';
-import type {ColumnSchema} from '@/infra/sql';
-import {useFormValidation} from '../../../composables/useFormValidation';
+import Button from '@/app/components/Button.vue';
+import type {TableSchema} from '@/infra/sql';
+import {useFormValidation} from '../../composables/useFormValidation.ts';
 
 interface Props {
-  column: ColumnSchema;
-  existingColumns?: ColumnSchema[];
+  tableName: string;
+  existingTables?: TableSchema[];
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  existingColumns: () => []
+  existingTables: () => []
 });
 
 const emit = defineEmits<{
@@ -54,28 +54,28 @@ const emit = defineEmits<{
   cancel: [];
 }>();
 
-const {getFieldError, validateEditColumnNameForm, clearErrors} = useFormValidation();
+const {getFieldError, validateEditTableNameForm, clearErrors} = useFormValidation();
 const isSubmitting = ref(false);
-const newColumnName = ref(props.column.name);
+const newTableName = ref(props.tableName);
 
 const hasChanged = computed(() => {
-  return newColumnName.value.trim() !== props.column.name;
+  return newTableName.value.trim() !== props.tableName;
 });
 
-// 当 props.column 变化时更新
-watch(() => props.column, (newVal) => {
-  newColumnName.value = newVal.name;
+// 当 props.tableName 变化时更新
+watch(() => props.tableName, (newVal) => {
+  newTableName.value = newVal;
   clearErrors();
-}, {deep: true});
+});
 
 const handleSave = () => {
   clearErrors();
   isSubmitting.value = true;
 
-  const result = validateEditColumnNameForm(
-    newColumnName.value,
-    props.column.name,
-    props.existingColumns
+  const result = validateEditTableNameForm(
+    newTableName.value,
+    props.tableName,
+    props.existingTables
   );
 
   if (!result.valid) {
@@ -83,12 +83,12 @@ const handleSave = () => {
     return;
   }
 
-  emit('save', newColumnName.value.trim());
+  emit('save', newTableName.value.trim());
   isSubmitting.value = false;
 };
 
 const handleCancel = () => {
-  newColumnName.value = props.column.name;
+  newTableName.value = props.tableName;
   clearErrors();
   emit('cancel');
 };

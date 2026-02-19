@@ -132,10 +132,10 @@
 
 <script setup lang="ts">
 import {reactive, ref} from 'vue';
-import Button from '../../shared/Button.vue';
+import Button from '@/app/components/Button.vue';
 import type {ColumnSchema, TableSchema} from '@/infra/sql';
-import {FieldType} from '@/infra/sql/enums/field-type';
-import {useFormValidation} from '../../../composables/useFormValidation';
+import {FieldType} from '@/infra/sql/enums/field-type.ts';
+import {useFormValidation} from '../../composables/useFormValidation.ts';
 
 interface Props {
   existingTables?: TableSchema[];

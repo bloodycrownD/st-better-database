@@ -1,16 +1,12 @@
 <template>
   <div class="form-container">
     <div class="form-item">
-      <label class="form-label">列名</label>
-      <input :value="column.name" class="form-input" type="text" disabled />
-    </div>
-    <div class="form-item">
-      <label class="form-label">列注释</label>
+      <label class="form-label">表注释</label>
       <textarea
         v-model="comment"
         class="form-textarea"
         rows="4"
-        placeholder="请输入列注释（可选）"
+        placeholder="请输入表注释（可选）"
         maxlength="500"
       ></textarea>
       <div class="char-count">{{ comment.length }}/500</div>
@@ -27,11 +23,10 @@
 
 <script setup lang="ts">
 import {ref} from 'vue';
-import Button from '../../shared/Button.vue';
-import type {ColumnSchema} from '@/infra/sql';
+import Button from '@/app/components/Button.vue';
 
 const props = defineProps<{
-  column: ColumnSchema;
+  comment?: string;
 }>();
 
 const emit = defineEmits<{
@@ -39,7 +34,7 @@ const emit = defineEmits<{
   cancel: [];
 }>();
 
-const comment = ref(props.column.comment || '');
+const comment = ref(props.comment || '');
 const isSubmitting = ref(false);
 
 const handleSave = () => {
@@ -49,7 +44,7 @@ const handleSave = () => {
 };
 
 const handleCancel = () => {
-  comment.value = props.column.comment || '';
+  comment.value = props.comment || '';
   emit('cancel');
 };
 </script>
@@ -71,7 +66,6 @@ const handleCancel = () => {
   color: var(--SmartThemeBodyColor);
 }
 
-.form-input,
 .form-textarea {
   width: 100%;
   padding: 10px 12px;
@@ -81,6 +75,8 @@ const handleCancel = () => {
   color: var(--SmartThemeBodyColor);
   font-size: 14px;
   outline: none;
+  resize: vertical;
+  min-height: 80px;
   transition: all 0.2s;
   font-family: inherit;
 
@@ -92,17 +88,6 @@ const handleCancel = () => {
   &::placeholder {
     color: color-mix(in srgb, var(--SmartThemeBodyColor) 30%, transparent);
   }
-
-  &:disabled {
-    background: color-mix(in srgb, var(--SmartThemeBorderColor) 30%, transparent);
-    cursor: not-allowed;
-    color: color-mix(in srgb, var(--SmartThemeBodyColor) 50%, transparent);
-  }
-}
-
-.form-textarea {
-  resize: vertical;
-  min-height: 80px;
 }
 
 .char-count {

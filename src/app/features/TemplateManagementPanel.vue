@@ -40,14 +40,14 @@
 
 <script setup lang="ts">
  import {ref, watch, nextTick} from 'vue';
- import PopupModal from '../shared/PopupModal.vue';
- import TableDrawerLayout from '../shared/TableDrawerLayout.vue';
- import TabContainer from '../shared/TabContainer.vue';
- import DrawerToggle from '../shared/DrawerToggle.vue';
+ import PopupModal from '@/app/components/PopupModal.vue';
+ import TableDrawerLayout from '@/app/components/TableDrawerLayout.vue';
+ import TabContainer from '@/app/components/TabContainer.vue';
+ import DrawerToggle from '@/app/components/DrawerToggle.vue';
  import TemplateManagementTab from './TemplateManagementTab.vue';
  import SqlPanelTab from './SqlPanelTab.vue';
- import type {TabItem} from '../shared/TabContainer.vue';
- import {useTemplateServices} from '../../composables/useServices';
+ import type {TabItem} from '@/app/components/TabContainer.vue';
+ import {useTemplateServices} from '../composables/useServices.ts';
  import type {TableSchema} from '@/infra/sql';
 
 const {tableManagementService, sqlExecutorService} = useTemplateServices();
