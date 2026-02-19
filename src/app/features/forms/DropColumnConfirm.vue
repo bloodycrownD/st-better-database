@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import {ref} from 'vue';
-import Button from '@/app/components/Button.vue';
+import Button from '@/app/pure-components/Button.vue';
 import type {ColumnSchema} from '@/infra/sql';
 
 const props = defineProps<{

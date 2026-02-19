@@ -36,7 +36,7 @@
 
 <script setup lang="ts">
 import {computed, ref, watch} from 'vue';
-import Button from '@/app/components/Button.vue';
+import Button from '@/app/pure-components/Button.vue';
 import type {TableSchema} from '@/infra/sql';
 import {useFormValidation} from '../../composables/useFormValidation.ts';
 

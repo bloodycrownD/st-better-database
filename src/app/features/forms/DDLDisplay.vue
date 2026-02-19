@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import {ref} from 'vue';
-import Button from '@/app/components/Button.vue';
+import Button from '@/app/pure-components/Button.vue';
 
 const props = defineProps<{
   ddl: string;

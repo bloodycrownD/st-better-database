@@ -82,10 +82,10 @@
 
 <script setup lang="ts">
 import {ref} from 'vue';
-import CardItem from '@/app/components/CardItem.vue';
-import ToggleSwitch from '@/app/components/ToggleSwitch.vue';
-import Button from '@/app/components/Button.vue';
-import TemplateManagementPanel from '../slave-screen/TemplateManagementPanel.vue';
+import CardItem from '@/app/pure-components/CardItem.vue';
+import ToggleSwitch from '@/app/pure-components/ToggleSwitch.vue';
+import Button from '@/app/pure-components/Button.vue';
+import TemplateManagementPanel from '@/app/business-screens/TemplateManagementPanel.vue';
 
 const templateManagementPanelRef = ref<InstanceType<typeof TemplateManagementPanel>>();
 

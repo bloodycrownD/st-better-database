@@ -165,8 +165,8 @@
 
 <script setup lang="ts">
 import {computed, reactive, ref} from 'vue';
-import Button from '@/app/components/Button.vue';
-import PopupModal from '@/app/components/PopupModal.vue';
+import Button from '@/app/pure-components/Button.vue';
+import PopupModal from '@/app/pure-components/PopupModal.vue';
 import type {TableSchema, ColumnSchema} from '@/infra/sql';
 import type {TableManagementService} from '@/service/interfaces/table-management-service.ts';
 import CreateTableForm from './forms/CreateTableForm.vue';

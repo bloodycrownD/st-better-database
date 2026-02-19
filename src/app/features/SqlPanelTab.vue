@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
 import {computed, ref} from 'vue';
-import Button from '@/app/components/Button.vue';
+import Button from '@/app/pure-components/Button.vue';
 import type {SqlExecutorService} from '@/service/interfaces/sql-executor-service.ts';
 import type {SqlResult} from '@/infra/sql';
 
