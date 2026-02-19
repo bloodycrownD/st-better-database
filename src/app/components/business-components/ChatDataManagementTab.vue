@@ -101,9 +101,9 @@ import type {ColumnSchema, TableSchema, SqlValue} from '@/infra/sql';
 import {Where} from '@/infra/sql';
 import type {DataManagementService} from '@/service/interfaces/data-management-service.ts';
 import {useToast} from '@/app/composables/components-composables/useToast.ts';
-import DataForm from './DataForm.vue';
-import DeleteDataConfirm from './DeleteDataConfirm.vue';
-import ExportDisplay from './ExportDisplay.vue';
+import DataForm from '@/app/components/business-components/DataForm.vue';
+import DeleteDataConfirm from '@/app/components/business-components/DeleteDataConfirm.vue';
+import ExportDisplay from '@/app/components/business-components/ExportDisplay.vue';
 
 interface Props {
   dataService: DataManagementService;
