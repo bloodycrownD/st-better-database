@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { SimpleSqlExecutor } from '../../../src/infra/sql';
-import { SqlType } from '../../../src/infra/sql';
+import { SimpleSqlExecutor } from '../../../../src/infra/sql';
+import { SqlType, ExportFormat } from '../../../../src/infra/sql';
 
-describe('Row Export - Round-trip conversion', () => {
+describe('Row Export - Single table export', () => {
     let executor: SimpleSqlExecutor;
 
     beforeEach(() => {
@@ -17,11 +17,13 @@ describe('Row Export - Round-trip conversion', () => {
         if (global.gc) global.gc();
     });
 
-    it('should preserve data through dml2row and row2dml', () => {
-        const originalDml = 'INSERT INTO users (id, name, age) VALUES (3, \'Charlie\', 35)';
-        const rows = executor.dml2row(originalDml);
-        const convertedDml = executor.row2dml(rows);
+    it('should export specific table', () => {
+        executor.execute('CREATE TABLE items (id NUMBER, name STRING)', [SqlType.DDL]);
+        executor.execute('INSERT INTO items (id, name) VALUES (1, \'Item1\')', [SqlType.DML]);
 
-        expect(convertedDml).toContain('INSERT INTO users');
+        const exported = executor.export(ExportFormat.INSERT_SQL, 'users');
+
+        expect(exported).toContain('users');
+        expect(exported).not.toContain('items');
     });
 });

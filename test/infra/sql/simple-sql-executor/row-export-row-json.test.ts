@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { SimpleSqlExecutor } from '../../../src/infra/sql';
-import { SqlType, ExportFormat, ActionType } from '../../../src/infra/sql';
+import { SimpleSqlExecutor } from '../../../../src/infra/sql';
+import { SqlType, ExportFormat, ActionType } from '../../../../src/infra/sql';
 
 describe('Row Export - ROW_JSON format', () => {
     let executor: SimpleSqlExecutor;

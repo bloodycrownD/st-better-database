@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { SimpleSqlExecutor } from '../../../src/infra/sql';
-import { SqlType, SqlValidationError } from '../../../src/infra/sql';
+import { SimpleSqlExecutor } from '../../../../src/infra/sql';
+import { SqlType, SqlValidationError } from '../../../../src/infra/sql';
 
 describe('DDL Operations', () => {
     let executor: SimpleSqlExecutor;

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { SimpleSqlExecutor } from '../../../src/infra/sql/impl/core/sql-executor';
-import { SqlType } from '../../../src/infra/sql/enums/sql-type';
-import { SqlValidationError } from '../../../src/infra/sql/errors/sql-validation-error';
+import { SimpleSqlExecutor } from '../../../../src/infra/sql/impl/core/sql-executor';
+import { SqlType } from '../../../../src/infra/sql/enums/sql-type';
+import { SqlValidationError } from '../../../../src/infra/sql/errors/sql-validation-error';
 
 describe('Multi-Table Creation Test', () => {
     let executor: any;
@@ -49,10 +49,10 @@ describe('Multi-Table Creation Test', () => {
 
         const table1 = tables[idx1];
         expect(Object.keys(table1.columnSchemas).length).toBe(2);
- 
+
         const table2 = tables[idx2];
         expect(Object.keys(table2.columnSchemas).length).toBe(3);
- 
+
         const table3 = tables[idx3];
         expect(Object.keys(table3.columnSchemas).length).toBe(3);
     });
@@ -71,10 +71,10 @@ describe('Multi-Table Creation Test', () => {
 
         const tables = newExecutor.getTables();
         expect(tables.length).toBe(2);
- 
+
         expect(tables[0].tableName).toBe('users');
         expect(Object.keys(tables[0].columnSchemas).length).toBe(2);
- 
+
         expect(tables[1].tableName).toBe('products');
         expect(Object.keys(tables[1].columnSchemas).length).toBe(3);
     });

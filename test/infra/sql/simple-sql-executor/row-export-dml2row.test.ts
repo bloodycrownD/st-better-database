@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { SimpleSqlExecutor, SqlType, ActionType } from '../../../src/infra/sql';
+import { SimpleSqlExecutor, SqlType, ActionType } from '../../../../src/infra/sql';
 
 describe('Row Export - dml2row', () => {
     let executor: SimpleSqlExecutor;

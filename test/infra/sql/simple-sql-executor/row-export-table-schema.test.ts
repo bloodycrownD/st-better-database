@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { SimpleSqlExecutor } from '../../../src/infra/sql';
-import { SqlType } from '../../../src/infra/sql';
+import { SimpleSqlExecutor } from '../../../../src/infra/sql';
+import { SqlType, ExportFormat } from '../../../../src/infra/sql';
 
-describe('DQL - Empty results', () => {
+describe('Row Export - TABLE_SCHEMA format', () => {
     let executor: SimpleSqlExecutor;
 
     beforeEach(() => {
@@ -10,7 +10,6 @@ describe('DQL - Empty results', () => {
         executor.execute('CREATE TABLE users (id NUMBER, name STRING, age NUMBER)', [SqlType.DDL]);
         executor.execute('INSERT INTO users (id, name, age) VALUES (1, \'Alice\', 25)', [SqlType.DML]);
         executor.execute('INSERT INTO users (id, name, age) VALUES (2, \'Bob\', 30)', [SqlType.DML]);
-        executor.execute('INSERT INTO users (id, name, age) VALUES (3, \'Charlie\', 35)', [SqlType.DML]);
     });
 
     afterEach(() => {
@@ -18,12 +17,13 @@ describe('DQL - Empty results', () => {
         if (global.gc) global.gc();
     });
 
-    it('should return empty array when no rows match', () => {
-        const sql = 'SELECT * FROM users WHERE id = 999';
-        const result = executor.execute(sql, [SqlType.DQL]);
+    it('should export table schema as JSON', () => {
+        const exported = executor.export(ExportFormat.TABLE_SCHEMA);
+        const schema = JSON.parse(exported);
 
-        expect(result.success).toBe(true);
-        expect(result.message).toContain('Selected 0 row(s)');
-        expect((result.data as any[]).length).toBe(0);
+        expect(schema.tableName).toBe('users');
+        expect(schema.id2fieldName).toBeDefined();
+        expect(schema.fieldName2id).toBeDefined();
+        expect(schema.columnSchemas).toBeDefined();
     });
 });

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { SimpleSqlExecutor } from '../../../src/infra/sql';
-import { SqlType, ActionType, type Row } from '../../../src/infra/sql';
+import { SimpleSqlExecutor } from '../../../../src/infra/sql';
+import { SqlType, ActionType, type Row } from '../../../../src/infra/sql';
 
 function createRowData(obj: Record<number, any>): Map<number, any> {
     return new Map(Object.entries(obj).map(([k, v]) => [Number(k), v]));
