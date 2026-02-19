@@ -83,7 +83,7 @@ const handleCreateTable = () => {
   }
 
   .layout-drawer {
-    width: 200px;
+    width: 100%;
   }
 }
 </style>
