@@ -304,13 +304,13 @@ describe('SQLBuilder', () => {
         it('should build CREATE TABLE', () => {
             const columns = new Map([['name', 'STRING'], ['age', 'NUMBER']]);
             const sql = SQLBuilder.ddl().createTable('users', columns);
-            expect(sql).toBe('CREATE TABLE users (name STRING, age NUMBER)');
+            expect(sql).toBe('CREATE TABLE users (\n    name STRING,\n    age NUMBER\n)');
         });
 
         it('should build CREATE TABLE with table comment', () => {
             const columns = new Map([['name', 'STRING'], ['age', 'NUMBER']]);
             const sql = SQLBuilder.ddl().createTable('users', columns, 'User information table');
-            expect(sql).toBe('CREATE TABLE users (name STRING, age NUMBER) COMMENT "User information table"');
+            expect(sql).toBe('CREATE TABLE users (\n    name STRING,\n    age NUMBER\n) COMMENT "User information table"');
         });
 
         it('should build ALTER TABLE ADD COLUMN', () => {

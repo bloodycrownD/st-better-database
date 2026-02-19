@@ -77,11 +77,7 @@ const handleTableClick = (tableName: string) => {
 };
 
 const handleCreateClick = () => {
-  console.log('[TableListDrawer] Create table button clicked, emitting create event');
-  console.log('[TableListDrawer] isDrawer:', props.isDrawer);
-  console.log('[TableListDrawer] Emitting create event...');
   emit('create');
-  console.log('[TableListDrawer] Create event emitted');
 };
 </script>
 

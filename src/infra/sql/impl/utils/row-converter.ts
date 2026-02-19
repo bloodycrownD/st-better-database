@@ -9,19 +9,21 @@ export class RowConverter {
         this.expressionEvaluator = new ExpressionEvaluator();
     }
 
-    private toMap(obj: any): Map<number, any> | undefined {
+    private toRecord(obj: any): Record<number, any> | undefined {
         if (!obj) return undefined;
-        if (obj instanceof Map) return obj;
-        const map = new Map<number, any>();
-        for (const key of Object.keys(obj)) {
-            map.set(Number(key), obj[key]);
+        if (obj instanceof Map) {
+            const record: Record<number, any> = {};
+            obj.forEach((value, key) => {
+                record[key] = value;
+            });
+            return record;
         }
-        return map;
+        return obj;
     }
 
     dml2row(
         statements: any[],
-        tableSchemas: Map<number, TableSchema>,
+        tableSchemas: Record<number, TableSchema>,
         getTableIdxByName: (tableName: string) => number | undefined
     ): Row[] {
         const rows: Row[] = [];
@@ -48,7 +50,7 @@ export class RowConverter {
 
     row2dml(
         rows: Row[],
-        tableSchemas: Map<number, TableSchema>,
+        tableSchemas: Record<number, TableSchema>,
         getTableNameByIdx: (tableIdx: number) => string | undefined
     ): string {
         const statements: string[] = [];
@@ -59,7 +61,7 @@ export class RowConverter {
                 throw new SqlExecutionError(`Table with idx ${row.tableIdx} not found`);
             }
 
-            const schema = tableSchemas.get(row.tableIdx);
+            const schema = tableSchemas[row.tableIdx];
             if (!schema) {
                 throw new SqlExecutionError(`Schema for table '${tableName}' not found`);
             }
@@ -85,21 +87,21 @@ export class RowConverter {
 
     private convertInsertToRow(
         stmt: any,
-        tableSchemas: Map<number, TableSchema>,
+        tableSchemas: Record<number, TableSchema>,
         getTableIdxByName: (tableName: string) => number | undefined
     ): Row {
         const tableName = stmt.tableName;
         const tableIdx = getTableIdxByName(tableName)!;
-        const schema = tableSchemas.get(tableIdx)!;
+        const schema = tableSchemas[tableIdx]!;
 
-        const after = new Map<number, any>();
+        const after: Record<number, any> = {};
 
         for (const valueRow of stmt.values) {
             for (let i = 0; i < stmt.columns.length; i++) {
                 const colName = stmt.columns[i];
-                const fieldIdx = schema.fieldName2id.get(colName)!;
+                const fieldIdx = schema.fieldName2id[colName]!;
                 const expr = valueRow[i];
-                after.set(fieldIdx, this.expressionEvaluator.evaluateExpression(expr, schema, tableIdx, null));
+                after[fieldIdx] = this.expressionEvaluator.evaluateExpression(expr, schema, tableIdx, null);
             }
         }
 
@@ -112,19 +114,19 @@ export class RowConverter {
 
     private convertUpdateToRow(
         stmt: any,
-        tableSchemas: Map<number, TableSchema>,
+        tableSchemas: Record<number, TableSchema>,
         getTableIdxByName: (tableName: string) => number | undefined
     ): Row {
         const tableName = stmt.tableName;
         const tableIdx = getTableIdxByName(tableName)!;
-        const schema = tableSchemas.get(tableIdx)!;
+        const schema = tableSchemas[tableIdx]!;
 
-        const after = new Map<number, any>();
+        const after: Record<number, any> = {};
 
         for (const set of stmt.sets) {
-            const fieldIdx = schema.fieldName2id.get(set.column)!;
+            const fieldIdx = schema.fieldName2id[set.column]!;
             const value = this.expressionEvaluator.evaluateExpression(set.value, schema, tableIdx, null);
-            after.set(fieldIdx, value);
+            after[fieldIdx] = value;
         }
 
         return {
@@ -137,12 +139,12 @@ export class RowConverter {
 
     private convertDeleteToRow(
         stmt: any,
-        tableSchemas: Map<number, TableSchema>,
+        tableSchemas: Record<number, TableSchema>,
         getTableIdxByName: (tableName: string) => number | undefined
     ): Row {
         const tableName = stmt.tableName;
         const tableIdx = getTableIdxByName(tableName)!;
-        const schema = tableSchemas.get(tableIdx)!;
+        const schema = tableSchemas[tableIdx]!;
 
         return {
             action: ActionType.DELETE,
@@ -153,19 +155,19 @@ export class RowConverter {
 
     private convertAppendToRow(
         stmt: any,
-        tableSchemas: Map<number, TableSchema>,
+        tableSchemas: Record<number, TableSchema>,
         getTableIdxByName: (tableName: string) => number | undefined
     ): Row {
         const tableName = stmt.tableName;
         const tableIdx = getTableIdxByName(tableName)!;
-        const schema = tableSchemas.get(tableIdx)!;
+        const schema = tableSchemas[tableIdx]!;
 
         const colName = stmt.column;
-        const fieldIdx = schema.fieldName2id.get(colName)!;
+        const fieldIdx = schema.fieldName2id[colName]!;
         const value = this.expressionEvaluator.evaluateExpression(stmt.value, schema, tableIdx, null);
 
-        const after = new Map<number, any>();
-        after.set(fieldIdx, value);
+        const after: Record<number, any> = {};
+        after[fieldIdx] = value;
 
         return {
             action: ActionType.APPEND,
@@ -175,14 +177,14 @@ export class RowConverter {
     }
 
     private evaluateWhereToRowData(expr: any, schema: TableSchema, _tableIdx: number): RowData {
-        const row = new Map<number, any>();
+        const row: RowData = {};
 
         if (expr.type === 'binary') {
             if (expr.left.type === 'column' && expr.right.type === 'value') {
                 const colName = expr.left.name;
-                const fieldIdx = schema.fieldName2id.get(colName);
+                const fieldIdx = schema.fieldName2id[colName];
                 if (fieldIdx !== undefined) {
-                    row.set(fieldIdx, expr.right.value);
+                    row[fieldIdx] = expr.right.value;
                 }
             }
         }
@@ -194,14 +196,17 @@ export class RowConverter {
         const columns: string[] = [];
         const values: string[] = [];
 
-        const afterMap = this.toMap(row.after);
-        afterMap?.forEach((value, fieldIdx) => {
-            const colName = schema.id2fieldName.get(fieldIdx);
-            if (colName) {
-                columns.push(colName);
-                values.push(this.valueToSql(value));
-            }
-        });
+        const afterRecord = this.toRecord(row.after);
+        if (afterRecord) {
+            Object.entries(afterRecord).forEach(([fieldIdxStr, value]) => {
+                const fieldIdx = parseInt(fieldIdxStr);
+                const colName = schema.id2fieldName[fieldIdx];
+                if (colName) {
+                    columns.push(colName);
+                    values.push(this.valueToSql(value));
+                }
+            });
+        }
 
         return `INSERT INTO ${tableName} (${columns.join(', ')}) VALUES (${values.join(', ')})`;
     }
@@ -209,21 +214,25 @@ export class RowConverter {
     private convertRowToUpdate(schema: TableSchema, tableName: string, row: Row): string {
         const sets: string[] = [];
 
-        const afterMap = this.toMap(row.after);
-        afterMap?.forEach((value, fieldIdx) => {
-            const colName = schema.id2fieldName.get(fieldIdx);
-            if (colName) {
-                sets.push(`${colName} = ${this.valueToSql(value)}`);
-            }
-        });
+        const afterRecord = this.toRecord(row.after);
+        if (afterRecord) {
+            Object.entries(afterRecord).forEach(([fieldIdxStr, value]) => {
+                const fieldIdx = parseInt(fieldIdxStr);
+                const colName = schema.id2fieldName[fieldIdx];
+                if (colName) {
+                    sets.push(`${colName} = ${this.valueToSql(value)}`);
+                }
+            });
+        }
 
         let sql = `UPDATE ${tableName} SET ${sets.join(', ')}`;
 
-        const beforeMap = this.toMap(row.before);
-        if (beforeMap && beforeMap.size > 0) {
+        const beforeRecord = this.toRecord(row.before);
+        if (beforeRecord && Object.keys(beforeRecord).length > 0) {
             const conditions: string[] = [];
-            beforeMap.forEach((value, fieldIdx) => {
-                const colName = schema.id2fieldName.get(fieldIdx);
+            Object.entries(beforeRecord).forEach(([fieldIdxStr, value]) => {
+                const fieldIdx = parseInt(fieldIdxStr);
+                const colName = schema.id2fieldName[fieldIdx];
                 if (colName) {
                     conditions.push(`${colName} = ${this.valueToSql(value)}`);
                 }
@@ -240,13 +249,16 @@ export class RowConverter {
     private convertRowToDelete(schema: TableSchema, tableName: string, row: Row): string {
         const conditions: string[] = [];
 
-        const beforeMap = this.toMap(row.before);
-        beforeMap?.forEach((value, fieldIdx) => {
-            const colName = schema.id2fieldName.get(fieldIdx);
-            if (colName) {
-                conditions.push(`${colName} = ${this.valueToSql(value)}`);
-            }
-        });
+        const beforeRecord = this.toRecord(row.before);
+        if (beforeRecord) {
+            Object.entries(beforeRecord).forEach(([fieldIdxStr, value]) => {
+                const fieldIdx = parseInt(fieldIdxStr);
+                const colName = schema.id2fieldName[fieldIdx];
+                if (colName) {
+                    conditions.push(`${colName} = ${this.valueToSql(value)}`);
+                }
+            });
+        }
 
         let sql = `DELETE FROM ${tableName}`;
 
@@ -258,13 +270,15 @@ export class RowConverter {
     }
 
     private convertRowToAppend(schema: TableSchema, tableName: string, row: Row): string {
-        const afterMap = this.toMap(row.after);
-        const fieldIdx = afterMap ? Array.from(afterMap.keys())[0] : undefined;
-        if (fieldIdx === undefined) {
+        const afterRecord = this.toRecord(row.after);
+        const keys = afterRecord ? Object.keys(afterRecord) : [];
+        const fieldIdxStr = keys.length > 0 ? keys[0] : undefined;
+        if (fieldIdxStr === undefined) {
             throw new SqlExecutionError('Invalid APPEND row data');
         }
-        const colNameStr = schema.id2fieldName.get(fieldIdx);
-        const value = afterMap?.get(fieldIdx);
+        const fieldIdx = parseInt(fieldIdxStr);
+        const colNameStr = schema.id2fieldName[fieldIdx];
+        const value = afterRecord ? afterRecord[fieldIdx] : undefined;
 
         return `APPEND INTO ${tableName} (${colNameStr}) VALUES (${this.valueToSql(value)})`;
     }

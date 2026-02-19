@@ -23,9 +23,9 @@ describe('DQL - ORDER BY clause', () => {
         const result = executor.execute(sql, [SqlType.DQL]);
         const rows = result.data as any[];
 
-        expect(rows[0].get('age')).toBe(25);
-        expect(rows[1].get('age')).toBe(30);
-        expect(rows[2].get('age')).toBe(35);
+        expect(rows[0].age).toBe(25);
+        expect(rows[1].age).toBe(30);
+        expect(rows[2].age).toBe(35);
     });
 
     it('should sort by column descending', () => {
@@ -33,9 +33,9 @@ describe('DQL - ORDER BY clause', () => {
         const result = executor.execute(sql, [SqlType.DQL]);
         const rows = result.data as any[];
 
-        expect(rows[0].get('age')).toBe(35);
-        expect(rows[1].get('age')).toBe(30);
-        expect(rows[2].get('age')).toBe(25);
+        expect(rows[0].age).toBe(35);
+        expect(rows[1].age).toBe(30);
+        expect(rows[2].age).toBe(25);
     });
 
     it('should sort with WHERE condition', () => {
@@ -44,8 +44,8 @@ describe('DQL - ORDER BY clause', () => {
         const rows = result.data as any[];
 
         expect(rows.length).toBe(2);
-        expect(rows[0].get('age')).toBe(30);
-        expect(rows[1].get('age')).toBe(35);
+        expect(rows[0].age).toBe(30);
+        expect(rows[1].age).toBe(35);
     });
 
     it('should handle NULL values in sorting', () => {
@@ -58,8 +58,8 @@ describe('DQL - ORDER BY clause', () => {
         const result = executor.execute(sql, [SqlType.DQL]);
         const rows = result.data as any[];
 
-        expect(rows[0].get('age')).toBeNull();
-        expect(rows[1].get('age')).toBe(25);
-        expect(rows[2].get('age')).toBe(30);
+        expect(rows[0].age).toBeNull();
+        expect(rows[1].age).toBe(25);
+        expect(rows[2].age).toBe(30);
     });
 });

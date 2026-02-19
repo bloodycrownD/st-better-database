@@ -27,7 +27,6 @@ export abstract class AbstractTableManagementService implements TableManagementS
     addColumn(tableName: string, columnName: string, columnType: ColumnSchema): SqlResult {
         const typeDef = columnType.type + (columnType.primitiveKey ? ' PRIMARY KEY' : '');
         const sql = SQLBuilder.ddl().alterTableAddColumn(tableName, columnName, typeDef, columnType.comment);
-        console.log('[TableService] ADD COLUMN SQL:', sql);
         return this.executor.execute(sql, [SqlType.DDL]);
     }
 

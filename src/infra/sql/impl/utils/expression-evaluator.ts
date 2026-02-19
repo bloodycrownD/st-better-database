@@ -17,12 +17,12 @@ export class ExpressionEvaluator {
             }
 
             const colName = expr.name;
-            const fieldIdx = schema.fieldName2id.get(colName);
+            const fieldIdx = schema.fieldName2id[colName];
             if (fieldIdx === undefined) {
                 throw new Error(`Column '${colName}' does not exist`);
             }
 
-            return row.get(fieldIdx);
+            return row[fieldIdx];
         }
 
         if (expr.type === 'binary') {

@@ -13,12 +13,16 @@ import type {RowData} from '@/infra/sql';
  * }
  */
 export class SimpleDataStorage implements DataStorage {
-    private data: Map<number, RowData[]> = new Map();
+    private data: Record<number, RowData[]> = {};
 
-    constructor(data?: Map<number, RowData[]>) {
+    constructor(data?: Record<number, RowData[]>) {
         if (data) {
-            data.forEach((rows, tableIdx) => {
-                this.data.set(tableIdx, rows.map(row => new Map(row)));
+            Object.keys(data).forEach(tableIdx => {
+                const idx = parseInt(tableIdx);
+                const rows = data[idx];
+                if (rows) {
+                    this.data[idx] = rows.map(row => ({...row}));
+                }
             });
         }
     }
@@ -27,9 +31,13 @@ export class SimpleDataStorage implements DataStorage {
      * 克隆数据存储
      */
     clone(): DataStorage {
-        const clonedData = new Map<number, RowData[]>();
-        this.data.forEach((rows, tableIdx) => {
-            clonedData.set(tableIdx, rows.map(row => new Map(row)));
+        const clonedData: Record<number, RowData[]> = {};
+        Object.keys(this.data).forEach(tableIdx => {
+            const idx = parseInt(tableIdx);
+            const rows = this.data[idx];
+            if (rows) {
+                clonedData[idx] = rows.map(row => ({...row}));
+            }
         });
         return new SimpleDataStorage(clonedData);
     }
@@ -38,53 +46,43 @@ export class SimpleDataStorage implements DataStorage {
      * 获取指定表的所有数据
      */
     getTableData(tableIdx: number): RowData[] {
-        return this.data.get(tableIdx) || [];
+        return this.data[tableIdx] || [];
     }
 
     /**
      * 设置指定表的数据
      */
     setTableData(tableIdx: number, data: RowData[]): void {
-        this.data.set(tableIdx, data.map(row => new Map(row)));
+        this.data[tableIdx] = data.map(row => ({...row}));
     }
 
     /**
      * 清空所有数据
      */
     clear(): void {
-        this.data.clear();
+        this.data = {};
     }
 
     /**
      * 序列化数据存储
      */
     serialize(): object {
-        const serializedData: any = {};
-        this.data.forEach((rows, tableIdx) => {
-            serializedData[tableIdx] = rows.map(row => Object.fromEntries(row));
-        });
-        return serializedData;
+        return this.data;
     }
 
     /**
      * 反序列化数据存储
      */
     deserialize(data: object): void {
-        this.data.clear();
-        const dataObj = data as any;
+        this.data = {};
+        const dataObj = data as Record<string, RowData[]>;
         Object.keys(dataObj).forEach(tableIdx => {
             const idx = parseInt(tableIdx);
             const rows = dataObj[tableIdx];
             if (Array.isArray(rows)) {
-                this.data.set(idx, rows.map((row: any) => {
-                    const rowData = new Map<number, any>();
-                    Object.entries(row).forEach(([key, value]) => {
-                        rowData.set(parseInt(key), value);
-                    });
-                    return rowData;
-                }));
+                this.data[idx] = rows.map(row => ({...row}));
             } else {
-                this.data.set(idx, []);
+                this.data[idx] = [];
             }
         });
     }

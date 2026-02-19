@@ -48,13 +48,13 @@ describe('Multi-Table Creation Test', () => {
         expect(idx3).toBe(2);
 
         const table1 = tables[idx1];
-        expect(table1.columnSchemas.size).toBe(2);
-
+        expect(Object.keys(table1.columnSchemas).length).toBe(2);
+ 
         const table2 = tables[idx2];
-        expect(table2.columnSchemas.size).toBe(3);
-
+        expect(Object.keys(table2.columnSchemas).length).toBe(3);
+ 
         const table3 = tables[idx3];
-        expect(table3.columnSchemas.size).toBe(3);
+        expect(Object.keys(table3.columnSchemas).length).toBe(3);
     });
 
     it('should serialize and deserialize multiple tables correctly', () => {
@@ -71,12 +71,12 @@ describe('Multi-Table Creation Test', () => {
 
         const tables = newExecutor.getTables();
         expect(tables.length).toBe(2);
-
+ 
         expect(tables[0].tableName).toBe('users');
-        expect(tables[0].columnSchemas.size).toBe(2);
-
+        expect(Object.keys(tables[0].columnSchemas).length).toBe(2);
+ 
         expect(tables[1].tableName).toBe('products');
-        expect(tables[1].columnSchemas.size).toBe(3);
+        expect(Object.keys(tables[1].columnSchemas).length).toBe(3);
     });
 
     it('should prevent duplicate table creation', () => {

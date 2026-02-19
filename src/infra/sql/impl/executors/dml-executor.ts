@@ -8,7 +8,7 @@ export class DmlExecutor {
     private expressionEvaluator: ExpressionEvaluator;
 
     constructor(
-        private tableSchemas: Map<number, TableSchema>,
+        private tableSchemas: Record<number, TableSchema>,
         private dataStorage: DataStorage,
         private validateTableExists: (tableName: string) => number
     ) {
@@ -18,43 +18,44 @@ export class DmlExecutor {
     executeInsert(stmt: any): SqlResult {
         const tableName = stmt.tableName;
         const tableIdx = this.validateTableExists(tableName);
-        const schema = this.tableSchemas.get(tableIdx)!;
+        const schema = this.tableSchemas[tableIdx]!;
 
         let affectedRows = 0;
 
         for (const valueRow of stmt.values) {
-            const rowData = new Map<number, any>();
+            const rowData: RowData = {};
 
-            const providedColumns = new Map<string, number>();
+            const providedColumns: Record<string, number> = {};
             for (let i = 0; i < stmt.columns.length; i++) {
                 const colName = stmt.columns[i];
-                const fieldIdx = schema.fieldName2id.get(colName);
+                const fieldIdx = schema.fieldName2id[colName];
                 if (fieldIdx === undefined) {
                     throw new SqlValidationError(
                         `Column '${colName}' does not exist in table '${tableName}'`,
                         `INSERT INTO ${tableName}`
                     );
                 }
-                providedColumns.set(colName, i);
+                providedColumns[colName] = i;
             }
 
-            for (const [fieldIdx, colSchema] of schema.columnSchemas.entries()) {
+            for (const [fieldIdxStr, colSchema] of Object.entries(schema.columnSchemas)) {
+                const fieldIdx = parseInt(fieldIdxStr);
                 const colName = colSchema.name;
-                const providedIdx = providedColumns.get(colName);
+                const providedIdx = providedColumns[colName];
 
                 if (providedIdx !== undefined) {
                     const expr = valueRow[providedIdx];
                     const value = this.expressionEvaluator.evaluateExpression(expr, schema, tableIdx, null);
 
                     if (value === null && colSchema.defaultValue !== undefined) {
-                        rowData.set(fieldIdx, colSchema.defaultValue);
+                        rowData[fieldIdx] = colSchema.defaultValue;
                     } else {
-                        rowData.set(fieldIdx, value);
+                        rowData[fieldIdx] = value;
                     }
                 } else if (colSchema.defaultValue !== undefined) {
-                    rowData.set(fieldIdx, colSchema.defaultValue);
+                    rowData[fieldIdx] = colSchema.defaultValue;
                 } else {
-                    rowData.set(fieldIdx, null);
+                    rowData[fieldIdx] = null;
                 }
             }
 
@@ -75,7 +76,7 @@ export class DmlExecutor {
     executeUpdate(stmt: any): SqlResult {
         const tableName = stmt.tableName;
         const tableIdx = this.validateTableExists(tableName);
-        const schema = this.tableSchemas.get(tableIdx)!;
+        const schema = this.tableSchemas[tableIdx]!;
 
         let affectedRows = 0;
         const data = this.dataStorage.getTableData(tableIdx);
@@ -84,7 +85,7 @@ export class DmlExecutor {
             const matchWhere = stmt.where === undefined || stmt.where === null || this.expressionEvaluator.evaluateWhere(stmt.where, schema, tableIdx, row);
             if (matchWhere) {
                 for (const set of stmt.sets) {
-                    const fieldIdx = schema.fieldName2id.get(set.column);
+                    const fieldIdx = schema.fieldName2id[set.column];
                     if (fieldIdx === undefined) {
                         throw new SqlValidationError(
                             `Column '${set.column}' does not exist in table '${tableName}'`,
@@ -93,7 +94,7 @@ export class DmlExecutor {
                     }
 
                     const value = this.expressionEvaluator.evaluateExpression(set.value, schema, tableIdx, row);
-                    row.set(fieldIdx, value);
+                    row[fieldIdx] = value;
                 }
                 affectedRows++;
             }
@@ -112,7 +113,7 @@ export class DmlExecutor {
     executeDelete(stmt: any): SqlResult {
         const tableName = stmt.tableName;
         const tableIdx = this.validateTableExists(tableName);
-        const schema = this.tableSchemas.get(tableIdx)!;
+        const schema = this.tableSchemas[tableIdx]!;
 
         const data = this.dataStorage.getTableData(tableIdx);
         const newData: RowData[] = [];
@@ -138,10 +139,10 @@ export class DmlExecutor {
     executeAppend(stmt: any): SqlResult {
         const tableName = stmt.tableName;
         const tableIdx = this.validateTableExists(tableName);
-        const schema = this.tableSchemas.get(tableIdx)!;
+        const schema = this.tableSchemas[tableIdx]!;
 
         const colName = stmt.column;
-        const fieldIdx = schema.fieldName2id.get(colName);
+        const fieldIdx = schema.fieldName2id[colName];
         if (fieldIdx === undefined) {
             throw new SqlValidationError(
                 `Column '${colName}' does not exist in table '${tableName}'`,
@@ -149,8 +150,8 @@ export class DmlExecutor {
             );
         }
 
-        const colSchema = schema.columnSchemas.get(fieldIdx)!;
-        if (colSchema.type !== FieldType.STRING) {
+        const colSchema = schema.columnSchemas[fieldIdx];
+        if (!colSchema || colSchema.type !== FieldType.STRING) {
             throw new SqlValidationError(
                 `Column '${colName}' must be STRING type for APPEND operation`,
                 `APPEND INTO ${tableName}`
@@ -163,12 +164,12 @@ export class DmlExecutor {
         for (const row of data) {
             const matchWhere = stmt.where === undefined || stmt.where === null || this.expressionEvaluator.evaluateWhere(stmt.where, schema, tableIdx, row);
             if (matchWhere) {
-                let currentValue = row.get(fieldIdx);
+                let currentValue = row[fieldIdx];
                 if (currentValue === null || currentValue === undefined) {
                     currentValue = '';
                 }
                 const appendValue = this.expressionEvaluator.evaluateExpression(stmt.value, schema, tableIdx, row) as string;
-                row.set(fieldIdx, (currentValue as string) + appendValue);
+                row[fieldIdx] = (currentValue as string) + appendValue;
                 affectedRows++;
             }
         }

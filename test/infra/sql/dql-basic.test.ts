@@ -27,9 +27,9 @@ describe('DQL - Basic SELECT', () => {
         expect((result.data as any[]).length).toBe(3);
 
         const row = (result.data as any[])[0];
-        expect(row.get('id')).toBe(1);
-        expect(row.get('name')).toBe('Alice');
-        expect(row.get('age')).toBe(25);
+        expect(row.id).toBe(1);
+        expect(row.name).toBe('Alice');
+        expect(row.age).toBe(25);
     });
 
     it('should select specific columns', () => {
@@ -40,9 +40,9 @@ describe('DQL - Basic SELECT', () => {
         expect((result.data as any[]).length).toBe(3);
 
         const row = (result.data as any[])[0];
-        expect(row.has('id')).toBe(false);
-        expect(row.get('name')).toBe('Alice');
-        expect(row.get('age')).toBe(25);
+        expect(row.id).toBeUndefined();
+        expect(row.name).toBe('Alice');
+        expect(row.age).toBe(25);
     });
 
     it('should select single column', () => {

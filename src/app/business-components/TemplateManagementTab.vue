@@ -201,20 +201,20 @@ const currentTable = computed<TableSchema>(() => {
 
 const columnList = computed<Array<[number, ColumnSchema]>>(() => {
   if (!currentTable.value.columnSchemas) return [];
-  return Array.from(currentTable.value.columnSchemas.entries());
+  return Object.entries(currentTable.value.columnSchemas).map(([key, val]) => [parseInt(key), val]);
 });
 
 // 获取当前表的所有列（用于添加列时的重复校验）
 const existingColumns = computed<ColumnSchema[]>(() => {
   if (!currentTable.value.columnSchemas) return [];
-  return Array.from(currentTable.value.columnSchemas.values());
+  return Object.values(currentTable.value.columnSchemas);
 });
 
 // 获取当前表的所有列，排除正在编辑的列（用于修改列名时的重复校验）
 const existingColumnsForEdit = computed<ColumnSchema[]>(() => {
   if (!currentTable.value.columnSchemas || !editingColumn.value) return [];
-  return Array.from(currentTable.value.columnSchemas.values())
-      .filter(col => col.name !== editingColumn.value?.column.name);
+  return Object.values(currentTable.value.columnSchemas)
+      .filter((col) => col.name !== editingColumn.value?.column.name);
 });
 
 // Toast 通知

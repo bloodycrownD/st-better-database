@@ -5,7 +5,7 @@ import {FieldType} from '../enums/field-type';
  * 列结构定义
  * 描述表中的一个列的完整元数据
  */
-export interface ColumnSchema {
+export type ColumnSchema = {
     /** 列名 */
     name: string;
     /** 数据类型：NUMBER或STRING */

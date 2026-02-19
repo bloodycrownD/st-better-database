@@ -6,7 +6,7 @@ import {MarkdownExporter} from './markdown';
 export class DataExporter {
     export(
         dataStorage: DataStorage,
-        tableSchemas: Map<number, TableSchema>,
+        tableSchemas: Record<number, TableSchema>,
         format: ExportFormat,
         table?: string,
         getTableIdxByName?: (tableName: string) => number | undefined
@@ -19,7 +19,7 @@ export class DataExporter {
             if (tableIdx === undefined) {
                 throw new SqlExecutionError(`Table '${table}' does not exist`);
             }
-            const schema = tableSchemas.get(tableIdx);
+            const schema = tableSchemas[tableIdx];
             if (!schema) {
                 throw new SqlExecutionError(`Schema for table '${table}' not found`);
             }
@@ -28,7 +28,8 @@ export class DataExporter {
         }
 
         const results: string[] = [];
-        for (const [tableIdx, schema] of tableSchemas.entries()) {
+        for (const [tableIdxStr, schema] of Object.entries(tableSchemas)) {
+            const tableIdx = parseInt(tableIdxStr);
             const data = dataStorage.getTableData(tableIdx);
             results.push(this.exportTable(schema, data, format, tableIdx));
         }
@@ -58,8 +59,9 @@ export class DataExporter {
 
         for (const row of data) {
             const values: string[] = [];
-            for (const [fieldIdx] of schema.id2fieldName.entries()) {
-                const value = row.get(fieldIdx);
+            for (const [fieldIdxStr] of Object.entries(schema.id2fieldName)) {
+                const fieldIdx = parseInt(fieldIdxStr);
+                const value = row[fieldIdx];
                 if (value === null) {
                     values.push('NULL');
                 } else if (typeof value === 'string') {
@@ -69,7 +71,7 @@ export class DataExporter {
                 }
             }
 
-            const columns = Array.from(schema.id2fieldName.values()).join(', ');
+            const columns = Object.values(schema.id2fieldName).join(', ');
             lines.push(`INSERT INTO ${schema.tableName} (${columns}) VALUES (${values.join(', ')});`);
         }
 
@@ -80,9 +82,10 @@ export class DataExporter {
         const rows: Row[] = [];
 
         for (const row of data) {
-            const rowData = new Map<number, any>();
-            for (const [fieldIdx] of schema.id2fieldName.entries()) {
-                rowData.set(fieldIdx, row.get(fieldIdx));
+            const rowData: Record<number, any> = {};
+            for (const [fieldIdxStr] of Object.entries(schema.id2fieldName)) {
+                const fieldIdx = parseInt(fieldIdxStr);
+                rowData[fieldIdx] = row[fieldIdx];
             }
 
             rows.push({
@@ -100,21 +103,21 @@ export class DataExporter {
     }
 
     private exportAsDDL(schema: TableSchema): string {
-        const columnDefs = new Map<string, string>();
-        const columnComments = new Map<string, string>();
-        for (const [fieldIdx] of schema.id2fieldName.entries()) {
-            const colSchema = schema.columnSchemas.get(fieldIdx);
+        const columnDefs: Record<string, string> = {};
+        const columnComments: Record<string, string> = {};
+        for (const [fieldIdxStr] of Object.entries(schema.id2fieldName)) {
+            const fieldIdx = parseInt(fieldIdxStr);
+            const colSchema = schema.columnSchemas[fieldIdx];
             if (colSchema) {
                 const typeDef = colSchema.type + (colSchema.primitiveKey ? ' PRIMARY KEY' : '');
-                columnDefs.set(colSchema.name, typeDef);
-                console.log('[Exporter] Column:', colSchema.name, 'Comment:', colSchema.comment);
+                columnDefs[colSchema.name] = typeDef;
                 if (colSchema.comment) {
-                    columnComments.set(colSchema.name, colSchema.comment);
+                    columnComments[colSchema.name] = colSchema.comment;
                 }
             }
         }
-        console.log('[Exporter] Table:', schema.tableName, 'Comment:', schema.comment);
-        console.log('[Exporter] ColumnComments:', columnComments);
-        return SQLBuilder.ddl().createTable(schema.tableName, columnDefs, schema.comment, columnComments);
+        const columnDefsMap = new Map(Object.entries(columnDefs));
+        const columnCommentsMap = new Map(Object.entries(columnComments));
+        return SQLBuilder.ddl().createTable(schema.tableName, columnDefsMap, schema.comment, columnCommentsMap);
     }
 }

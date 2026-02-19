@@ -1,4 +1,4 @@
-import {DatabaseBuilder, type Row, type TableSchema} from '../../index';
+import {DatabaseBuilder, type Row, type TableSchema, type ExecutorStructure} from '../../index';
 import {ExportFormat, SqlExecutionError, SqlSyntaxError, SqlType, SqlValidationError} from '../../index';
 import type {SqlExecutor} from '@/infra/sql';
 import type {SqlResult} from '@/infra/sql';
@@ -9,9 +9,7 @@ import {DdlExecutor, DmlExecutor, DqlExecutor} from '@/infra/sql';
 import {RowConverter, DataExporter} from '../utils';
 
 export class SimpleSqlExecutor implements SqlExecutor {
-    private tableSchemas: Map<number, TableSchema> = new Map();
-    private tableName2Idx: Map<string, number> = new Map();
-    private tableIdxCounter: { value: number };
+    private structure: ExecutorStructure;
     private dataStorage: DataStorage;
     private ddlExecutor: DdlExecutor;
     private dmlExecutor: DmlExecutor;
@@ -19,23 +17,22 @@ export class SimpleSqlExecutor implements SqlExecutor {
     private rowConverter: RowConverter;
     private dataExporter: DataExporter;
 
-    constructor(dataStorage?: DataStorage) {
+    constructor(dataStorage?: DataStorage, structure?: ExecutorStructure) {
         this.dataStorage = dataStorage || DatabaseBuilder.newStorage();
-        this.tableIdxCounter = { value: 0 };
+        this.structure = structure || this.createEmptyStructure();
+
         this.ddlExecutor = new DdlExecutor(
-            this.tableSchemas,
-            this.tableName2Idx,
-            this.tableIdxCounter,
+            this.structure,
             this.dataStorage,
             this.getTableIdxByName.bind(this)
         );
         this.dmlExecutor = new DmlExecutor(
-            this.tableSchemas,
+            this.structure.tableSchemas,
             this.dataStorage,
             this.validateTableExists.bind(this)
         );
         this.dqlExecutor = new DqlExecutor(
-            this.tableSchemas,
+            this.structure.tableSchemas,
             this.dataStorage,
             this.validateTableExists.bind(this)
         );
@@ -43,8 +40,16 @@ export class SimpleSqlExecutor implements SqlExecutor {
         this.dataExporter = new DataExporter();
     }
 
+    private createEmptyStructure(): ExecutorStructure {
+        return {
+            tableSchemas: {},
+            tableName2Idx: {},
+            tableIdxCounter: 0
+        };
+    }
+
     getTables(): TableSchema[] {
-        return Array.from(this.tableSchemas.values());
+        return Object.values(this.structure.tableSchemas);
     }
 
     execute(sql: string, sqlTypes: SqlType[]): SqlResult {
@@ -134,11 +139,11 @@ export class SimpleSqlExecutor implements SqlExecutor {
     }
 
     getTableIdxByName(tableName: string): number | undefined {
-        return this.tableName2Idx.get(tableName);
+        return this.structure.tableName2Idx[tableName];
     }
 
     getTableNameByIdx(tableIdx: number): string | undefined {
-        const schema = this.tableSchemas.get(tableIdx);
+        const schema = this.structure.tableSchemas[tableIdx];
         return schema?.tableName;
     }
 
@@ -164,7 +169,7 @@ export class SimpleSqlExecutor implements SqlExecutor {
     export(format: ExportFormat, table?: string): string {
         return this.dataExporter.export(
             this.dataStorage,
-            this.tableSchemas,
+            this.structure.tableSchemas,
             format,
             table,
             this.getTableIdxByName.bind(this)
@@ -173,73 +178,21 @@ export class SimpleSqlExecutor implements SqlExecutor {
 
     dml2row(sql: string): Row[] {
         const parseResult = Parser.parse(sql);
-        return this.rowConverter.dml2row(parseResult.statements, this.tableSchemas, this.getTableIdxByName.bind(this));
+        return this.rowConverter.dml2row(parseResult.statements, this.structure.tableSchemas, this.getTableIdxByName.bind(this));
     }
 
     row2dml(rows: Row[]): string {
-        return this.rowConverter.row2dml(rows, this.tableSchemas, this.getTableNameByIdx.bind(this));
+        return this.rowConverter.row2dml(rows, this.structure.tableSchemas, this.getTableNameByIdx.bind(this));
     }
 
     clone(): SqlExecutor {
-        // 只复制表结构
-        const clonedExecutor = new SimpleSqlExecutor();
-
-        for (const [tableIdx, schema] of this.tableSchemas.entries()) {
-            const clonedColumnSchemas: any = new Map();
-            for (const [fieldIdx, colSchema] of schema.columnSchemas.entries()) {
-                clonedColumnSchemas.set(fieldIdx, {
-                    name: colSchema.name,
-                    type: colSchema.type,
-                    primitiveKey: colSchema.primitiveKey,
-                    defaultValue: colSchema.defaultValue,
-                    comment: colSchema.comment
-                });
-            }
-
-            clonedExecutor.tableSchemas.set(tableIdx, {
-                tableName: schema.tableName,
-                id2fieldName: new Map(schema.id2fieldName),
-                fieldName2id: new Map(schema.fieldName2id),
-                columnSchemas: clonedColumnSchemas,
-                counter: schema.counter,
-                comment: schema.comment
-            });
-        }
-
-        clonedExecutor.tableName2Idx = new Map(this.tableName2Idx);
-        clonedExecutor.tableIdxCounter.value = this.tableIdxCounter.value;
-
-        return clonedExecutor;
+        const clonedStructure = JSON.parse(JSON.stringify(this.structure)) as ExecutorStructure;
+        return new SimpleSqlExecutor(undefined, clonedStructure);
     }
 
     serialize(): object {
-        const serializedSchemas: any = {};
-        for (const [tableIdx, schema] of this.tableSchemas.entries()) {
-            const serializedColumns: any = {};
-            for (const [fieldIdx, colSchema] of schema.columnSchemas.entries()) {
-                serializedColumns[fieldIdx] = {
-                    name: colSchema.name,
-                    type: colSchema.type,
-                    primitiveKey: colSchema.primitiveKey,
-                    defaultValue: colSchema.defaultValue,
-                    comment: colSchema.comment
-                };
-            }
-
-            serializedSchemas[tableIdx] = {
-                tableName: schema.tableName,
-                id2fieldName: Object.fromEntries(schema.id2fieldName),
-                fieldName2id: Object.fromEntries(schema.fieldName2id),
-                columnSchemas: serializedColumns,
-                counter: schema.counter,
-                comment: schema.comment
-            };
-        }
-
         return {
-            tableSchemas: serializedSchemas,
-            tableName2Idx: Object.fromEntries(this.tableName2Idx),
-            tableIdxCounter: this.tableIdxCounter.value,
+            structure: this.structure,
             dataStorage: this.dataStorage.serialize()
         };
     }
@@ -247,53 +200,36 @@ export class SimpleSqlExecutor implements SqlExecutor {
     deserialize(data: object): void {
         const dataObj = data as any;
 
-        this.tableSchemas.clear();
-        this.tableName2Idx.clear();
-
-        if (dataObj.tableSchemas) {
-            Object.keys(dataObj.tableSchemas).forEach(tableIdx => {
-                const idx = parseInt(tableIdx);
-                const schema = dataObj.tableSchemas[tableIdx];
-
-                const columnSchemas: any = new Map();
-                if (schema.columnSchemas) {
-                    Object.keys(schema.columnSchemas).forEach(fieldIdx => {
-                        const fIdx = parseInt(fieldIdx);
-                        const colSchema = schema.columnSchemas[fieldIdx];
-                        columnSchemas.set(fIdx, colSchema);
-                    });
-                }
-
-                const id2fieldName: Map<number, string> = new Map();
-                if (schema.id2fieldName) {
-                    Object.keys(schema.id2fieldName).forEach(key => {
-                        id2fieldName.set(parseInt(key), schema.id2fieldName[key]);
-                    });
-                }
-
-                this.tableSchemas.set(idx, {
-                    tableName: schema.tableName,
-                    id2fieldName: id2fieldName,
-                    fieldName2id: schema.fieldName2id ? new Map(Object.entries(schema.fieldName2id)) : new Map(),
-                    columnSchemas: columnSchemas,
-                    counter: schema.counter || 0,
-                    comment: schema.comment
-                });
-            });
+        if (dataObj.structure) {
+            this.structure = dataObj.structure;
+        } else {
+            this.structure = this.createEmptyStructure();
         }
-
-        if (dataObj.tableName2Idx) {
-            Object.keys(dataObj.tableName2Idx).forEach(tableName => {
-                this.tableName2Idx.set(tableName, dataObj.tableName2Idx[tableName]);
-            });
-        }
-
-        this.tableIdxCounter.value = dataObj.tableIdxCounter || 0;
 
         if (dataObj.dataStorage) {
             this.dataStorage.deserialize(dataObj.dataStorage);
         } else {
             this.dataStorage.clear();
         }
+
+        this.rebuildExecutors();
+    }
+
+    private rebuildExecutors(): void {
+        this.ddlExecutor = new DdlExecutor(
+            this.structure,
+            this.dataStorage,
+            this.getTableIdxByName.bind(this)
+        );
+        this.dmlExecutor = new DmlExecutor(
+            this.structure.tableSchemas,
+            this.dataStorage,
+            this.validateTableExists.bind(this)
+        );
+        this.dqlExecutor = new DqlExecutor(
+            this.structure.tableSchemas,
+            this.dataStorage,
+            this.validateTableExists.bind(this)
+        );
     }
 }

@@ -2,12 +2,11 @@ import type {ColumnSchema, TableSchema} from '@/infra/sql';
 import {SqlType, SqlValidationError} from '@/infra/sql';
 import type {SqlResult} from '@/infra/sql';
 import type {DataStorage} from '@/infra/sql';
+import type {ExecutorStructure} from '@/infra/sql';
 
 export class DdlExecutor {
     constructor(
-        private tableSchemas: Map<number, TableSchema>,
-        private tableName2Idx: Map<string, number>,
-        private tableIdxCounter: { value: number },
+        private structure: ExecutorStructure,
         private dataStorage: DataStorage,
         private getTableIdxByName: (tableName: string) => number | undefined
     ) {
@@ -19,31 +18,26 @@ export class DdlExecutor {
 
         const tableIdx = this.allocateTableIdx();
         const columns = stmt.columns;
-
-        console.log('[DDL] Create Table columns:', columns);
-        console.log('[DDL] Table comment:', stmt.comment);
-
-        const id2fieldName = new Map<number, string>();
-        const fieldName2id = new Map<string, number>();
-        const columnSchemas = new Map<number, ColumnSchema>();
+        const id2fieldName: Record<number, string> = {};
+        const fieldName2id: Record<string, number> = {};
+        const columnSchemas: Record<number, ColumnSchema> = {};
 
         let counter = 0;
         for (const col of columns) {
             const fieldIdx = counter++;
-            id2fieldName.set(fieldIdx, col.name);
-            fieldName2id.set(col.name, fieldIdx);
-            const colSchema = {
+            id2fieldName[fieldIdx] = col.name;
+            fieldName2id[col.name] = fieldIdx;
+            const colSchema: ColumnSchema = {
                 name: col.name,
                 type: col.type,
                 primitiveKey: col.primitiveKey || false,
                 defaultValue: col.defaultValue,
                 comment: col.comment || ''
             };
-            console.log('[DDL] Creating column:', colSchema);
-            columnSchemas.set(fieldIdx, colSchema);
+            columnSchemas[fieldIdx] = colSchema;
         }
 
-        const schema: TableSchema = {
+        this.structure.tableSchemas[tableIdx] = {
             tableName,
             id2fieldName,
             fieldName2id,
@@ -51,9 +45,7 @@ export class DdlExecutor {
             counter,
             comment: stmt.comment || ''
         };
-
-        this.tableSchemas.set(tableIdx, schema);
-        this.tableName2Idx.set(tableName, tableIdx);
+        this.structure.tableName2Idx[tableName] = tableIdx;
 
         return {
             success: true,
@@ -66,170 +58,26 @@ export class DdlExecutor {
     executeAlterTable(stmt: any): SqlResult {
         const tableName = stmt.tableName;
         const tableIdx = this.validateTableExists(tableName);
-        const schema = this.tableSchemas.get(tableIdx)!;
+        const schema = this.structure.tableSchemas[tableIdx]!;
 
         switch (stmt.opType) {
             case 'ADD_COLUMN':
-                if (stmt.columnDef) {
-                    const colDef = stmt.columnDef;
-                    console.log('[DDL] ADD COLUMN:', colDef);
-                    if (schema.fieldName2id.has(colDef.name)) {
-                        throw new SqlValidationError(
-                            `Column '${colDef.name}' already exists in table '${tableName}'`,
-                            `ALTER TABLE ${tableName} ADD COLUMN ${colDef.name}`
-                        );
-                    }
-
-                    const fieldIdx = schema.counter;
-                    const colSchema = {
-                        name: colDef.name,
-                        type: colDef.type,
-                        primitiveKey: colDef.primitiveKey || false,
-                        defaultValue: colDef.defaultValue,
-                        comment: colDef.comment || ''
-                    };
-                    console.log('[DDL] Created column schema:', colSchema);
-
-                    this.tableSchemas.set(tableIdx, this.addColumn(schema, fieldIdx, colSchema));
-
-                    return {
-                        success: true,
-                        message: `Column '${colDef.name}' added to table '${tableName}'`,
-                        data: 0,
-                        type: SqlType.DDL
-                    };
-                }
-                break;
+                return this.addColumn(schema, tableName, stmt.columnDef);
 
             case 'DROP_COLUMN':
-                if (stmt.columnName) {
-                    const colName = stmt.columnName;
-                    const fieldIdx = schema.fieldName2id.get(colName);
-                    if (fieldIdx === undefined) {
-                        throw new SqlValidationError(
-                            `Column '${colName}' does not exist in table '${tableName}'`,
-                            `ALTER TABLE ${tableName} DROP COLUMN ${colName}`
-                        );
-                    }
-
-                    this.tableSchemas.set(tableIdx, this.removeColumn(schema, fieldIdx, colName));
-
-                    return {
-                        success: true,
-                        message: `Column '${colName}' dropped from table '${tableName}'`,
-                        data: 0,
-                        type: SqlType.DDL
-                    };
-                }
-                break;
+                return this.removeColumn(schema, tableName, stmt.columnName);
 
             case 'RENAME':
-                if (stmt.newTableName) {
-                    const newTableName = stmt.newTableName;
-                    if (this.getTableIdxByName(newTableName) !== undefined) {
-                        throw new SqlValidationError(
-                            `Table '${newTableName}' already exists`,
-                            `ALTER TABLE ${tableName} RENAME TO ${newTableName}`
-                        );
-                    }
-
-                    const newSchema = {
-                        ...schema,
-                        tableName: newTableName
-                    };
-
-                    this.tableSchemas.set(tableIdx, newSchema);
-                    this.tableName2Idx.delete(tableName);
-                    this.tableName2Idx.set(newTableName, tableIdx);
-
-                    return {
-                        success: true,
-                        message: `Table renamed from '${tableName}' to '${newTableName}'`,
-                        data: 0,
-                        type: SqlType.DDL
-                    };
-                }
-                break;
+                return this.renameTable(schema, tableIdx, tableName, stmt.newTableName);
 
             case 'RENAME_COLUMN':
-                if (stmt.columnName && stmt.newColumnName) {
-                    const colName = stmt.columnName;
-                    const newColName = stmt.newColumnName;
-                    const fieldIdx = schema.fieldName2id.get(colName);
-                    if (fieldIdx === undefined) {
-                        throw new SqlValidationError(
-                            `Column '${colName}' does not exist in table '${tableName}'`,
-                            `ALTER TABLE ${tableName} RENAME COLUMN ${colName} TO ${newColName}`
-                        );
-                    }
-                    if (schema.fieldName2id.has(newColName)) {
-                        throw new SqlValidationError(
-                            `Column '${newColName}' already exists in table '${tableName}'`,
-                            `ALTER TABLE ${tableName} RENAME COLUMN ${colName} TO ${newColName}`
-                        );
-                    }
-
-                    const tempSchema = this.removeColumn(schema, fieldIdx, colName);
-                    const newColumnSchema: ColumnSchema = {
-                        name: newColName,
-                        type: tempSchema.columnSchemas.get(fieldIdx)!.type,
-                        primitiveKey: tempSchema.columnSchemas.get(fieldIdx)!.primitiveKey,
-                        defaultValue: tempSchema.columnSchemas.get(fieldIdx)!.defaultValue,
-                        comment: tempSchema.columnSchemas.get(fieldIdx)!.comment
-                    };
-                    const finalSchema = this.addColumn(tempSchema, fieldIdx, newColumnSchema);
-                    this.tableSchemas.set(tableIdx, finalSchema);
-
-                    return {
-                        success: true,
-                        message: `Column '${colName}' renamed to '${newColName}' in table '${tableName}'`,
-                        data: 0,
-                        type: SqlType.DDL
-                    };
-                }
-                break;
+                return this.renameColumn(schema, tableName, stmt.columnName, stmt.newColumnName);
 
             case 'MODIFY_COLUMN_COMMENT':
-                if (stmt.columnName && stmt.comment !== undefined) {
-                    const colName = stmt.columnName;
-                    const fieldIdx = schema.fieldName2id.get(colName);
-                    console.log('[DDL] ALTER COLUMN COMMENT:', {tableName, colName, comment: stmt.comment, fieldIdx});
-                    if (fieldIdx === undefined) {
-                        throw new SqlValidationError(
-                            `Column '${colName}' does not exist in table '${tableName}'`,
-                            `ALTER TABLE ${tableName} MODIFY COLUMN ${colName}`
-                        );
-                    }
-
-                    const newSchema = this.updateColumnSchema(schema, fieldIdx, {comment: stmt.comment});
-                    this.tableSchemas.set(tableIdx, newSchema);
-
-                    return {
-                        success: true,
-                        message: `Column '${colName}' comment updated in table '${tableName}'`,
-                        data: 0,
-                        type: SqlType.DDL
-                    };
-                }
-                break;
+                return this.modifyColumnComment(schema, tableName, stmt.columnName, stmt.comment);
 
             case 'ALTER_TABLE_COMMENT':
-                if (stmt.comment !== undefined) {
-                    const newSchema = {
-                        ...schema,
-                        comment: stmt.comment
-                    };
-
-                    this.tableSchemas.set(tableIdx, newSchema);
-
-                    return {
-                        success: true,
-                        message: `Table '${tableName}' comment updated`,
-                        data: 0,
-                        type: SqlType.DDL
-                    };
-                }
-                break;
+                return this.modifyTableComment(schema, tableName, stmt.comment);
         }
 
         throw new Error('Invalid ALTER TABLE statement');
@@ -239,8 +87,8 @@ export class DdlExecutor {
         const tableName = stmt.tableName;
         const tableIdx = this.validateTableExists(tableName);
 
-        this.tableSchemas.delete(tableIdx);
-        this.tableName2Idx.delete(tableName);
+        delete this.structure.tableSchemas[tableIdx];
+        delete this.structure.tableName2Idx[tableName];
         this.dataStorage.setTableData(tableIdx, []);
 
         return {
@@ -251,8 +99,155 @@ export class DdlExecutor {
         };
     }
 
+    private addColumn(schema: TableSchema, tableName: string, columnDef: any): SqlResult {
+        if (schema.fieldName2id[columnDef.name] !== undefined) {
+            throw new SqlValidationError(
+                `Column '${columnDef.name}' already exists in table '${tableName}'`,
+                `ALTER TABLE ${tableName} ADD COLUMN ${columnDef.name}`
+            );
+        }
+
+        const fieldIdx = schema.counter;
+        const colSchema: ColumnSchema = {
+            name: columnDef.name,
+            type: columnDef.type,
+            primitiveKey: columnDef.primitiveKey || false,
+            defaultValue: columnDef.defaultValue,
+            comment: columnDef.comment || ''
+        };
+
+        schema.id2fieldName[fieldIdx] = colSchema.name;
+        schema.fieldName2id[colSchema.name] = fieldIdx;
+        schema.columnSchemas[fieldIdx] = colSchema;
+        schema.counter = fieldIdx + 1;
+
+        return {
+            success: true,
+            message: `Column '${columnDef.name}' added to table '${tableName}'`,
+            data: 0,
+            type: SqlType.DDL
+        };
+    }
+
+    private removeColumn(schema: TableSchema, tableName: string, columnName: string): SqlResult {
+        const fieldIdx = schema.fieldName2id[columnName];
+        if (fieldIdx === undefined) {
+            throw new SqlValidationError(
+                `Column '${columnName}' does not exist in table '${tableName}'`,
+                `ALTER TABLE ${tableName} DROP COLUMN ${columnName}`
+            );
+        }
+
+        delete schema.id2fieldName[fieldIdx];
+        delete schema.fieldName2id[columnName];
+        delete schema.columnSchemas[fieldIdx];
+
+        return {
+            success: true,
+            message: `Column '${columnName}' dropped from table '${tableName}'`,
+            data: 0,
+            type: SqlType.DDL
+        };
+    }
+
+    private renameTable(schema: TableSchema, tableIdx: number, tableName: string, newTableName: string): SqlResult {
+        if (!newTableName) {
+            throw new SqlValidationError('New table name is required', `ALTER TABLE ${tableName} RENAME TO`);
+        }
+
+        if (this.getTableIdxByName(newTableName) !== undefined) {
+            throw new SqlValidationError(
+                `Table '${newTableName}' already exists`,
+                `ALTER TABLE ${tableName} RENAME TO ${newTableName}`
+            );
+        }
+
+        schema.tableName = newTableName;
+        delete this.structure.tableName2Idx[tableName];
+        this.structure.tableName2Idx[newTableName] = tableIdx;
+
+        return {
+            success: true,
+            message: `Table renamed from '${tableName}' to '${newTableName}'`,
+            data: 0,
+            type: SqlType.DDL
+        };
+    }
+
+    private renameColumn(schema: TableSchema, tableName: string, columnName: string, newColumnName: string): SqlResult {
+        if (!columnName || !newColumnName) {
+            throw new SqlValidationError('Column names are required', `ALTER TABLE ${tableName} RENAME COLUMN`);
+        }
+
+        const fieldIdx = schema.fieldName2id[columnName];
+        if (fieldIdx === undefined) {
+            throw new SqlValidationError(
+                `Column '${columnName}' does not exist in table '${tableName}'`,
+                `ALTER TABLE ${tableName} RENAME COLUMN ${columnName} TO ${newColumnName}`
+            );
+        }
+        if (schema.fieldName2id[newColumnName] !== undefined) {
+            throw new SqlValidationError(
+                `Column '${newColumnName}' already exists in table '${tableName}'`,
+                `ALTER TABLE ${tableName} RENAME COLUMN ${columnName} TO ${newColumnName}`
+            );
+        }
+
+        delete schema.fieldName2id[columnName];
+        schema.fieldName2id[newColumnName] = fieldIdx;
+        schema.id2fieldName[fieldIdx] = newColumnName;
+        const colSchema = schema.columnSchemas[fieldIdx];
+        if (colSchema) {
+            colSchema.name = newColumnName;
+        }
+
+        return {
+            success: true,
+            message: `Column '${columnName}' renamed to '${newColumnName}' in table '${tableName}'`,
+            data: 0,
+            type: SqlType.DDL
+        };
+    }
+
+    private modifyColumnComment(schema: TableSchema, tableName: string, columnName: string, comment?: string): SqlResult {
+        if (!columnName) {
+            throw new SqlValidationError('Column name is required', `ALTER TABLE ${tableName} MODIFY COLUMN`);
+        }
+
+        const fieldIdx = schema.fieldName2id[columnName];
+        if (fieldIdx === undefined) {
+            throw new SqlValidationError(
+                `Column '${columnName}' does not exist in table '${tableName}'`,
+                `ALTER TABLE ${tableName} MODIFY COLUMN ${columnName}`
+            );
+        }
+
+        const colSchema = schema.columnSchemas[fieldIdx];
+        if (colSchema !== undefined) {
+            colSchema.comment = comment;
+        }
+
+        return {
+            success: true,
+            message: `Column '${columnName}' comment updated in table '${tableName}'`,
+            data: 0,
+            type: SqlType.DDL
+        };
+    }
+
+    private modifyTableComment(schema: TableSchema, tableName: string, comment?: string): SqlResult {
+        schema.comment = comment;
+
+        return {
+            success: true,
+            message: `Table '${tableName}' comment updated`,
+            data: 0,
+            type: SqlType.DDL
+        };
+    }
+
     private allocateTableIdx(): number {
-        return this.tableIdxCounter.value++;
+        return this.structure.tableIdxCounter++;
     }
 
     private validateTableExists(tableName: string): number {
@@ -273,79 +268,5 @@ export class DdlExecutor {
                 `Table '${tableName}' already exists`
             );
         }
-    }
-
-    private cloneMap<K, V>(map: Map<K, V>): Map<K, V> {
-        return new Map(map);
-    }
-
-    private cloneColumnSchema(columnSchema: ColumnSchema): ColumnSchema {
-        return {
-            name: columnSchema.name,
-            type: columnSchema.type,
-            primitiveKey: columnSchema.primitiveKey,
-            defaultValue: columnSchema.defaultValue,
-            comment: columnSchema.comment
-        };
-    }
-
-    private updateIdMappings(schema: TableSchema, fieldId: number, action: 'add' | 'remove', colName: string): TableSchema {
-        const newId2fieldName = this.cloneMap(schema.id2fieldName);
-        const newFieldName2id = this.cloneMap(schema.fieldName2id);
-
-        if (action === 'add') {
-            newId2fieldName.set(fieldId, colName);
-            newFieldName2id.set(colName, fieldId);
-        } else {
-            newId2fieldName.delete(fieldId);
-            newFieldName2id.delete(colName);
-        }
-
-        return {
-            ...schema,
-            id2fieldName: newId2fieldName,
-            fieldName2id: newFieldName2id
-        };
-    }
-
-    private addColumn(schema: TableSchema, fieldId: number, column: ColumnSchema): TableSchema {
-        const newSchema = this.updateIdMappings(schema, fieldId, 'add', column.name);
-        const newColumnSchemas = this.cloneMap(newSchema.columnSchemas);
-        newColumnSchemas.set(fieldId, this.cloneColumnSchema(column));
-
-        return {
-            ...newSchema,
-            counter: fieldId + 1,
-            columnSchemas: newColumnSchemas
-        };
-    }
-
-    private removeColumn(schema: TableSchema, fieldId: number, colName: string): TableSchema {
-        const newSchema = this.updateIdMappings(schema, fieldId, 'remove', colName);
-        const newColumnSchemas = this.cloneMap(newSchema.columnSchemas);
-        newColumnSchemas.delete(fieldId);
-
-        return {
-            ...newSchema,
-            columnSchemas: newColumnSchemas
-        };
-    }
-
-    private updateColumnSchema(schema: TableSchema, fieldId: number, updates: Partial<ColumnSchema>): TableSchema {
-        const columnSchema = schema.columnSchemas.get(fieldId);
-        if (!columnSchema) {
-            return schema;
-        }
-
-        const newColumnSchemas = this.cloneMap(schema.columnSchemas);
-        newColumnSchemas.set(fieldId, {
-            ...columnSchema,
-            ...updates
-        });
-
-        return {
-            ...schema,
-            columnSchemas: newColumnSchemas
-        };
     }
 }

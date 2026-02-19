@@ -45,7 +45,7 @@ describe('DML Operations', () => {
 
             const selectResult = executor.execute('SELECT * FROM items', [SqlType.DQL]);
             const row = (selectResult.data as any[])[0];
-            expect(row.get('name')).toBe('unknown');
+            expect(row.name).toBe('unknown');
         });
 
         it('should throw error when inserting into non-existent column', () => {
@@ -76,7 +76,7 @@ describe('DML Operations', () => {
 
             const selectResult = executor.execute('SELECT * FROM users WHERE id = 1', [SqlType.DQL]);
             const row = (selectResult.data as any[])[0];
-            expect(row.get('age')).toBe(26);
+            expect(row.age).toBe(26);
         });
 
         it('should update all rows when WHERE is omitted', () => {
@@ -89,7 +89,7 @@ describe('DML Operations', () => {
             const selectResult = executor.execute('SELECT * FROM users', [SqlType.DQL]);
             const rows = selectResult.data as any[];
             rows.forEach((row: any) => {
-                expect(row.get('name')).toBe('Updated');
+                expect(row.name).toBe('Updated');
             });
         });
 
@@ -99,8 +99,8 @@ describe('DML Operations', () => {
 
             const selectResult = executor.execute('SELECT * FROM users WHERE id = 1', [SqlType.DQL]);
             const row = (selectResult.data as any[])[0];
-            expect(row.get('name')).toBe('Charlie');
-            expect(row.get('age')).toBe(35);
+            expect(row.name).toBe('Charlie');
+            expect(row.age).toBe(35);
         });
 
         it('should throw error when updating non-existent column', () => {
@@ -166,8 +166,8 @@ describe('DML Operations', () => {
 
             const selectResult = executor.execute('SELECT * FROM users ORDER BY id', [SqlType.DQL]);
             const rows = selectResult.data as any[];
-            expect(rows[0].get('name')).toBe('Alice Smith');
-            expect(rows[1].get('name')).toBe('Bob Smith');
+            expect(rows[0].name).toBe('Alice Smith');
+            expect(rows[1].name).toBe('Bob Smith');
         });
 
         it('should append to STRING column with WHERE condition', () => {
@@ -179,8 +179,8 @@ describe('DML Operations', () => {
 
             const selectResult = executor.execute('SELECT * FROM users ORDER BY id', [SqlType.DQL]);
             const rows = selectResult.data as any[];
-            expect(rows[0].get('name')).toBe('Alice Smith');
-            expect(rows[1].get('name')).toBe('Bob');
+            expect(rows[0].name).toBe('Alice Smith');
+            expect(rows[1].name).toBe('Bob');
         });
 
         it('should append to STRING column with complex WHERE condition', () => {
@@ -192,8 +192,8 @@ describe('DML Operations', () => {
 
             const selectResult = executor.execute('SELECT * FROM users ORDER BY id', [SqlType.DQL]);
             const rows = selectResult.data as any[];
-            expect(rows[0].get('name')).toBe('Alice Jr.');
-            expect(rows[1].get('name')).toBe('Bob Jr.');
+            expect(rows[0].name).toBe('Alice Jr.');
+            expect(rows[1].name).toBe('Bob Jr.');
         });
 
         it('should throw error when appending to NUMBER column', () => {
@@ -210,7 +210,7 @@ describe('DML Operations', () => {
 
             const selectResult = executor.execute('SELECT * FROM messages', [SqlType.DQL]);
             const row = (selectResult.data as any[])[0];
-            expect(row.get('content')).toBe(' hello');
+            expect(row.content).toBe(' hello');
         });
 
         it('should append only when WHERE condition matches', () => {
@@ -224,9 +224,9 @@ describe('DML Operations', () => {
 
             const selectResult = executor.execute('SELECT * FROM users ORDER BY id', [SqlType.DQL]);
             const rows = selectResult.data as any[];
-            expect(rows[0].get('name')).toBe('Alice');
-            expect(rows[1].get('name')).toBe('Bob');
-            expect(rows[2].get('name')).toBe('Charlie Sr.');
+            expect(rows[0].name).toBe('Alice');
+            expect(rows[1].name).toBe('Bob');
+            expect(rows[2].name).toBe('Charlie Sr.');
         });
     });
 });

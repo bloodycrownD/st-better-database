@@ -8,7 +8,7 @@ export class DqlExecutor {
     private expressionEvaluator: ExpressionEvaluator;
 
     constructor(
-        private tableSchemas: Map<number, TableSchema>,
+        private tableSchemas: Record<number, TableSchema>,
         private dataStorage: DataStorage,
         private validateTableExists: (tableName: string) => number
     ) {
@@ -18,7 +18,7 @@ export class DqlExecutor {
     executeSelect(stmt: any): SqlResult {
         const tableName = stmt.from;
         const tableIdx = this.validateTableExists(tableName);
-        const schema = this.tableSchemas.get(tableIdx)!;
+        const schema = this.tableSchemas[tableIdx]!;
 
         let data = this.dataStorage.getTableData(tableIdx);
 
@@ -28,21 +28,22 @@ export class DqlExecutor {
             );
         }
 
-        const result: Map<string, any>[] = [];
+        const result: Record<string, any>[] = [];
 
         for (const row of data) {
-            const resultRow = new Map<string, any>();
+            const resultRow: Record<string, any> = {};
 
             for (const col of stmt.columns) {
                 if (col.type === 'star') {
-                    for (const [fieldIdx, fieldName] of schema.id2fieldName.entries()) {
-                        resultRow.set(fieldName, row.get(fieldIdx));
+                    for (const [fieldIdxStr, fieldName] of Object.entries(schema.id2fieldName)) {
+                        const fieldIdx = parseInt(fieldIdxStr);
+                        resultRow[fieldName] = row[fieldIdx];
                     }
                 } else if (col.type === 'column') {
                     const colName = col.tableName ? col.name : col.name;
-                    const fieldIdx = schema.fieldName2id.get(colName);
+                    const fieldIdx = schema.fieldName2id[colName];
                     if (fieldIdx !== undefined) {
-                        resultRow.set(colName, row.get(fieldIdx));
+                        resultRow[colName] = row[fieldIdx];
                     }
                 }
             }
@@ -54,12 +55,12 @@ export class DqlExecutor {
             const orderByClause = stmt.orderBy[0];
             if (orderByClause) {
                 const colName = orderByClause.column;
-                const fieldIdx = schema.fieldName2id.get(colName);
+                const fieldIdx = schema.fieldName2id[colName];
 
                 if (fieldIdx !== undefined) {
                     result.sort((a, b) => {
-                        const aVal = a.get(colName);
-                        const bVal = b.get(colName);
+                        const aVal = a[colName];
+                        const bVal = b[colName];
 
                         if (aVal === null && bVal === null) return 0;
                         if (aVal === null) return orderByClause.ascending ? -1 : 1;

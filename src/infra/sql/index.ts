@@ -4,6 +4,7 @@ export type {TableSchema} from './types/table';
 export type {Row} from './types/row';
 export type {JoinCondition} from './types/join';
 export type {SqlResult} from './types/result';
+export type {ExecutorStructure} from './types/executor-structure';
 
 export {FieldType} from './enums/field-type';
 export {ActionType} from './enums/action-type';

@@ -6,15 +6,15 @@ export class MarkdownExporter {
             return `**${schema.tableName}**\n\n*(无数据)*`;
         }
 
-        const fieldIds = Array.from(schema.id2fieldName.keys());
-        const headers = fieldIds.map(id => schema.id2fieldName.get(id)!);
+        const fieldIds = Object.keys(schema.id2fieldName).map(id => parseInt(id));
+        const headers = fieldIds.map(id => schema.id2fieldName[id]!);
         const separator = headers.map(() => '---');
 
         const rows: string[] = [];
         for (const row of data) {
             const cells: string[] = [];
             for (const fieldId of fieldIds) {
-                const value = row.get(fieldId);
+                const value = row[fieldId];
                 cells.push(MarkdownExporter.formatValue(value));
             }
             rows.push(cells.join(' | '));

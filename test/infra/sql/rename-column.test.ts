@@ -20,10 +20,10 @@ describe('ALTER TABLE RENAME COLUMN Integration', () => {
 
         const querySql = 'SELECT id, username, age FROM users';
         const queryResult = executor.execute(querySql, [SqlType.DQL]);
-
+ 
         expect(queryResult.success).toBe(true);
         expect((queryResult.data as any)).toHaveLength(1);
-        expect((queryResult.data as any)[0].get('username')).toBe('Alice');
+        expect((queryResult.data as any)[0].username).toBe('Alice');
     });
 
     it('should fail when column does not exist', () => {

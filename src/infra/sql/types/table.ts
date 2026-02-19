@@ -11,15 +11,15 @@ import type {ColumnSchema} from './field';
  * - columnSchemas: 字段ID到字段详细定义的映射，包含类型、约束等信息
  * - counter: 字段ID计数器，用于生成新字段ID
  */
-export interface TableSchema {
+export type TableSchema = {
     /** 表名 */
     tableName: string;
     /** 字段映射：字段ID -> 字段名 */
-    id2fieldName: Map<number, string>;
+    id2fieldName: Record<number, string>;
     /** 字段名到字段ID的反向映射：字段名 -> 字段ID */
-    fieldName2id: Map<string, number>;
+    fieldName2id: Record<string, number>;
     /** 字段详细定义：字段ID -> 字段完整元数据（类型、约束、默认值） */
-    columnSchemas: Map<number, ColumnSchema>;
+    columnSchemas: Record<number, ColumnSchema>;
     /** 字段ID计数器，用于分配新字段ID */
     counter: number;
     /** 表注释 */
