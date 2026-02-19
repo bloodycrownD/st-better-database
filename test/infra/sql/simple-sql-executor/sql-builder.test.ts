@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { SQLBuilder, Where } from '../../../../src/infra/sql/sql-builder';
-import type { SqlValue } from '../../../../src/infra/sql/types/core';
+import { SQLBuilder, Where } from '@/infra/sql/sql-builder';
+import type { SqlValue } from '@/infra/sql/types/core';
 
 describe('Where', () => {
     it('should build simple condition', () => {

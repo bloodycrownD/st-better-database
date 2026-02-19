@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { SimpleSqlExecutor } from '../../../../src/infra/sql/impl/core/sql-executor';
-import { SqlType } from '../../../../src/infra/sql/enums/sql-type';
-import { SqlValidationError } from '../../../../src/infra/sql/errors/sql-validation-error';
+import { SimpleSqlExecutor } from '@/infra/sql/impl/core/sql-executor';
+import { SqlType } from '@/infra/sql/enums/sql-type';
+import { SqlValidationError } from '@/infra/sql/errors/sql-validation-error';
 
 describe('Multi-Table Creation Test', () => {
     let executor: any;

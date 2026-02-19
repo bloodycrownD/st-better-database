@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { SimpleSqlExecutor, SqlType } from '../../../../src/infra/sql';
+import { SimpleSqlExecutor, SqlType } from '@/infra/sql';
 
 describe('DQL - WHERE', () => {
     let executor: SimpleSqlExecutor;

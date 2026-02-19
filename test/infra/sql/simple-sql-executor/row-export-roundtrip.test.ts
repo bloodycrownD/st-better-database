@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { SimpleSqlExecutor } from '../../../../src/infra/sql';
-import { SqlType } from '../../../../src/infra/sql';
+import { SimpleSqlExecutor } from '@/infra/sql';
+import { SqlType } from '@/infra/sql';
 
 describe('Row Export - Round-trip conversion', () => {
     let executor: SimpleSqlExecutor;

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { SimpleSqlExecutor, SqlType, SqlValidationError } from '../../../../src/infra/sql';
+import { SimpleSqlExecutor, SqlType, SqlValidationError } from '@/infra/sql';
 
 describe('ALTER TABLE RENAME COLUMN Integration', () => {
     it('should successfully rename a column', () => {
