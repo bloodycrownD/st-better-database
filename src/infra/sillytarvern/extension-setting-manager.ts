@@ -53,7 +53,10 @@ export class ExtensionSettingManager {
 
     private _saveToSettings(): void {
         const {extensionSettings} = SillyTavern.getContext();
-        extensionSettings[ExtensionSettingManager.MODULE_NAME].tableTemplate = this._tableTemplateCache?.serialize();
+        const settings = extensionSettings[ExtensionSettingManager.MODULE_NAME];
+        if (settings) {
+            settings.tableTemplate = this._tableTemplateCache?.serialize();
+        }
         SillyTavern.getContext().saveSettingsDebounced();
     }
 

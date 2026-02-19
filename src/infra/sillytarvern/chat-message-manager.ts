@@ -28,19 +28,25 @@ export class ChatMessageManager {
     static processMessage(index: number, startTag: string, endTag: string, processer: (content: string | null) => string) {
         const context = SillyTavern.getContext();
         const chat = context?.chat || [];
-        const messageText = chat[index]?.mes;
+        const message = chat[index];
 
-        const content = this.extractTagContent(messageText || '', startTag, endTag);
+        if (!message) {
+            return;
+        }
+
+        const messageText = message.mes || '';
+
+        const content = this.extractTagContent(messageText, startTag, endTag);
         const processed = processer(content);
 
         if (content === null) {
-            chat[index].mes = processed;
+            message.mes = processed;
         } else {
-            const endPos = messageText!.lastIndexOf(endTag);
-            const startPos = messageText!.lastIndexOf(startTag, endPos);
-            const beforeTag = messageText!.substring(0, startPos);
-            const afterTag = messageText!.substring(endPos + endTag.length);
-            chat[index].mes = beforeTag + processed + afterTag;
+            const endPos = messageText.lastIndexOf(endTag);
+            const startPos = messageText.lastIndexOf(startTag, endPos);
+            const beforeTag = messageText.substring(0, startPos);
+            const afterTag = messageText.substring(endPos + endTag.length);
+            message.mes = beforeTag + processed + afterTag;
         }
         context?.saveChat();
     }
@@ -107,7 +113,7 @@ export class ChatMessageManager {
             }
         }
 
-        chat[messageId].mes = result;
+        message.mes = result;
         context?.saveChat();
     }
 
