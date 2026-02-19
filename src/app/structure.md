@@ -1,3 +1,12 @@
+# 前端结构
+
+master-screen：纯UI组装，无业务逻辑。彼此存在单向依赖，和slave-screen的区别在于是否存在业务逻辑
+slave-screen：有业务逻辑，有状态，彼此间无依赖
+features：有业务逻辑，有状态，彼此间无依赖
+components：无业务逻辑，无状态，提供通用组件
+layouts：无业务逻辑，无状态，提供布局组件
+
+# 图依赖
 ```mermaid
 flowchart TB
 
@@ -36,3 +45,4 @@ Layer1 -->|直接使用| Layer5
 Layer5-->|使用通用组件| Layer4
 
 ```
+
