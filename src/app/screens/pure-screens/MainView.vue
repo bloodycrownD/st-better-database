@@ -13,11 +13,22 @@
         </div>
       </div>
     </div>
+    <ExtraMesButtons @click="handleExtraMesButtonClick"/>
+    <ChatManagementPanel v-model:visible="chatPanelVisible"/>
   </div>
 </template>
 
 <script setup lang="ts">
-import SettingsPanel from '@/app/screens/pure-screens/SettingsPanel.vue'
+import { ref } from 'vue';
+import SettingsPanel from '@/app/screens/pure-screens/SettingsPanel.vue';
+import ExtraMesButtons from '@/app/components/pure-components/ExtraMesButtons.vue';
+import ChatManagementPanel from '@/app/screens/business-screens/ChatManagementPanel.vue';
+
+const chatPanelVisible = ref(false);
+
+const handleExtraMesButtonClick = () => {
+  chatPanelVisible.value = true;
+};
 </script>
 
 <style scoped lang="less">

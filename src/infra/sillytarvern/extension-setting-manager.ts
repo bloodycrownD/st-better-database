@@ -1,4 +1,4 @@
-import {DatabaseBuilder, type SqlExecutor} from "./sql";
+import {DatabaseBuilder, type SqlExecutor} from "../sql";
 
 export function createAutoSaveProxy(executor: SqlExecutor, onSave: () => void): SqlExecutor {
     return new Proxy(executor, {

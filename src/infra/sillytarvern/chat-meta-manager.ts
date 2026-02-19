@@ -1,5 +1,5 @@
-import {ChatSqlExecutor, type SqlExecutor} from "./sql";
-import {createAutoSaveProxy, ExtensionSettingManager} from "@/infra/extension-setting-manager.ts";
+import {ChatSqlExecutor, type SqlExecutor} from "../sql";
+import {createAutoSaveProxy, ExtensionSettingManager} from "@/infra/sillytarvern/extension-setting-manager.ts";
 
 export class ChatMetaManager {
     static readonly MODULE_NAME = 'ST_BETTER_DATABASE';
@@ -27,8 +27,7 @@ export class ChatMetaManager {
 
         if (settings && settings.tableTemplate) {
             try {
-                const template = ExtensionSettingManager.instance.tableTemplate;
-                this._tableTemplateCache = new ChatSqlExecutor(template);
+                this._tableTemplateCache = new ChatSqlExecutor(ExtensionSettingManager.instance.tableTemplate);
                 this._tableTemplateCache.deserialize(settings.tableTemplate);
             } catch (e) {
                 console.error('Failed to deserialize tableTemplate from metadata:', e);
@@ -39,6 +38,9 @@ export class ChatMetaManager {
 
     private _saveToMetadata(): void {
         const { chatMetadata } = SillyTavern.getContext();
+        if (!chatMetadata[ChatMetaManager.MODULE_NAME]) {
+            chatMetadata[ChatMetaManager.MODULE_NAME] = {};
+        }
         chatMetadata[ChatMetaManager.MODULE_NAME].tableTemplate = this._tableTemplateCache?.serialize();
         SillyTavern.getContext().saveMetadata();
     }
