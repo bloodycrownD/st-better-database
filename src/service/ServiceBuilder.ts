@@ -9,7 +9,7 @@ import type {SqlExecutorService} from "@/service/interfaces/sql-executor-service
 
 export class ServiceBuilder {
     private static readonly _chatDataManagementService: DataManagementService = new ChatDataManagementService();
-    private static readonly _tableManagementService: TableManagementService = new ChatTableManagementService();
+    private static readonly _chatTableManagementService: TableManagementService = new ChatTableManagementService();
     private static readonly _chatSqlExecutorService: SqlExecutorService = new ChatSqlExecutorService();
     private static readonly _templateSqlExecutorService: SqlExecutorService = new TemplateSqlExecutorService();
     private static readonly _templateTableManagementService: TableManagementService = new TemplateTableManagementService();
@@ -18,8 +18,8 @@ export class ServiceBuilder {
         return ServiceBuilder._chatDataManagementService;
     }
 
-    static get tableManagementService(): TableManagementService {
-        return ServiceBuilder._tableManagementService;
+    static get chatTableManagementService(): TableManagementService {
+        return ServiceBuilder._chatTableManagementService;
     }
 
     static get chatSqlExecutorService(): SqlExecutorService {

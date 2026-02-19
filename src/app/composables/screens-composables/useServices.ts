@@ -3,7 +3,7 @@ import {ServiceBuilder} from '@/service/ServiceBuilder.ts';
 
 export function useChatServices() {
     const dataManagementService = computed(() => ServiceBuilder.chatDataManagementService);
-    const tableManagementService = computed(() => ServiceBuilder.tableManagementService);
+    const tableManagementService = computed(() => ServiceBuilder.chatTableManagementService);
     const sqlExecutorService = computed(() => ServiceBuilder.chatSqlExecutorService);
 
     return {
