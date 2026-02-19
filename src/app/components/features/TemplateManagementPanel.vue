@@ -16,13 +16,15 @@
         :tables="tables"
         :selected-table="selectedTable"
         @select-table="handleTableSelect"
+        @create-table="handleCreateTable"
       >
         <TabContainer v-model:active-tab="activeTab" :tabs="tabs">
           <template #tables>
-            <TableListDrawer :tables="tables" :selected-table="selectedTable" @select="handleTableSelect" />
+            <TableListDrawer :tables="tables" :selected-table="selectedTable" :is-drawer="false" @select="handleTableSelect" @create="() => { console.log('[TemplateManagementPanel] @create event received'); handleCreateTable(); }" />
           </template>
           <template #template>
             <TemplateManagementTab
+              ref="templateTabRef"
               :table-service="tableManagementService"
               :tables="tables"
               :selected-table="selectedTable"
@@ -40,17 +42,17 @@
 </template>
 
 <script setup lang="ts">
-import {ref, watch} from 'vue';
-import PopupModal from '../shared/PopupModal.vue';
-import TableDrawerLayout from '../shared/TableDrawerLayout.vue';
-import TabContainer from '../shared/TabContainer.vue';
-import TableListDrawer from '../shared/TableListDrawer.vue';
-import DrawerToggle from '../shared/DrawerToggle.vue';
-import TemplateManagementTab from './TemplateManagementTab.vue';
-import SqlPanelTab from './SqlPanelTab.vue';
-import type {TabItem} from '../shared/TabContainer.vue';
-import {useTemplateServices} from '../../composables/useServices';
-import type {TableSchema} from '@/infra/sql';
+ import {ref, watch, nextTick} from 'vue';
+ import PopupModal from '../shared/PopupModal.vue';
+ import TableDrawerLayout from '../shared/TableDrawerLayout.vue';
+ import TabContainer from '../shared/TabContainer.vue';
+ import TableListDrawer from '../shared/TableListDrawer.vue';
+ import DrawerToggle from '../shared/DrawerToggle.vue';
+ import TemplateManagementTab from './TemplateManagementTab.vue';
+ import SqlPanelTab from './SqlPanelTab.vue';
+ import type {TabItem} from '../shared/TabContainer.vue';
+ import {useTemplateServices} from '../../composables/useServices';
+ import type {TableSchema} from '@/infra/sql';
 
 const {tableManagementService, sqlExecutorService} = useTemplateServices();
 
@@ -59,6 +61,7 @@ const drawerExpanded = ref(false);
 const activeTab = ref('template');
 const selectedTable = ref<string>('');
 const tables = ref<TableSchema[]>([]);
+const templateTabRef = ref<InstanceType<typeof TemplateManagementTab> | null>(null);
 
 const tabs: TabItem[] = [
   {key: 'tables', label: '表格列表', icon: 'fa-solid fa-list', mobileOnly: true},
@@ -76,6 +79,19 @@ const handleTableSelect = (tableName: string) => {
 
 const handleDrawerToggle = () => {
   drawerExpanded.value = !drawerExpanded.value;
+};
+
+const handleCreateTable = async () => {
+  console.log('[TemplateManagementPanel] handleCreateTable START');
+  console.log('[TemplateManagementPanel] Current activeTab:', activeTab.value);
+  // 切换到模板管理标签页
+  activeTab.value = 'template';
+  console.log('[TemplateManagementPanel] Switched to template tab:', activeTab.value);
+  // 等待DOM更新后再打开模态框
+  await nextTick();
+  console.log('[TemplateManagementPanel] After nextTick, templateTabRef:', templateTabRef.value);
+  templateTabRef.value?.openCreateTableModal();
+  console.log('[TemplateManagementPanel] openCreateTableModal called, showCreateTableModal:', templateTabRef.value);
 };
 
 const handleClose = () => {

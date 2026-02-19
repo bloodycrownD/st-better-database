@@ -98,6 +98,7 @@ const handleExecute = () => {
 .sql-editor-container {
   display: flex;
   flex-direction: column;
+  height: 100%;
   border: 1px solid var(--SmartThemeBorderColor);
   border-radius: 6px;
   background: color-mix(in srgb, var(--SmartThemeBorderColor) 30%, transparent);
@@ -130,6 +131,7 @@ const handleExecute = () => {
   line-height: 1.6;
   resize: vertical;
   overflow-y: auto;
+  height: 100%;
 
   &::placeholder {
     color: color-mix(in srgb, var(--SmartThemeBodyColor) 30%, transparent);
@@ -169,6 +171,7 @@ const handleExecute = () => {
   .sql-editor {
     font-size: 12px;
     min-height: 150px;
+    height: 100%;
   }
 
   .sql-footer {

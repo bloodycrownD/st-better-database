@@ -11,7 +11,7 @@ import {RowConverter, DataExporter} from '../utils';
 export class SimpleSqlExecutor implements SqlExecutor {
     private tableSchemas: Map<number, TableSchema> = new Map();
     private tableName2Idx: Map<string, number> = new Map();
-    private tableIdxCounter: number = 0;
+    private tableIdxCounter: { value: number };
     private dataStorage: DataStorage;
     private ddlExecutor: DdlExecutor;
     private dmlExecutor: DmlExecutor;
@@ -21,11 +21,11 @@ export class SimpleSqlExecutor implements SqlExecutor {
 
     constructor(dataStorage?: DataStorage) {
         this.dataStorage = dataStorage || DatabaseBuilder.newStorage();
-        const tableIdxCounter = {value: 0};
+        this.tableIdxCounter = { value: 0 };
         this.ddlExecutor = new DdlExecutor(
             this.tableSchemas,
             this.tableName2Idx,
-            tableIdxCounter,
+            this.tableIdxCounter,
             this.dataStorage,
             this.getTableIdxByName.bind(this)
         );
@@ -207,7 +207,7 @@ export class SimpleSqlExecutor implements SqlExecutor {
         }
 
         clonedExecutor.tableName2Idx = new Map(this.tableName2Idx);
-        clonedExecutor.tableIdxCounter = this.tableIdxCounter;
+        clonedExecutor.tableIdxCounter.value = this.tableIdxCounter.value;
 
         return clonedExecutor;
     }
@@ -239,7 +239,7 @@ export class SimpleSqlExecutor implements SqlExecutor {
         return {
             tableSchemas: serializedSchemas,
             tableName2Idx: Object.fromEntries(this.tableName2Idx),
-            tableIdxCounter: this.tableIdxCounter,
+            tableIdxCounter: this.tableIdxCounter.value,
             dataStorage: this.dataStorage.serialize()
         };
     }
@@ -288,7 +288,7 @@ export class SimpleSqlExecutor implements SqlExecutor {
             });
         }
 
-        this.tableIdxCounter = dataObj.tableIdxCounter || 0;
+        this.tableIdxCounter.value = dataObj.tableIdxCounter || 0;
 
         if (dataObj.dataStorage) {
             this.dataStorage.deserialize(dataObj.dataStorage);

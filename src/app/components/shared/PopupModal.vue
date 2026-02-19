@@ -2,7 +2,7 @@
   <Teleport to="body">
     <Transition name="modal">
       <div v-if="visible" class="popup-modal-overlay" @click.self="handleMaskClick">
-      <div class="popup-modal">
+      <div class="popup-modal" :style="modalStyle">
         <div v-if="title || closable || $slots.titlePrefix" class="popup-modal-header">
           <div class="popup-modal-title">
             <slot name="titlePrefix"></slot>
@@ -25,16 +25,26 @@
 </template>
 
 <script setup lang="ts">
+import {computed} from 'vue';
+
 interface Props {
   visible: boolean;
   title?: string;
   closable?: boolean;
   maskClosable?: boolean;
+  height?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   closable: true,
   maskClosable: true
+});
+
+const modalStyle = computed(() => {
+  if (props.height) {
+    return {'max-height': props.height};
+  }
+  return {};
 });
 
 const emit = defineEmits<{
@@ -162,7 +172,7 @@ const handleMaskClick = () => {
   }
 
   .popup-modal {
-    max-height: 100vh;
+    height: 90vh;
     border-radius: 8px 8px 0 0;
     margin-top: auto;
   }

@@ -7,7 +7,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    setupFiles: [],
+    setupFiles: ['./test/setup.ts'],
     include: ['test/**/*.test.ts'],
     exclude: ['node_modules', 'dist'],
     maxConcurrency: 1,

@@ -3,7 +3,7 @@
     <div class="layout-content">
       <Transition name="drawer-slide">
         <div v-if="drawerExpanded" class="layout-drawer">
-          <TableListDrawer :tables="tables" :selected-table="selectedTable" @select="handleTableSelect" />
+          <TableListDrawer :tables="tables" :selected-table="selectedTable" @select="handleTableSelect" @create="handleCreateTable" />
         </div>
       </Transition>
       <div class="layout-main">
@@ -28,10 +28,15 @@ const props = defineProps<Props>();
 const emit = defineEmits<{
   'update:drawerExpanded': [value: boolean];
   selectTable: [tableName: string];
+  createTable: [];
 }>();
 
 const handleTableSelect = (tableName: string) => {
   emit('selectTable', tableName);
+};
+
+const handleCreateTable = () => {
+  emit('createTable');
 };
 </script>
 

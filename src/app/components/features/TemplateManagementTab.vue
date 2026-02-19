@@ -1,16 +1,5 @@
 <template>
   <div class="template-management-tab">
-    <div class="tab-toolbar">
-      <Button @click="showCreateTableModal = true">
-        <i class="fa-solid fa-plus" style="margin-right: 6px;"></i>
-        创建表
-      </Button>
-      <Button @click="handleRefresh">
-        <i class="fa-solid fa-rotate" style="margin-right: 6px;"></i>
-        刷新
-      </Button>
-    </div>
-
     <div v-if="!selectedTable" class="empty-state">
       <i class="fa-solid fa-table"></i>
       <span>请选择一个表格进行管理</span>
@@ -68,19 +57,21 @@
           </div>
           <div v-else>
             <div v-for="[fieldId, column] in columnList" :key="fieldId" class="column-item">
-              <div class="column-info">
-                <div class="column-name-row">
-                  <i class="fa-solid fa-hashtag column-icon"></i>
-                  <span class="column-name">{{ column.name }}</span>
-                  <i v-if="column.primitiveKey" class="fa-solid fa-key primary-key-icon" title="主键"></i>
-                </div>
-                <div class="column-meta">
+              <div class="column-main">
+                <div class="column-first-row">
+                  <div class="column-name-wrapper">
+                    <i class="fa-solid fa-hashtag column-icon"></i>
+                    <span class="column-name">{{ column.name }}</span>
+                  </div>
                   <span class="type-badge">{{ column.type }}</span>
-                  <span v-if="column.defaultValue !== undefined" class="default-value">
-                    默认: {{ formatValue(column.defaultValue) }}
+                  <span v-if="column.primitiveKey" class="primary-key-badge" title="主键">
+                    <i class="fa-solid fa-key"></i>
                   </span>
                 </div>
                 <div v-if="column.comment" class="column-comment">{{ column.comment }}</div>
+                <div v-if="column.defaultValue !== undefined" class="default-value">
+                  默认: {{ formatValue(column.defaultValue) }}
+                </div>
               </div>
               <div class="column-actions">
                 <Button size="small" title="修改列名" @click="openEditColumnNameModal(fieldId, column)">
@@ -262,11 +253,6 @@ const showDDLModal = ref(false);
 const editingColumn = ref<{fieldId: number; column: ColumnSchema} | null>(null);
 const exportedDDL = ref('');
 
-const handleRefresh = () => {
-  emit('refresh');
-  showToast('刷新成功');
-};
-
 const formatValue = (value: any): string => {
   if (value === null) return 'NULL';
   if (value === undefined) return '';
@@ -412,6 +398,15 @@ const handleExportDDL = () => {
     showDDLModal.value = true;
   }
 };
+
+// 暴露方法给父组件
+defineExpose({
+  openCreateTableModal: () => {
+    console.log('[TemplateManagementTab] openCreateTableModal called, setting showCreateTableModal to true');
+    showCreateTableModal.value = true;
+    console.log('[TemplateManagementTab] showCreateTableModal is now:', showCreateTableModal.value);
+  }
+});
 </script>
 
 <style scoped lang="less">
@@ -420,14 +415,6 @@ const handleExportDDL = () => {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-}
-
-.tab-toolbar {
-  display: flex;
-  gap: 8px;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--SmartThemeBorderColor);
-  background: color-mix(in srgb, var(--SmartThemeBorderColor) 30%, transparent);
 }
 
 .empty-state {
@@ -571,42 +558,38 @@ const handleExportDDL = () => {
   }
 }
 
-.column-info {
+.column-main {
   flex: 1;
   min-width: 0;
+  margin-right: 12px;
 }
 
-.column-name-row {
+.column-first-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 24px;
   margin-bottom: 6px;
+}
+
+.column-name-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
 }
 
 .column-icon {
   font-size: 12px;
   color: color-mix(in srgb, var(--SmartThemeBodyColor) 50%, transparent);
+  flex-shrink: 0;
 }
 
 .column-name {
   font-size: 14px;
   font-weight: 500;
   color: var(--SmartThemeBodyColor);
-  flex: 1;
   word-break: break-all;
-}
-
-.primary-key-icon {
-  font-size: 12px;
-  color: #f59e0b;
-}
-
-.column-meta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 4px;
-  flex-wrap: wrap;
+  min-width: 0;
 }
 
 .type-badge {
@@ -617,18 +600,43 @@ const handleExportDDL = () => {
   font-weight: 500;
   background: color-mix(in srgb, var(--SmartThemeBorderColor) 70%, transparent);
   color: var(--SmartThemeEmColor);
+  flex-shrink: 0;
 }
 
-.default-value {
-  font-size: 12px;
-  color: color-mix(in srgb, var(--SmartThemeBodyColor) 50%, transparent);
+.primary-key-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  flex-shrink: 0;
+
+  i {
+    font-size: 12px;
+    color: #f59e0b;
+  }
 }
 
 .column-comment {
   font-size: 12px;
   color: color-mix(in srgb, var(--SmartThemeBodyColor) 50%, transparent);
-  margin-top: 4px;
   word-break: break-all;
+  line-height: 1.4;
+  max-height: 2.8em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.default-value {
+  font-size: 12px;
+  color: color-mix(in srgb, var(--SmartThemeBodyColor) 50%, transparent);
+  margin-top: 4px;
 }
 
 .column-actions {
@@ -719,14 +727,30 @@ const handleExportDDL = () => {
 
   .column-item {
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .column-main {
+    margin-right: 0;
+  }
+
+  .column-first-row {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .column-name-wrapper {
+    flex: 1;
+    min-width: 0;
   }
 
   .column-actions {
+    gap: 2px;
     width: 100%;
     justify-content: flex-end;
     border-top: 1px solid var(--SmartThemeBorderColor);
-    padding-top: 12px;
+    padding-top: 8px;
     margin-top: 4px;
   }
 
