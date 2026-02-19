@@ -95,9 +95,9 @@ export class ChatSqlExecutor implements SqlExecutor {
         const rows = this.tableTemplate.dml2row(sql);
         ChatMessageManager.processLastRows(content => {
             const origin = content ? JSON.parse(content) as Row[] : [];
-            origin.push(...rows)
-            return `<commit>${JSON.stringify(origin)}</commit>`;
-        })
+            origin.push(...rows);
+            return `<row>${JSON.stringify(origin)}</row>`;
+        });
         return rows.length;
     }
 
@@ -113,7 +113,9 @@ export class ChatSqlExecutor implements SqlExecutor {
         const rows = ChatMessageManager.getRows();
         const dml = this.tableTemplate.row2dml(rows);
         const sqlExecutor = this.tableTemplate.clone();
-        sqlExecutor.execute(dml, [SqlType.DML]);
+        if (dml) {
+            sqlExecutor.execute(dml, [SqlType.DML]);
+        }
         return sqlExecutor;
     }
 

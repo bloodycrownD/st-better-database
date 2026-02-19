@@ -5,10 +5,10 @@ export class ChatMessageManager {
     private static readonly ROW_END_TAG = '</row>'
     private static readonly COMMIT_START_TAG = '<commit>'
     private static readonly COMMIT_END_TAG = '</commit>'
-    private static readonly context = SillyTavern.getContext()
 
     static getRows(): Row[] {
-        const chat = this.context.chat || []
+        const context = SillyTavern.getContext();
+        const chat = context?.chat || [];
         const rows: Row[] = [];
         for (const message of chat) {
             if (message.mes) {
@@ -26,21 +26,23 @@ export class ChatMessageManager {
     }
 
     static processMessage(index: number, startTag: string, endTag: string, processer: (content: string | null) => string) {
-        const chat = this.context.chat || []
+        const context = SillyTavern.getContext();
+        const chat = context?.chat || [];
         const messageText = chat[index]?.mes;
-        if (!messageText) return;
 
-        const content = this.extractTagContent(messageText, startTag, endTag);
-        if (content === null) return;
-
-        const endPos = messageText.lastIndexOf(endTag);
-        const startPos = messageText.lastIndexOf(startTag, endPos);
-        const beforeTag = messageText.substring(0, startPos);
-        const afterTag = messageText.substring(endPos + endTag.length);
-
+        const content = this.extractTagContent(messageText || '', startTag, endTag);
         const processed = processer(content);
-        chat[index].mes = beforeTag + processed + afterTag;
-        this.context.saveChat();
+
+        if (content === null) {
+            chat[index].mes = processed;
+        } else {
+            const endPos = messageText!.lastIndexOf(endTag);
+            const startPos = messageText!.lastIndexOf(startTag, endPos);
+            const beforeTag = messageText!.substring(0, startPos);
+            const afterTag = messageText!.substring(endPos + endTag.length);
+            chat[index].mes = beforeTag + processed + afterTag;
+        }
+        context?.saveChat();
     }
 
     static processCommit(index: number, processer: (content: string | null) => string): void {
@@ -52,8 +54,10 @@ export class ChatMessageManager {
     }
 
     static processLastRows(processer: (content: string | null) => string){
-        if (this.context.chat?.length == 0){
-            this.context.chat.push({
+        const context = SillyTavern.getContext();
+        const chat = context?.chat || [];
+        if (chat.length == 0){
+            context?.chat.push({
                 id: 0,
                 name: '',
                 role: 'assistant',
@@ -61,7 +65,7 @@ export class ChatMessageManager {
                 date: Date.now(),
             })
         }
-        this.processRows(this.context.chat.length - 1, processer)
+        this.processRows(context?.chat.length - 1, processer)
     }
 
     static extractCommit(message: string): string | null {
@@ -73,7 +77,8 @@ export class ChatMessageManager {
     }
 
     static updateOrAppendRow(messageId: number, newRowContent: string): void {
-        const chat = this.context.chat || [];
+        const context = SillyTavern.getContext();
+        const chat = context?.chat || [];
         const message = chat[messageId];
 
         if (!message || !message.mes) {
@@ -103,7 +108,7 @@ export class ChatMessageManager {
         }
 
         chat[messageId].mes = result;
-        this.context.saveChat();
+        context?.saveChat();
     }
 
     private static extractTagContent(message: string, startTag: string, endTag: string): string | null {
