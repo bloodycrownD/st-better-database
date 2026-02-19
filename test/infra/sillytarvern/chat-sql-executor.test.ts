@@ -9,9 +9,9 @@ beforeAll(() => {
     } as any;
 });
 
-import { ChatSqlExecutor } from '../../../src/infra/sillytarvern/sql-executor';
-import { SimpleSqlExecutor } from '../../../src/infra/sql';
-import { SqlType, type Row } from '../../../src/infra/sql';
+import { ChatSqlExecutor } from '@/infra/sillytarvern';
+import { SimpleSqlExecutor } from '@/infra/sql';
+import { SqlType } from '@/infra/sql';
 
 describe('ChatSqlExecutor', () => {
     let mockChat: any[];
