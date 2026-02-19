@@ -1,5 +1,5 @@
 import type {SqlValue} from './core';
-import {FieldType} from '../enums/field-type';
+import {FieldType} from '@/infra/sql';
 
 /**
  * 列结构定义

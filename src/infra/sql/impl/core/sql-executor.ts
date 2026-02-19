@@ -49,7 +49,13 @@ export class SimpleSqlExecutor implements SqlExecutor {
     }
 
     getTables(): TableSchema[] {
-        return Object.values(this.structure.tableSchemas);
+        const tableSchemas = Object.values(this.structure.tableSchemas);
+        return tableSchemas.map(schema => ({
+            ...schema,
+            id2fieldName: {...schema.id2fieldName},
+            fieldName2id: {...schema.fieldName2id},
+            columnSchemas: {...schema.columnSchemas}
+        }));
     }
 
     execute(sql: string, sqlTypes: SqlType[]): SqlResult {

@@ -37,7 +37,7 @@ export class DdlExecutor {
             columnSchemas[fieldIdx] = colSchema;
         }
 
-        this.structure.tableSchemas[tableIdx] = {
+        const newTableSchema: TableSchema = {
             tableName,
             id2fieldName,
             fieldName2id,
@@ -45,7 +45,8 @@ export class DdlExecutor {
             counter,
             comment: stmt.comment || ''
         };
-        this.structure.tableName2Idx[tableName] = tableIdx;
+        this.structure.tableSchemas = {...this.structure.tableSchemas, [tableIdx]: newTableSchema};
+        this.structure.tableName2Idx = {...this.structure.tableName2Idx, [tableName]: tableIdx};
 
         return {
             success: true,
@@ -87,8 +88,11 @@ export class DdlExecutor {
         const tableName = stmt.tableName;
         const tableIdx = this.validateTableExists(tableName);
 
-        delete this.structure.tableSchemas[tableIdx];
-        delete this.structure.tableName2Idx[tableName];
+        const {[tableIdx]: _, ...restTableSchemas} = this.structure.tableSchemas;
+        const {[tableName]: __, ...restTableName2Idx} = this.structure.tableName2Idx;
+
+        this.structure.tableSchemas = restTableSchemas;
+        this.structure.tableName2Idx = restTableName2Idx;
         this.dataStorage.setTableData(tableIdx, []);
 
         return {
@@ -116,10 +120,14 @@ export class DdlExecutor {
             comment: columnDef.comment || ''
         };
 
-        schema.id2fieldName[fieldIdx] = colSchema.name;
-        schema.fieldName2id[colSchema.name] = fieldIdx;
-        schema.columnSchemas[fieldIdx] = colSchema;
+        schema.id2fieldName = {...schema.id2fieldName, [fieldIdx]: colSchema.name};
+        schema.fieldName2id = {...schema.fieldName2id, [colSchema.name]: fieldIdx};
+        schema.columnSchemas = {...schema.columnSchemas, [fieldIdx]: colSchema};
         schema.counter = fieldIdx + 1;
+
+        const updatedSchema: TableSchema = {...schema};
+        const tableIdx = this.structure.tableName2Idx[tableName]!;
+        this.structure.tableSchemas = {...this.structure.tableSchemas, [tableIdx]: updatedSchema};
 
         return {
             success: true,
@@ -138,9 +146,17 @@ export class DdlExecutor {
             );
         }
 
-        delete schema.id2fieldName[fieldIdx];
-        delete schema.fieldName2id[columnName];
-        delete schema.columnSchemas[fieldIdx];
+        const {[fieldIdx]: _, ...newId2fieldName} = schema.id2fieldName;
+        const {[columnName]: __, ...newFieldName2id} = schema.fieldName2id;
+        const {[fieldIdx]: ___, ...newColumnSchemas} = schema.columnSchemas;
+
+        schema.id2fieldName = newId2fieldName;
+        schema.fieldName2id = newFieldName2id;
+        schema.columnSchemas = newColumnSchemas;
+
+        const updatedSchema: TableSchema = {...schema};
+        const tableIdx = this.structure.tableName2Idx[tableName]!;
+        this.structure.tableSchemas = {...this.structure.tableSchemas, [tableIdx]: updatedSchema};
 
         return {
             success: true,
@@ -162,9 +178,10 @@ export class DdlExecutor {
             );
         }
 
-        schema.tableName = newTableName;
-        delete this.structure.tableName2Idx[tableName];
-        this.structure.tableName2Idx[newTableName] = tableIdx;
+        const updatedSchema: TableSchema = {...schema, tableName: newTableName};
+        const {[tableName]: _, ...rest} = this.structure.tableName2Idx;
+        this.structure.tableName2Idx = {...rest, [newTableName]: tableIdx};
+        this.structure.tableSchemas = {...this.structure.tableSchemas, [tableIdx]: updatedSchema};
 
         return {
             success: true,
@@ -193,13 +210,26 @@ export class DdlExecutor {
             );
         }
 
-        delete schema.fieldName2id[columnName];
-        schema.fieldName2id[newColumnName] = fieldIdx;
-        schema.id2fieldName[fieldIdx] = newColumnName;
-        const colSchema = schema.columnSchemas[fieldIdx];
-        if (colSchema) {
-            colSchema.name = newColumnName;
-        }
+        const {[columnName]: _, ...newFieldName2id} = schema.fieldName2id;
+        const newId2fieldName = {...schema.id2fieldName, [fieldIdx]: newColumnName};
+        const colSchema = schema.columnSchemas[fieldIdx]!;
+        const updatedColSchema: ColumnSchema = {
+            name: newColumnName,
+            type: colSchema.type,
+            primitiveKey: colSchema.primitiveKey,
+            defaultValue: colSchema.defaultValue,
+            comment: colSchema.comment
+        };
+        const {[fieldIdx]: __, ...restColumnSchemas} = schema.columnSchemas;
+        const newColumnSchemas: Record<number, ColumnSchema> = {...restColumnSchemas, [fieldIdx]: updatedColSchema};
+
+        schema.fieldName2id = {...newFieldName2id, [newColumnName]: fieldIdx};
+        schema.id2fieldName = newId2fieldName;
+        schema.columnSchemas = newColumnSchemas;
+
+        const updatedSchema: TableSchema = {...schema};
+        const tableIdx = this.structure.tableName2Idx[tableName]!;
+        this.structure.tableSchemas = {...this.structure.tableSchemas, [tableIdx]: updatedSchema};
 
         return {
             success: true,
@@ -222,10 +252,20 @@ export class DdlExecutor {
             );
         }
 
-        const colSchema = schema.columnSchemas[fieldIdx];
-        if (colSchema !== undefined) {
-            colSchema.comment = comment;
-        }
+        const colSchema = schema.columnSchemas[fieldIdx]!;
+        const updatedColSchema: ColumnSchema = {
+            name: colSchema.name,
+            type: colSchema.type,
+            primitiveKey: colSchema.primitiveKey,
+            defaultValue: colSchema.defaultValue,
+            comment: comment
+        };
+        const {[fieldIdx]: _, ...restColumnSchemas} = schema.columnSchemas;
+        schema.columnSchemas = {...restColumnSchemas, [fieldIdx]: updatedColSchema};
+
+        const updatedSchema: TableSchema = {...schema};
+        const tableIdx = this.structure.tableName2Idx[tableName]!;
+        this.structure.tableSchemas = {...this.structure.tableSchemas, [tableIdx]: updatedSchema};
 
         return {
             success: true,
@@ -236,7 +276,9 @@ export class DdlExecutor {
     }
 
     private modifyTableComment(schema: TableSchema, tableName: string, comment?: string): SqlResult {
-        schema.comment = comment;
+        const updatedSchema: TableSchema = {...schema, comment: comment};
+        const tableIdx = this.structure.tableName2Idx[tableName]!;
+        this.structure.tableSchemas = {...this.structure.tableSchemas, [tableIdx]: updatedSchema};
 
         return {
             success: true,
