@@ -14,4 +14,5 @@ declare global {
             saveSettingsDebounced: () => void;
         };
     };
+    const $:any;
 }
