@@ -2,25 +2,25 @@
   <Teleport to="body">
     <Transition name="modal">
       <div v-if="visible" class="popup-modal-overlay" @click.self="handleMaskClick">
-      <div class="popup-modal" :style="modalStyle">
-        <div v-if="title || closable || $slots.titlePrefix" class="popup-modal-header">
-          <div class="popup-modal-title">
-            <slot name="titlePrefix"></slot>
-            <span>{{ title }}</span>
+        <div class="popup-modal" :style="modalStyle">
+          <div v-if="title || closable || $slots.titlePrefix" class="popup-modal-header">
+            <div class="popup-modal-title">
+              <slot name="titlePrefix"></slot>
+              <span>{{ title }}</span>
+            </div>
+            <div v-if="closable" class="popup-modal-close" @click="handleClose">
+              <i class="fa-solid fa-xmark"></i>
+            </div>
           </div>
-          <div v-if="closable" class="popup-modal-close" @click="handleClose">
-            <i class="fa-solid fa-xmark"></i>
+          <div class="popup-modal-body">
+            <slot></slot>
           </div>
-        </div>
-        <div class="popup-modal-body">
-          <slot></slot>
-        </div>
-        <div v-if="$slots.footer" class="popup-modal-footer">
-          <slot name="footer"></slot>
+          <div v-if="$slots.footer" class="popup-modal-footer">
+            <slot name="footer"></slot>
+          </div>
         </div>
       </div>
-    </div>
-  </Transition>
+    </Transition>
   </Teleport>
 </template>
 

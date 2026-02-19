@@ -2,7 +2,7 @@
   <div class="form-container">
     <div class="form-item">
       <label class="form-label">当前表名</label>
-      <input :value="tableName" class="form-input" type="text" disabled />
+      <input :value="tableName" class="form-input" type="text" disabled/>
     </div>
 
     <div class="form-item">
@@ -11,11 +11,11 @@
         <span class="required">*</span>
       </label>
       <input
-        v-model="newTableName"
-        class="form-input"
-        :class="{ 'has-error': getFieldError('tableName') }"
-        type="text"
-        placeholder="请输入新表名"
+          v-model="newTableName"
+          class="form-input"
+          :class="{ 'has-error': getFieldError('tableName') }"
+          type="text"
+          placeholder="请输入新表名"
       />
       <div v-if="getFieldError('tableName')" class="field-error">
         <i class="fa-solid fa-circle-exclamation"></i>
@@ -38,7 +38,7 @@
 import {computed, ref, watch} from 'vue';
 import Button from '@/app/pure-components/Button.vue';
 import type {TableSchema} from '@/infra/sql';
-import {useFormValidation} from '../../composables/useFormValidation.ts';
+import {useFormValidation} from '../components-composables/useFormValidation.ts';
 
 interface Props {
   tableName: string;
@@ -73,9 +73,9 @@ const handleSave = () => {
   isSubmitting.value = true;
 
   const result = validateEditTableNameForm(
-    newTableName.value,
-    props.tableName,
-    props.existingTables
+      newTableName.value,
+      props.tableName,
+      props.existingTables
   );
 
   if (!result.valid) {

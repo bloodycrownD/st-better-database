@@ -9,10 +9,10 @@
         </Button>
       </div>
       <textarea
-        v-model="sqlText"
-        class="sql-editor"
-        placeholder="请输入SQL语句..."
-        spellcheck="false"
+          v-model="sqlText"
+          class="sql-editor"
+          placeholder="请输入SQL语句..."
+          spellcheck="false"
       ></textarea>
       <div class="sql-footer">
         <div class="editor-stats">

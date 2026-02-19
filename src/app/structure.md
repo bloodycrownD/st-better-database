@@ -7,7 +7,9 @@ pure-components：无业务逻辑，无状态，提供通用组件
 layouts：无业务逻辑，无状态，提供布局组件
 screens-composables：业务逻辑代码，归属于business-screens，调用各种api，外部数据注入。
 components-composables：业务逻辑代码，归属于business-components，不依赖api，根据约定的规范实现功能，类似于abstract。
+
 # 图依赖
+
 ```mermaid
 flowchart TB
 

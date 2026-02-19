@@ -3,34 +3,34 @@
     <slot></slot>
 
     <PopupModal
-      v-model:visible="popupVisible"
-      title="模版管理"
-      :closable="true"
-      @close="handleClose"
+        v-model:visible="popupVisible"
+        title="模版管理"
+        :closable="true"
+        @close="handleClose"
     >
       <template #titlePrefix>
-        <DrawerToggle :expanded="drawerExpanded" @toggle="handleDrawerToggle" />
+        <DrawerToggle :expanded="drawerExpanded" @toggle="handleDrawerToggle"/>
       </template>
       <TableDrawerLayout
-        v-model:drawer-expanded="drawerExpanded"
-        :tables="tables"
-        :selected-table="selectedTable"
-        @select-table="handleTableSelect"
-        @create-table="handleCreateTable"
+          v-model:drawer-expanded="drawerExpanded"
+          :tables="tables"
+          :selected-table="selectedTable"
+          @select-table="handleTableSelect"
+          @create-table="handleCreateTable"
       >
         <TabContainer v-model:active-tab="activeTab" :tabs="tabs">
           <template #template>
             <TemplateManagementTab
-              ref="templateTabRef"
-              :table-service="tableManagementService"
-              :tables="tables"
-              :selected-table="selectedTable"
-              @refresh="refreshTables"
-              @update:selected-table="handleTableSelect"
+                ref="templateTabRef"
+                :table-service="tableManagementService"
+                :tables="tables"
+                :selected-table="selectedTable"
+                @refresh="refreshTables"
+                @update:selected-table="handleTableSelect"
             />
           </template>
           <template #sql>
-            <SqlPanelTab :sql-executor-service="sqlExecutorService" @refresh="refreshTables" />
+            <SqlPanelTab :sql-executor-service="sqlExecutorService" @refresh="refreshTables"/>
           </template>
         </TabContainer>
       </TableDrawerLayout>
@@ -39,16 +39,16 @@
 </template>
 
 <script setup lang="ts">
- import {ref, watch, nextTick} from 'vue';
- import PopupModal from '@/app/pure-components/PopupModal.vue';
- import TableDrawerLayout from '@/app/pure-components/TableDrawerLayout.vue';
- import TabContainer from '@/app/pure-components/TabContainer.vue';
- import DrawerToggle from '@/app/pure-components/DrawerToggle.vue';
- import TemplateManagementTab from '../features/TemplateManagementTab.vue';
- import SqlPanelTab from '../features/SqlPanelTab.vue';
- import type {TabItem} from '@/app/pure-components/TabContainer.vue';
- import {useTemplateServices} from '../composables/useServices.ts';
- import type {TableSchema} from '@/infra/sql';
+import {nextTick, ref, watch} from 'vue';
+import PopupModal from '@/app/pure-components/PopupModal.vue';
+import TableDrawerLayout from '@/app/layouts/TableDrawerLayout.vue';
+import type {TabItem} from '@/app/pure-components/TabContainer.vue';
+import TabContainer from '@/app/pure-components/TabContainer.vue';
+import DrawerToggle from '@/app/pure-components/DrawerToggle.vue';
+import TemplateManagementTab from '../business-components/TemplateManagementTab.vue';
+import SqlPanelTab from '../business-components/SqlPanelTab.vue';
+import {useTemplateServices} from '../screens-composables/useServices.ts';
+import type {TableSchema} from '@/infra/sql';
 
 const {tableManagementService, sqlExecutorService} = useTemplateServices();
 

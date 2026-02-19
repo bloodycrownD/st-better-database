@@ -7,11 +7,11 @@
           <span class="required">*</span>
         </label>
         <input
-          v-model="formData.tableName"
-          class="form-input"
-          :class="{ 'has-error': getFieldError('tableName') }"
-          type="text"
-          placeholder="请输入表名（如：user_info）"
+            v-model="formData.tableName"
+            class="form-input"
+            :class="{ 'has-error': getFieldError('tableName') }"
+            type="text"
+            placeholder="请输入表名（如：user_info）"
         />
         <div v-if="getFieldError('tableName')" class="field-error">
           <i class="fa-solid fa-circle-exclamation"></i>
@@ -23,10 +23,10 @@
       <div class="form-item">
         <label class="form-label">注释</label>
         <input
-          v-model="formData.comment"
-          class="form-input"
-          type="text"
-          placeholder="请输入表注释（可选）"
+            v-model="formData.comment"
+            class="form-input"
+            type="text"
+            placeholder="请输入表注释（可选）"
         />
         <div class="field-hint">描述表的用途，便于理解</div>
       </div>
@@ -48,10 +48,10 @@
 
       <div class="columns-list">
         <div
-          v-for="(column, index) in formData.columns"
-          :key="column.id"
-          class="column-card"
-          :class="{ 'has-error': getFieldError(`column_${index}`) }"
+            v-for="(column, index) in formData.columns"
+            :key="column.id"
+            class="column-card"
+            :class="{ 'has-error': getFieldError(`column_${index}`) }"
         >
           <div class="column-card-header">
             <span class="column-number">#{{ index + 1 }}</span>
@@ -65,10 +65,10 @@
               <div class="form-col form-col-name">
                 <label class="field-label">列名 <span class="required">*</span></label>
                 <input
-                  v-model="column.name"
-                  class="form-input"
-                  type="text"
-                  placeholder="列名"
+                    v-model="column.name"
+                    class="form-input"
+                    type="text"
+                    placeholder="列名"
                 />
               </div>
               <div class="form-col form-col-type">
@@ -89,25 +89,25 @@
               <div class="form-col form-col-default">
                 <label class="field-label">默认值</label>
                 <input
-                  v-model="column.defaultValue"
-                  class="form-input"
-                  type="text"
-                  placeholder="可选"
+                    v-model="column.defaultValue"
+                    class="form-input"
+                    type="text"
+                    placeholder="可选"
                 />
               </div>
               <div class="form-col form-col-comment">
                 <label class="field-label">注释</label>
                 <input
-                  v-model="column.comment"
-                  class="form-input"
-                  type="text"
-                  placeholder="可选"
+                    v-model="column.comment"
+                    class="form-input"
+                    type="text"
+                    placeholder="可选"
                 />
               </div>
             </div>
 
             <label class="checkbox-label">
-              <input v-model="column.primitiveKey" type="checkbox" />
+              <input v-model="column.primitiveKey" type="checkbox"/>
               <span>设为主键</span>
             </label>
           </div>
@@ -135,7 +135,7 @@ import {reactive, ref} from 'vue';
 import Button from '@/app/pure-components/Button.vue';
 import type {ColumnSchema, TableSchema} from '@/infra/sql';
 import {FieldType} from '@/infra/sql/enums/field-type.ts';
-import {useFormValidation} from '../../composables/useFormValidation.ts';
+import {useFormValidation} from '../components-composables/useFormValidation.ts';
 
 interface Props {
   existingTables?: TableSchema[];
@@ -146,7 +146,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  create: [data: {tableName: string; columns: ColumnSchema[]; comment?: string}];
+  create: [data: { tableName: string; columns: ColumnSchema[]; comment?: string }];
   cancel: [];
 }>();
 
@@ -184,9 +184,9 @@ const handleCreate = () => {
   isSubmitting.value = true;
 
   const result = validateCreateTableForm(
-    formData.tableName,
-    formData.columns,
-    props.existingTables
+      formData.tableName,
+      formData.columns,
+      props.existingTables
   );
 
   if (!result.valid) {

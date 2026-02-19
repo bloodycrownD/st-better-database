@@ -101,64 +101,70 @@
     <!-- 创建表模态框 -->
     <PopupModal v-if="showCreateTableModal" visible title="创建表" @close="showCreateTableModal = false">
       <CreateTableForm
-        :existing-tables="tables"
-        @create="handleCreateTable"
-        @cancel="showCreateTableModal = false"
+          :existing-tables="tables"
+          @create="handleCreateTable"
+          @cancel="showCreateTableModal = false"
       />
     </PopupModal>
 
     <!-- 修改表名模态框 -->
     <PopupModal v-if="showEditTableNameModal" visible title="修改表名" @close="showEditTableNameModal = false">
       <EditTableNameForm
-        :table-name="currentTable.tableName"
-        :existing-tables="tables"
-        @save="handleEditTableName"
-        @cancel="showEditTableNameModal = false"
+          :table-name="currentTable.tableName"
+          :existing-tables="tables"
+          @save="handleEditTableName"
+          @cancel="showEditTableNameModal = false"
       />
     </PopupModal>
 
     <!-- 修改表注释模态框 -->
     <PopupModal v-if="showEditTableCommentModal" visible title="修改表注释" @close="showEditTableCommentModal = false">
-      <EditTableCommentForm :comment="currentTable.comment" @save="handleEditTableComment" @cancel="showEditTableCommentModal = false" />
+      <EditTableCommentForm :comment="currentTable.comment" @save="handleEditTableComment"
+                            @cancel="showEditTableCommentModal = false"/>
     </PopupModal>
 
     <!-- 删除表确认模态框 -->
     <PopupModal v-if="showDropTableModal" visible title="删除表" @close="showDropTableModal = false">
-      <DropTableConfirm :table-name="currentTable.tableName" @confirm="handleDropTable" @cancel="showDropTableModal = false" />
+      <DropTableConfirm :table-name="currentTable.tableName" @confirm="handleDropTable"
+                        @cancel="showDropTableModal = false"/>
     </PopupModal>
 
     <!-- 添加列模态框 -->
     <PopupModal v-if="showAddColumnModal" visible title="添加列" @close="showAddColumnModal = false">
       <AddColumnForm
-        :existing-columns="existingColumns"
-        @create="handleAddColumn"
-        @cancel="showAddColumnModal = false"
+          :existing-columns="existingColumns"
+          @create="handleAddColumn"
+          @cancel="showAddColumnModal = false"
       />
     </PopupModal>
 
     <!-- 修改列名模态框 -->
-    <PopupModal v-if="showEditColumnNameModal && editingColumn" visible title="修改列名" @close="showEditColumnNameModal = false">
+    <PopupModal v-if="showEditColumnNameModal && editingColumn" visible title="修改列名"
+                @close="showEditColumnNameModal = false">
       <EditColumnNameForm
-        :column="editingColumn.column"
-        :existing-columns="existingColumnsForEdit"
-        @save="handleEditColumnName"
-        @cancel="showEditColumnNameModal = false"
+          :column="editingColumn.column"
+          :existing-columns="existingColumnsForEdit"
+          @save="handleEditColumnName"
+          @cancel="showEditColumnNameModal = false"
       />
     </PopupModal>
 
     <!-- 修改列注释模态框 -->
-    <PopupModal v-if="showEditColumnCommentModal && editingColumn" visible title="修改列注释" @close="showEditColumnCommentModal = false">
-      <EditColumnCommentForm :column="editingColumn.column" @save="handleEditColumnComment" @cancel="showEditColumnCommentModal = false" />
+    <PopupModal v-if="showEditColumnCommentModal && editingColumn" visible title="修改列注释"
+                @close="showEditColumnCommentModal = false">
+      <EditColumnCommentForm :column="editingColumn.column" @save="handleEditColumnComment"
+                             @cancel="showEditColumnCommentModal = false"/>
     </PopupModal>
 
     <!-- 删除列确认模态框 -->
     <PopupModal v-if="showDropColumnModal && editingColumn" visible title="删除列" @close="showDropColumnModal = false">
-      <DropColumnConfirm :column="editingColumn.column" @confirm="handleDropColumn" @cancel="showDropColumnModal = false" />
+      <DropColumnConfirm :column="editingColumn.column" @confirm="handleDropColumn"
+                         @cancel="showDropColumnModal = false"/>
     </PopupModal>
 
     <!-- DDL 显示模态框 -->
     <PopupModal v-if="showDDLModal" visible title="DDL语句" @close="showDDLModal = false">
-      <DDLDisplay :ddl="exportedDDL" @close="showDDLModal = false" />
+      <DDLDisplay :ddl="exportedDDL" @close="showDDLModal = false"/>
     </PopupModal>
   </div>
 </template>
@@ -167,17 +173,17 @@
 import {computed, reactive, ref} from 'vue';
 import Button from '@/app/pure-components/Button.vue';
 import PopupModal from '@/app/pure-components/PopupModal.vue';
-import type {TableSchema, ColumnSchema} from '@/infra/sql';
+import type {ColumnSchema, TableSchema} from '@/infra/sql';
 import type {TableManagementService} from '@/service/interfaces/table-management-service.ts';
-import CreateTableForm from './forms/CreateTableForm.vue';
-import EditTableNameForm from './forms/EditTableNameForm.vue';
-import EditTableCommentForm from './forms/EditTableCommentForm.vue';
-import DropTableConfirm from './forms/DropTableConfirm.vue';
-import AddColumnForm from './forms/AddColumnForm.vue';
-import EditColumnNameForm from './forms/EditColumnNameForm.vue';
-import EditColumnCommentForm from './forms/EditColumnCommentForm.vue';
-import DropColumnConfirm from './forms/DropColumnConfirm.vue';
-import DDLDisplay from './forms/DDLDisplay.vue';
+import CreateTableForm from './CreateTableForm.vue';
+import EditTableNameForm from './EditTableNameForm.vue';
+import EditTableCommentForm from './EditTableCommentForm.vue';
+import DropTableConfirm from './DropTableConfirm.vue';
+import AddColumnForm from './AddColumnForm.vue';
+import EditColumnNameForm from './EditColumnNameForm.vue';
+import EditColumnCommentForm from './EditColumnCommentForm.vue';
+import DropColumnConfirm from './DropColumnConfirm.vue';
+import DDLDisplay from './DDLDisplay.vue';
 
 interface Props {
   tableService: TableManagementService;
@@ -211,7 +217,7 @@ const existingColumns = computed<ColumnSchema[]>(() => {
 const existingColumnsForEdit = computed<ColumnSchema[]>(() => {
   if (!currentTable.value.columnSchemas || !editingColumn.value) return [];
   return Array.from(currentTable.value.columnSchemas.values())
-    .filter(col => col.name !== editingColumn.value?.column.name);
+      .filter(col => col.name !== editingColumn.value?.column.name);
 });
 
 // Toast 通知状态
@@ -250,7 +256,7 @@ const showEditColumnCommentModal = ref(false);
 const showDropColumnModal = ref(false);
 const showDDLModal = ref(false);
 
-const editingColumn = ref<{fieldId: number; column: ColumnSchema} | null>(null);
+const editingColumn = ref<{ fieldId: number; column: ColumnSchema } | null>(null);
 const exportedDDL = ref('');
 
 const formatValue = (value: any): string => {
@@ -259,7 +265,7 @@ const formatValue = (value: any): string => {
   return String(value);
 };
 
-const handleCreateTable = (data: {tableName: string; columns: ColumnSchema[]; comment?: string}) => {
+const handleCreateTable = (data: { tableName: string; columns: ColumnSchema[]; comment?: string }) => {
   const result = props.tableService.createTable(data.tableName, data.columns, data.comment);
   if (result.success) {
     showCreateTableModal.value = false;
@@ -332,9 +338,9 @@ const openEditColumnNameModal = (fieldId: number, column: ColumnSchema) => {
 const handleEditColumnName = (newName: string) => {
   if (currentTable.value.tableName && editingColumn.value) {
     const result = props.tableService.alterColumnName(
-      currentTable.value.tableName,
-      editingColumn.value.column.name,
-      newName
+        currentTable.value.tableName,
+        editingColumn.value.column.name,
+        newName
     );
     if (result.success) {
       showEditColumnNameModal.value = false;
@@ -355,9 +361,9 @@ const openEditColumnCommentModal = (fieldId: number, column: ColumnSchema) => {
 const handleEditColumnComment = (comment: string) => {
   if (currentTable.value.tableName && editingColumn.value) {
     const result = props.tableService.alterColumnComment(
-      currentTable.value.tableName,
-      editingColumn.value.column.name,
-      comment
+        currentTable.value.tableName,
+        editingColumn.value.column.name,
+        comment
     );
     if (result.success) {
       showEditColumnCommentModal.value = false;
@@ -378,8 +384,8 @@ const openDropColumnModal = (fieldId: number, column: ColumnSchema) => {
 const handleDropColumn = () => {
   if (currentTable.value.tableName && editingColumn.value) {
     const result = props.tableService.dropColumn(
-      currentTable.value.tableName,
-      editingColumn.value.column.name
+        currentTable.value.tableName,
+        editingColumn.value.column.name
     );
     if (result.success) {
       showDropColumnModal.value = false;

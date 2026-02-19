@@ -1,16 +1,21 @@
 <template>
   <div class="form-container">
     <div class="form-item">
+      <label class="form-label">当前列名</label>
+      <input :value="column.name" class="form-input" type="text" disabled/>
+    </div>
+
+    <div class="form-item">
       <label class="form-label">
-        列名
+        新列名
         <span class="required">*</span>
       </label>
       <input
-        v-model="columnData.name"
-        class="form-input"
-        :class="{ 'has-error': getFieldError('columnName') }"
-        type="text"
-        placeholder="请输入列名（如：username）"
+          v-model="newColumnName"
+          class="form-input"
+          :class="{ 'has-error': getFieldError('columnName') }"
+          type="text"
+          placeholder="请输入新列名"
       />
       <div v-if="getFieldError('columnName')" class="field-error">
         <i class="fa-solid fa-circle-exclamation"></i>
@@ -19,60 +24,24 @@
       <div class="field-hint">只能包含字母、数字和下划线，不能以数字开头</div>
     </div>
 
-    <div class="form-item">
-      <label class="form-label">类型</label>
-      <select v-model="columnData.type" class="form-select">
-        <option :value="FieldType.STRING">STRING</option>
-        <option :value="FieldType.NUMBER">NUMBER</option>
-      </select>
-    </div>
-
-    <div class="form-item">
-      <label class="checkbox-label">
-        <input v-model="columnData.primitiveKey" type="checkbox" />
-        <span>设为主键</span>
-      </label>
-    </div>
-
-    <div class="form-item">
-      <label class="form-label">默认值</label>
-      <input
-        v-model="columnData.defaultValue"
-        class="form-input"
-        type="text"
-        placeholder="请输入默认值（可选）"
-      />
-      <div class="field-hint">插入数据时该列的默认值</div>
-    </div>
-
-    <div class="form-item">
-      <label class="form-label">注释</label>
-      <input
-        v-model="columnData.comment"
-        class="form-input"
-        type="text"
-        placeholder="请输入列注释（可选）"
-      />
-    </div>
-
     <div class="form-actions">
       <Button @click="handleCancel">取消</Button>
-      <Button type="primary" :disabled="isSubmitting" @click="handleCreate">
+      <Button type="primary" :disabled="isSubmitting || !hasChanged" @click="handleSave">
         <i v-if="isSubmitting" class="fa-solid fa-spinner fa-spin"></i>
-        <span>添加</span>
+        <span>保存</span>
       </Button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import {reactive, ref} from 'vue';
+import {computed, ref, watch} from 'vue';
 import Button from '@/app/pure-components/Button.vue';
 import type {ColumnSchema} from '@/infra/sql';
-import {FieldType} from '@/infra/sql/enums/field-type.ts';
-import {useFormValidation} from '../../composables/useFormValidation.ts';
+import {useFormValidation} from '../components-composables/useFormValidation.ts';
 
 interface Props {
+  column: ColumnSchema;
   existingColumns?: ColumnSchema[];
 }
 
@@ -81,43 +50,45 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  create: [column: ColumnSchema];
+  save: [newName: string];
   cancel: [];
 }>();
 
-const {getFieldError, validateAddColumnForm, clearErrors} = useFormValidation();
+const {getFieldError, validateEditColumnNameForm, clearErrors} = useFormValidation();
 const isSubmitting = ref(false);
+const newColumnName = ref(props.column.name);
 
-const columnData = reactive<ColumnSchema>({
-  name: '',
-  type: FieldType.STRING,
-  primitiveKey: false
+const hasChanged = computed(() => {
+  return newColumnName.value.trim() !== props.column.name;
 });
 
-const handleCreate = () => {
+// 当 props.column 变化时更新
+watch(() => props.column, (newVal) => {
+  newColumnName.value = newVal.name;
+  clearErrors();
+}, {deep: true});
+
+const handleSave = () => {
   clearErrors();
   isSubmitting.value = true;
 
-  const result = validateAddColumnForm(columnData.name, props.existingColumns);
+  const result = validateEditColumnNameForm(
+      newColumnName.value,
+      props.column.name,
+      props.existingColumns
+  );
 
   if (!result.valid) {
     isSubmitting.value = false;
     return;
   }
 
-  const column: ColumnSchema = {
-    name: columnData.name.trim(),
-    type: columnData.type,
-    primitiveKey: columnData.primitiveKey,
-    defaultValue: columnData.defaultValue || undefined,
-    comment: columnData.comment || undefined
-  };
-
-  emit('create', column);
+  emit('save', newColumnName.value.trim());
   isSubmitting.value = false;
 };
 
 const handleCancel = () => {
+  newColumnName.value = props.column.name;
   clearErrors();
   emit('cancel');
 };
@@ -126,8 +97,6 @@ const handleCancel = () => {
 <style scoped lang="less">
 .form-container {
   padding: 20px;
-  max-height: 70vh;
-  overflow-y: auto;
 }
 
 .form-item {
@@ -146,8 +115,7 @@ const handleCancel = () => {
   color: #ef4444;
 }
 
-.form-input,
-.form-select {
+.form-input {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid var(--SmartThemeBorderColor);
@@ -165,6 +133,12 @@ const handleCancel = () => {
 
   &::placeholder {
     color: color-mix(in srgb, var(--SmartThemeBodyColor) 30%, transparent);
+  }
+
+  &:disabled {
+    background: color-mix(in srgb, var(--SmartThemeBorderColor) 30%, transparent);
+    cursor: not-allowed;
+    color: color-mix(in srgb, var(--SmartThemeBodyColor) 50%, transparent);
   }
 
   &.has-error {
@@ -195,25 +169,6 @@ const handleCancel = () => {
   margin-top: 6px;
 }
 
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--SmartThemeEmColor);
-  font-size: 14px;
-  cursor: pointer;
-
-  input {
-    cursor: pointer;
-    width: 18px;
-    height: 18px;
-  }
-
-  span {
-    cursor: pointer;
-  }
-}
-
 .form-actions {
   display: flex;
   gap: 12px;
@@ -227,10 +182,6 @@ const handleCancel = () => {
 @media (max-width: 768px) {
   .form-container {
     padding: 16px;
-  }
-
-  .form-item {
-    margin-bottom: 16px;
   }
 
   .form-actions {

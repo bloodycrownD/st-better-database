@@ -2,10 +2,10 @@
   <div class="tab-container">
     <div class="tab-header">
       <div
-        v-for="tab in visibleTabs"
-        :key="tab.key"
-        :class="['tab-item', { active: activeTab === tab.key }]"
-        @click="handleTabClick(tab.key)"
+          v-for="tab in visibleTabs"
+          :key="tab.key"
+          :class="['tab-item', { active: activeTab === tab.key }]"
+          @click="handleTabClick(tab.key)"
       >
         <i v-if="tab.icon" :class="tab.icon"></i>
         <span>{{ tab.label }}</span>
@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, ref, onMounted, onUnmounted} from 'vue';
+import {computed, onMounted, onUnmounted, ref} from 'vue';
 
 export interface TabItem {
   key: string;
@@ -82,7 +82,7 @@ const handleTabClick = (key: string) => {
   background: color-mix(in srgb, var(--SmartThemeBorderColor) 30%, transparent);
   overflow-x: auto;
   scrollbar-width: none;
-  
+
   &::-webkit-scrollbar {
     display: none;
   }

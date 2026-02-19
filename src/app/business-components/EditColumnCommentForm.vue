@@ -1,32 +1,23 @@
 <template>
   <div class="form-container">
     <div class="form-item">
-      <label class="form-label">当前列名</label>
-      <input :value="column.name" class="form-input" type="text" disabled />
+      <label class="form-label">列名</label>
+      <input :value="column.name" class="form-input" type="text" disabled/>
     </div>
-
     <div class="form-item">
-      <label class="form-label">
-        新列名
-        <span class="required">*</span>
-      </label>
-      <input
-        v-model="newColumnName"
-        class="form-input"
-        :class="{ 'has-error': getFieldError('columnName') }"
-        type="text"
-        placeholder="请输入新列名"
-      />
-      <div v-if="getFieldError('columnName')" class="field-error">
-        <i class="fa-solid fa-circle-exclamation"></i>
-        {{ getFieldError('columnName') }}
-      </div>
-      <div class="field-hint">只能包含字母、数字和下划线，不能以数字开头</div>
+      <label class="form-label">列注释</label>
+      <textarea
+          v-model="comment"
+          class="form-textarea"
+          rows="4"
+          placeholder="请输入列注释（可选）"
+          maxlength="500"
+      ></textarea>
+      <div class="char-count">{{ comment.length }}/500</div>
     </div>
-
     <div class="form-actions">
       <Button @click="handleCancel">取消</Button>
-      <Button type="primary" :disabled="isSubmitting || !hasChanged" @click="handleSave">
+      <Button type="primary" :disabled="isSubmitting" @click="handleSave">
         <i v-if="isSubmitting" class="fa-solid fa-spinner fa-spin"></i>
         <span>保存</span>
       </Button>
@@ -35,61 +26,30 @@
 </template>
 
 <script setup lang="ts">
-import {computed, ref, watch} from 'vue';
+import {ref} from 'vue';
 import Button from '@/app/pure-components/Button.vue';
 import type {ColumnSchema} from '@/infra/sql';
-import {useFormValidation} from '../../composables/useFormValidation.ts';
 
-interface Props {
+const props = defineProps<{
   column: ColumnSchema;
-  existingColumns?: ColumnSchema[];
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  existingColumns: () => []
-});
+}>();
 
 const emit = defineEmits<{
-  save: [newName: string];
+  save: [comment: string];
   cancel: [];
 }>();
 
-const {getFieldError, validateEditColumnNameForm, clearErrors} = useFormValidation();
+const comment = ref(props.column.comment || '');
 const isSubmitting = ref(false);
-const newColumnName = ref(props.column.name);
-
-const hasChanged = computed(() => {
-  return newColumnName.value.trim() !== props.column.name;
-});
-
-// 当 props.column 变化时更新
-watch(() => props.column, (newVal) => {
-  newColumnName.value = newVal.name;
-  clearErrors();
-}, {deep: true});
 
 const handleSave = () => {
-  clearErrors();
   isSubmitting.value = true;
-
-  const result = validateEditColumnNameForm(
-    newColumnName.value,
-    props.column.name,
-    props.existingColumns
-  );
-
-  if (!result.valid) {
-    isSubmitting.value = false;
-    return;
-  }
-
-  emit('save', newColumnName.value.trim());
+  emit('save', comment.value);
   isSubmitting.value = false;
 };
 
 const handleCancel = () => {
-  newColumnName.value = props.column.name;
-  clearErrors();
+  comment.value = props.column.comment || '';
   emit('cancel');
 };
 </script>
@@ -111,11 +71,8 @@ const handleCancel = () => {
   color: var(--SmartThemeBodyColor);
 }
 
-.required {
-  color: #ef4444;
-}
-
-.form-input {
+.form-input,
+.form-textarea {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid var(--SmartThemeBorderColor);
@@ -125,6 +82,7 @@ const handleCancel = () => {
   font-size: 14px;
   outline: none;
   transition: all 0.2s;
+  font-family: inherit;
 
   &:focus {
     border-color: var(--SmartThemeBorderColor);
@@ -140,30 +98,15 @@ const handleCancel = () => {
     cursor: not-allowed;
     color: color-mix(in srgb, var(--SmartThemeBodyColor) 50%, transparent);
   }
-
-  &.has-error {
-    border-color: #ef4444;
-
-    &:focus {
-      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
-    }
-  }
 }
 
-.field-error {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: #ef4444;
-  margin-top: 6px;
-
-  i {
-    font-size: 14px;
-  }
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
 }
 
-.field-hint {
+.char-count {
+  text-align: right;
   font-size: 12px;
   color: color-mix(in srgb, var(--SmartThemeBodyColor) 50%, transparent);
   margin-top: 6px;

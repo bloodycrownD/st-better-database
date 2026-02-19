@@ -3,7 +3,8 @@
     <div class="layout-content">
       <Transition name="drawer-slide">
         <div v-if="drawerExpanded" class="layout-drawer">
-          <TableListDrawer :tables="tables" :selected-table="selectedTable" @select="handleTableSelect" @create="handleCreateTable" />
+          <TableListDrawer :tables="tables" :selected-table="selectedTable" @select="handleTableSelect"
+                           @create="handleCreateTable"/>
         </div>
       </Transition>
       <div class="layout-main">
@@ -15,7 +16,7 @@
 
 <script setup lang="ts">
 import type {TableSchema} from '@/infra/sql';
-import TableListDrawer from './TableListDrawer.vue';
+import TableListDrawer from '../layouts/TableListDrawer.vue';
 
 interface Props {
   drawerExpanded: boolean;

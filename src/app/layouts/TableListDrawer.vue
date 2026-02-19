@@ -17,10 +17,10 @@
       </div>
       <div v-else class="table-list">
         <div
-          v-for="table in tables"
-          :key="table.tableName"
-          :class="['table-item', { active: selectedTable === table.tableName }]"
-          @click="handleTableClick(table.tableName)"
+            v-for="table in tables"
+            :key="table.tableName"
+            :class="['table-item', { active: selectedTable === table.tableName }]"
+            @click="handleTableClick(table.tableName)"
         >
           <div class="table-item-main">
             <i class="fa-solid fa-table table-icon"></i>
