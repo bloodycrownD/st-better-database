@@ -2,6 +2,7 @@ import {type SqlExecutor, type SqlResult, type SqlValue, Where, SQLBuilder, Expo
 import type {DataManagementService} from "@/service/interfaces/data-management-service.ts";
 
 export abstract class AbstractDataManagementService implements DataManagementService{
+
     abstract get executor():SqlExecutor;
 
     queryData(tableName: string, where?: Where): SqlResult {
@@ -31,6 +32,14 @@ export abstract class AbstractDataManagementService implements DataManagementSer
         return this.executor.execute(sql, [SqlType.DML]);
     }
 
+    updateData(tableName: string, data: Map<string, SqlValue>, where: Where): SqlResult {
+        const sql = SQLBuilder.update()
+            .table(tableName)
+            .setValues(data)
+            .where(where)
+            .build();
+        return this.executor.execute(sql, [SqlType.DML]);
+    }
     export(tableName: string): string {
         return this.executor.export(ExportFormat.INSERT_SQL, tableName);
     }

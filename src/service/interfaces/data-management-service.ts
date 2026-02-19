@@ -28,6 +28,15 @@ export interface DataManagementService {
     deleteData(tableName: string, where: Where): SqlResult;
 
     /**
+     * 更新表数据
+     * @param tableName 表名
+     * @param data 更新数据
+     * @param where 更新条件
+     * @returns 更新结果
+     */
+    updateData(tableName: string, data: Map<string, SqlValue>, where: Where): SqlResult;
+
+    /**
      * 导出表数据，insert sql
      * @param tableName 表名
      * @returns INSERT SQL语句
