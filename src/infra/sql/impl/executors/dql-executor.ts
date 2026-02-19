@@ -1,4 +1,5 @@
 import type {TableSchema} from '@/infra/sql';
+import type {ExecutorStructure} from '@/infra/sql';
 import {SqlType} from '@/infra/sql';
 import type {SqlResult} from '@/infra/sql';
 import type {DataStorage} from '@/infra/sql';
@@ -8,11 +9,15 @@ export class DqlExecutor {
     private expressionEvaluator: ExpressionEvaluator;
 
     constructor(
-        private tableSchemas: Record<number, TableSchema>,
+        private structure: ExecutorStructure,
         private dataStorage: DataStorage,
         private validateTableExists: (tableName: string) => number
     ) {
         this.expressionEvaluator = new ExpressionEvaluator();
+    }
+
+    private get tableSchemas(): Record<number, TableSchema> {
+        return this.structure.tableSchemas;
     }
 
     executeSelect(stmt: any): SqlResult {

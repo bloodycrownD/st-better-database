@@ -27,12 +27,12 @@ export class SimpleSqlExecutor implements SqlExecutor {
             this.getTableIdxByName.bind(this)
         );
         this.dmlExecutor = new DmlExecutor(
-            this.structure.tableSchemas,
+            this.structure,
             this.dataStorage,
             this.validateTableExists.bind(this)
         );
         this.dqlExecutor = new DqlExecutor(
-            this.structure.tableSchemas,
+            this.structure,
             this.dataStorage,
             this.validateTableExists.bind(this)
         );
@@ -228,12 +228,12 @@ export class SimpleSqlExecutor implements SqlExecutor {
             this.getTableIdxByName.bind(this)
         );
         this.dmlExecutor = new DmlExecutor(
-            this.structure.tableSchemas,
+            this.structure,
             this.dataStorage,
             this.validateTableExists.bind(this)
         );
         this.dqlExecutor = new DqlExecutor(
-            this.structure.tableSchemas,
+            this.structure,
             this.dataStorage,
             this.validateTableExists.bind(this)
         );
