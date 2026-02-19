@@ -75,11 +75,7 @@ const handleClick = () => {
     }
   }
 
-  @media (max-width: 768px) {
-    &:not(.fab) {
-      display: none;
-    }
-  }
+
 }
 
 .hamburger-icon {

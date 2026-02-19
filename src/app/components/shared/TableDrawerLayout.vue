@@ -82,24 +82,8 @@ const handleCreateTable = () => {
     min-height: 400px;
   }
 
-  .layout-content {
-    flex-direction: column;
-  }
-
   .layout-drawer {
-    width: 100%;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 10;
-    max-height: 60vh;
-    border-right: none;
-    border-top: 1px solid var(--SmartThemeBorderColor);
-  }
-
-  .layout-main {
-    padding-bottom: 0;
+    width: 200px;
   }
 }
 </style>

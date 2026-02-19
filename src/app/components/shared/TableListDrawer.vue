@@ -209,49 +209,8 @@ const handleCreateClick = () => {
 }
 
 @media (max-width: 768px) {
-  .table-list-drawer.is-drawer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 50vh;
-    border-right: none;
-    border-top: 1px solid var(--black20a);
-    border-radius: 12px 12px 0 0;
-    z-index: 1002;
-    background: var(--SmartThemeBlurTintColor);
-  }
-
-  .is-drawer .drawer-header {
-    padding: 12px 16px;
-    position: relative;
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 40px;
-      height: 4px;
-      background: var(--black50a);
-      border-radius: 2px;
-    }
-  }
-
-  .is-drawer .drawer-title {
-    display: none;
-  }
-
   .drawer-header {
-    flex-direction: row;
-    align-items: center;
     padding: 12px;
-  }
-
-  .create-table-btn {
-    margin-left: 0;
-    margin-right: 8px;
   }
 
   .drawer-body {
