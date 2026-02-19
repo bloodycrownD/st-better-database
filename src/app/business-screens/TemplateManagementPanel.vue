@@ -77,16 +77,9 @@ const handleDrawerToggle = () => {
 };
 
 const handleCreateTable = async () => {
-  console.log('[TemplateManagementPanel] handleCreateTable START');
-  console.log('[TemplateManagementPanel] Current activeTab:', activeTab.value);
-  // 切换到模板管理标签页
   activeTab.value = 'template';
-  console.log('[TemplateManagementPanel] Switched to template tab:', activeTab.value);
-  // 等待DOM更新后再打开模态框
   await nextTick();
-  console.log('[TemplateManagementPanel] After nextTick, templateTabRef:', templateTabRef.value);
   templateTabRef.value?.openCreateTableModal();
-  console.log('[TemplateManagementPanel] openCreateTableModal called, showCreateTableModal:', templateTabRef.value);
 };
 
 const handleClose = () => {

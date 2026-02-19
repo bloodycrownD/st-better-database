@@ -408,9 +408,7 @@ const handleExportDDL = () => {
 // 暴露方法给父组件
 defineExpose({
   openCreateTableModal: () => {
-    console.log('[TemplateManagementTab] openCreateTableModal called, setting showCreateTableModal to true');
     showCreateTableModal.value = true;
-    console.log('[TemplateManagementTab] showCreateTableModal is now:', showCreateTableModal.value);
   }
 });
 </script>
