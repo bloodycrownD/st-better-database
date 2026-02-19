@@ -21,6 +21,14 @@
       >
         <TabContainer v-model:active-tab="activeTab" :tabs="tabs">
           <template #data>
+            <ChatDataManagementTab
+                :data-service="dataManagementService"
+                :tables="tables"
+                :selected-table="selectedTable"
+                @refresh="refreshTables"
+            />
+          </template>
+          <template #template>
             <ChatManagementTab
                 ref="chatTabRef"
                 :table-service="tableManagementService"
@@ -47,6 +55,7 @@ import type {TabItem} from '@/app/components/pure-components/TabContainer.vue';
 import TabContainer from '@/app/components/pure-components/TabContainer.vue';
 import DrawerToggle from '@/app/components/pure-components/DrawerToggle.vue';
 import ChatManagementTab from '@/app/components/business-components/ChatManagementTab.vue';
+import ChatDataManagementTab from '@/app/components/business-components/ChatDataManagementTab.vue';
 import SqlPanelTab from '@/app/components/business-components/SqlPanelTab.vue';
 import {useChatServices} from '@/app/composables/screens-composables/useServices.ts';
 import type {TableSchema} from '@/infra/sql';
@@ -59,7 +68,7 @@ const props = withDefaults(defineProps<Props>(), {
   defaultTabOnTableSelect: 'data'
 });
 
-const {tableManagementService, sqlExecutorService} = useChatServices();
+const {dataManagementService, tableManagementService, sqlExecutorService} = useChatServices();
 
 const popupVisible = defineModel<boolean>('visible', {default: false});
 const drawerExpanded = ref(false);
@@ -69,7 +78,8 @@ const tables = ref<TableSchema[]>([]);
 const chatTabRef = ref<InstanceType<typeof ChatManagementTab> | null>(null);
 
 const tabs: TabItem[] = [
-  {key: 'data', label: '数据管理', icon: 'fa-solid fa-table'},
+  {key: 'data', label: '数据管理', icon: 'fa-solid fa-database'},
+  {key: 'template', label: '模版管理', icon: 'fa-solid fa-table'},
   {key: 'sql', label: 'SQL面板', icon: 'fa-solid fa-code'}
 ];
 
@@ -87,7 +97,7 @@ const handleDrawerToggle = () => {
 };
 
 const handleCreateTable = async () => {
-  activeTab.value = 'data';
+  activeTab.value = 'template';
   await nextTick();
   chatTabRef.value?.openCreateTableModal();
 };
