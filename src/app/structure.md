@@ -1,8 +1,8 @@
 # 前端结构
 
 master-screen：纯UI组装，无业务逻辑。彼此存在单向依赖，和slave-screen的区别在于是否存在业务逻辑
-slave-screen：有业务逻辑，有状态，彼此间无依赖
-features：有业务逻辑，有状态，彼此间无依赖
+slave-screen：有业务逻辑，有状态，彼此间无依赖。实现具体的业务/数据注入，遵守features提供的接口，实现具体功能。
+features：有业务逻辑，有状态，彼此间无依赖。向上层暴露接口，等价于后端的service-interface
 components：无业务逻辑，无状态，提供通用组件
 layouts：无业务逻辑，无状态，提供布局组件
 
