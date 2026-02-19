@@ -21,8 +21,8 @@
       >
         <TabContainer v-model:active-tab="activeTab" :tabs="tabs">
           <template #template>
-            <TemplateManagementTab
-                ref="templateTabRef"
+            <TableManagementTab
+                ref="tableTabRef"
                 :table-service="tableManagementService"
                 :tables="tables"
                 :selected-table="selectedTable"
@@ -46,7 +46,7 @@ import TableDrawerLayout from '@/app/layouts/TableDrawerLayout.vue';
 import type {TabItem} from '@/app/components/pure-components/TabContainer.vue';
 import TabContainer from '@/app/components/pure-components/TabContainer.vue';
 import DrawerToggle from '@/app/components/pure-components/DrawerToggle.vue';
-import TemplateManagementTab from '@/app/components/business-components/TemplateManagementTab.vue';
+import TableManagementTab from '@/app/components/business-components/TableManagementTab.vue';
 import SqlPanelTab from '@/app/components/business-components/SqlPanelTab.vue';
 import {useTemplateServices} from '@/app/composables/screens-composables/useServices.ts';
 import type {TableSchema} from '@/infra/sql';
@@ -66,7 +66,7 @@ const drawerExpanded = ref(false);
 const activeTab = ref('template');
 const selectedTable = ref<string>('');
 const tables = ref<TableSchema[]>([]);
-const templateTabRef = ref<InstanceType<typeof TemplateManagementTab> | null>(null);
+const tableTabRef = ref<InstanceType<typeof TableManagementTab> | null>(null);
 
 const tabs: TabItem[] = [
   {key: 'template', label: '模版管理', icon: 'fa-solid fa-table'},
@@ -89,7 +89,7 @@ const handleDrawerToggle = () => {
 const handleCreateTable = async () => {
   activeTab.value = 'template';
   await nextTick();
-  templateTabRef.value?.openCreateTableModal();
+  tableTabRef.value?.openCreateTableModal();
 };
 
 const handleClose = () => {

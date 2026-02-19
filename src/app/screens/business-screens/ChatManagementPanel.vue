@@ -29,8 +29,8 @@
             />
           </template>
           <template #template>
-            <ChatManagementTab
-                ref="chatTabRef"
+            <TableManagementTab
+                ref="tableTabRef"
                 :table-service="tableManagementService"
                 :tables="tables"
                 :selected-table="selectedTable"
@@ -54,7 +54,7 @@ import TableDrawerLayout from '@/app/layouts/TableDrawerLayout.vue';
 import type {TabItem} from '@/app/components/pure-components/TabContainer.vue';
 import TabContainer from '@/app/components/pure-components/TabContainer.vue';
 import DrawerToggle from '@/app/components/pure-components/DrawerToggle.vue';
-import ChatManagementTab from '@/app/components/business-components/ChatManagementTab.vue';
+import TableManagementTab from '@/app/components/business-components/TableManagementTab.vue';
 import ChatDataManagementTab from '@/app/components/business-components/ChatDataManagementTab.vue';
 import SqlPanelTab from '@/app/components/business-components/SqlPanelTab.vue';
 import {useChatServices} from '@/app/composables/screens-composables/useServices.ts';
@@ -75,7 +75,7 @@ const drawerExpanded = ref(false);
 const activeTab = ref('data');
 const selectedTable = ref<string>('');
 const tables = ref<TableSchema[]>([]);
-const chatTabRef = ref<InstanceType<typeof ChatManagementTab> | null>(null);
+const tableTabRef = ref<InstanceType<typeof TableManagementTab> | null>(null);
 
 const tabs: TabItem[] = [
   {key: 'data', label: '数据管理', icon: 'fa-solid fa-database'},
@@ -99,7 +99,7 @@ const handleDrawerToggle = () => {
 const handleCreateTable = async () => {
   activeTab.value = 'template';
   await nextTick();
-  chatTabRef.value?.openCreateTableModal();
+  tableTabRef.value?.openCreateTableModal();
 };
 
 const handleClose = () => {

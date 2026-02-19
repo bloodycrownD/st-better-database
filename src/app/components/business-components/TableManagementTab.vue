@@ -1,5 +1,5 @@
 <template>
-  <div class="chat-management-tab">
+  <div class="table-management-tab">
     <EmptyState v-if="!selectedTable" icon="fa-solid fa-table" text="请选择一个表格进行管理" />
 
     <div v-else class="table-detail">
@@ -376,7 +376,7 @@ defineExpose({
 </script>
 
 <style scoped lang="less">
-.chat-management-tab {
+.table-management-tab {
   display: flex;
   flex-direction: column;
   height: 100%;
