@@ -1,9 +1,6 @@
 <template>
   <div class="template-management-tab">
-    <div v-if="!selectedTable" class="empty-state">
-      <i class="fa-solid fa-table"></i>
-      <span>请选择一个表格进行管理</span>
-    </div>
+    <EmptyState v-if="!selectedTable" icon="fa-solid fa-table" text="请选择一个表格进行管理" />
 
     <div v-else class="table-detail">
       <div class="table-header">
@@ -51,10 +48,7 @@
           </Button>
         </div>
         <div class="columns-list">
-          <div v-if="columnList.length === 0" class="columns-empty">
-            <i class="fa-solid fa-columns"></i>
-            <span>暂无列定义</span>
-          </div>
+          <EmptyState v-if="columnList.length === 0" icon="fa-solid fa-columns" text="暂无列定义" variant="compact" />
           <div v-else>
             <div v-for="[fieldId, column] in columnList" :key="fieldId" class="column-item">
               <div class="column-main">
@@ -90,13 +84,12 @@
       </div>
     </div>
 
-    <!-- Toast 通知 -->
-    <Transition name="toast">
-      <div v-if="toast.visible" class="toast-notification" :class="toast.type">
-        <i :class="toast.icon"></i>
-        <span>{{ toast.message }}</span>
-      </div>
-    </Transition>
+    <ToastNotification
+      :visible="toast.visible"
+      :message="toast.message"
+      :type="toast.type"
+      :icon="toast.icon"
+    />
 
     <!-- 创建表模态框 -->
     <PopupModal v-if="showCreateTableModal" visible title="创建表" @close="showCreateTableModal = false">
@@ -170,11 +163,15 @@
 </template>
 
 <script setup lang="ts">
-import {computed, reactive, ref} from 'vue';
+import {computed} from 'vue';
 import Button from '@/app/pure-components/Button.vue';
 import PopupModal from '@/app/pure-components/PopupModal.vue';
+import ToastNotification from '@/app/pure-components/ToastNotification.vue';
+import EmptyState from '@/app/pure-components/EmptyState.vue';
 import type {ColumnSchema, TableSchema} from '@/infra/sql';
 import type {TableManagementService} from '@/service/interfaces/table-management-service.ts';
+import {useToast} from '@/app/components-composables/useToast';
+import {useModals} from '@/app/components-composables/useModals';
 import CreateTableForm from './CreateTableForm.vue';
 import EditTableNameForm from './EditTableNameForm.vue';
 import EditTableCommentForm from './EditTableCommentForm.vue';
@@ -220,44 +217,23 @@ const existingColumnsForEdit = computed<ColumnSchema[]>(() => {
       .filter(col => col.name !== editingColumn.value?.column.name);
 });
 
-// Toast 通知状态
-const toast = reactive({
-  visible: false,
-  message: '',
-  type: 'success' as 'success' | 'error',
-  icon: 'fa-solid fa-check-circle'
-});
-
-let toastTimeout: ReturnType<typeof setTimeout> | null = null;
-
-const showToast = (message: string, type: 'success' | 'error' = 'success') => {
-  if (toastTimeout) {
-    clearTimeout(toastTimeout);
-  }
-
-  toast.message = message;
-  toast.type = type;
-  toast.icon = type === 'success' ? 'fa-solid fa-check-circle' : 'fa-solid fa-circle-xmark';
-  toast.visible = true;
-
-  toastTimeout = setTimeout(() => {
-    toast.visible = false;
-  }, 3000);
-};
+// Toast 通知
+const {toast, showToast} = useToast();
 
 // 模态框状态
-const showCreateTableModal = ref(false);
-const showEditTableNameModal = ref(false);
-const showEditTableCommentModal = ref(false);
-const showDropTableModal = ref(false);
-const showAddColumnModal = ref(false);
-const showEditColumnNameModal = ref(false);
-const showEditColumnCommentModal = ref(false);
-const showDropColumnModal = ref(false);
-const showDDLModal = ref(false);
-
-const editingColumn = ref<{ fieldId: number; column: ColumnSchema } | null>(null);
-const exportedDDL = ref('');
+const {
+  showCreateTableModal,
+  showEditTableNameModal,
+  showEditTableCommentModal,
+  showDropTableModal,
+  showAddColumnModal,
+  showEditColumnNameModal,
+  showEditColumnCommentModal,
+  showDropColumnModal,
+  showDDLModal,
+  editingColumn,
+  exportedDDL
+} = useModals();
 
 const formatValue = (value: any): string => {
   if (value === null) return 'NULL';
@@ -421,24 +397,6 @@ defineExpose({
   overflow: hidden;
 }
 
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  gap: 16px;
-  color: color-mix(in srgb, var(--SmartThemeBodyColor) 30%, transparent);
-
-  i {
-    font-size: 48px;
-  }
-
-  span {
-    font-size: 14px;
-  }
-}
-
 .table-detail {
   flex: 1;
   display: flex;
@@ -526,24 +484,6 @@ defineExpose({
   flex: 1;
   overflow-y: auto;
   padding: 12px;
-}
-
-.columns-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-  gap: 12px;
-  color: color-mix(in srgb, var(--SmartThemeBodyColor) 30%, transparent);
-
-  i {
-    font-size: 32px;
-  }
-
-  span {
-    font-size: 14px;
-  }
 }
 
 .column-item {
@@ -649,52 +589,6 @@ defineExpose({
   flex-shrink: 0;
 }
 
-// Toast 通知
-.toast-notification {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 20px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  z-index: 10000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-
-  &.success {
-    background: #10b981;
-    color: white;
-  }
-
-  &.error {
-    background: #ef4444;
-    color: white;
-  }
-
-  i {
-    font-size: 16px;
-  }
-}
-
-.toast-enter-active,
-.toast-leave-active {
-  transition: all 0.3s ease;
-}
-
-.toast-enter-from {
-  opacity: 0;
-  transform: translateX(-50%) translateY(-20px);
-}
-
-.toast-leave-to {
-  opacity: 0;
-  transform: translateX(-50%) translateY(-20px);
-}
-
 // 移动端适配
 @media (max-width: 768px) {
   .tab-toolbar {
@@ -756,18 +650,6 @@ defineExpose({
     border-top: 1px solid var(--SmartThemeBorderColor);
     padding-top: 8px;
     margin-top: 4px;
-  }
-
-  .toast-notification {
-    left: 16px;
-    right: 16px;
-    transform: none;
-    justify-content: center;
-  }
-
-  .toast-enter-from,
-  .toast-leave-to {
-    transform: translateY(-20px);
   }
 }
 </style>
