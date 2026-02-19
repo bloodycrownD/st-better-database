@@ -94,7 +94,7 @@ export class ChatSqlExecutor implements SqlExecutor {
     private executeDml(sql: string): number {
         const rows = this.tableTemplate.dml2row(sql);
         ChatMessageManager.processLastRows(content => {
-            const origin = JSON.parse(content) as Row[];
+            const origin = content ? JSON.parse(content) as Row[] : [];
             origin.push(...rows)
             return `<commit>${JSON.stringify(origin)}</commit>`;
         })
