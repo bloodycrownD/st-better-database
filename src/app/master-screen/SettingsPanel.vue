@@ -85,7 +85,7 @@ import {ref} from 'vue';
 import CardItem from '@/app/components/CardItem.vue';
 import ToggleSwitch from '@/app/components/ToggleSwitch.vue';
 import Button from '@/app/components/Button.vue';
-import TemplateManagementPanel from './TemplateManagementPanel.vue';
+import TemplateManagementPanel from '../slave-screen/TemplateManagementPanel.vue';
 
 const templateManagementPanelRef = ref<InstanceType<typeof TemplateManagementPanel>>();
 

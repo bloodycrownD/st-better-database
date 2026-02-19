@@ -44,8 +44,8 @@
  import TableDrawerLayout from '@/app/components/TableDrawerLayout.vue';
  import TabContainer from '@/app/components/TabContainer.vue';
  import DrawerToggle from '@/app/components/DrawerToggle.vue';
- import TemplateManagementTab from './TemplateManagementTab.vue';
- import SqlPanelTab from './SqlPanelTab.vue';
+ import TemplateManagementTab from '../features/TemplateManagementTab.vue';
+ import SqlPanelTab from '../features/SqlPanelTab.vue';
  import type {TabItem} from '@/app/components/TabContainer.vue';
  import {useTemplateServices} from '../composables/useServices.ts';
  import type {TableSchema} from '@/infra/sql';
