@@ -117,7 +117,7 @@ const handleTabClick = (key: string) => {
 
 .tab-body {
   flex: 1;
-  overflow: auto;
+  overflow: hidden;
 }
 
 @media (max-width: 768px) {

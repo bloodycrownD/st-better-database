@@ -80,9 +80,7 @@ export class DdlExecutor {
                         );
                     }
 
-                    const fieldIdx = schema.counter++;
-                    schema.id2fieldName.set(fieldIdx, colDef.name);
-                    schema.fieldName2id.set(colDef.name, fieldIdx);
+                    const fieldIdx = schema.counter;
                     const colSchema = {
                         name: colDef.name,
                         type: colDef.type,
@@ -91,7 +89,8 @@ export class DdlExecutor {
                         comment: colDef.comment || ''
                     };
                     console.log('[DDL] Created column schema:', colSchema);
-                    schema.columnSchemas.set(fieldIdx, colSchema);
+
+                    this.tableSchemas.set(tableIdx, this.addColumn(schema, fieldIdx, colSchema));
 
                     return {
                         success: true,
@@ -113,9 +112,7 @@ export class DdlExecutor {
                         );
                     }
 
-                    schema.id2fieldName.delete(fieldIdx);
-                    schema.fieldName2id.delete(colName);
-                    schema.columnSchemas.delete(fieldIdx);
+                    this.tableSchemas.set(tableIdx, this.removeColumn(schema, fieldIdx, colName));
 
                     return {
                         success: true,
@@ -136,7 +133,12 @@ export class DdlExecutor {
                         );
                     }
 
-                    schema.tableName = newTableName;
+                    const newSchema = {
+                        ...schema,
+                        tableName: newTableName
+                    };
+
+                    this.tableSchemas.set(tableIdx, newSchema);
                     this.tableName2Idx.delete(tableName);
                     this.tableName2Idx.set(newTableName, tableIdx);
 
@@ -167,14 +169,16 @@ export class DdlExecutor {
                         );
                     }
 
-                    schema.id2fieldName.set(fieldIdx, newColName);
-                    schema.fieldName2id.delete(colName);
-                    schema.fieldName2id.set(newColName, fieldIdx);
-
-                    const columnSchema = schema.columnSchemas.get(fieldIdx);
-                    if (columnSchema) {
-                        columnSchema.name = newColName;
-                    }
+                    const tempSchema = this.removeColumn(schema, fieldIdx, colName);
+                    const newColumnSchema: ColumnSchema = {
+                        name: newColName,
+                        type: tempSchema.columnSchemas.get(fieldIdx)!.type,
+                        primitiveKey: tempSchema.columnSchemas.get(fieldIdx)!.primitiveKey,
+                        defaultValue: tempSchema.columnSchemas.get(fieldIdx)!.defaultValue,
+                        comment: tempSchema.columnSchemas.get(fieldIdx)!.comment
+                    };
+                    const finalSchema = this.addColumn(tempSchema, fieldIdx, newColumnSchema);
+                    this.tableSchemas.set(tableIdx, finalSchema);
 
                     return {
                         success: true,
@@ -197,11 +201,8 @@ export class DdlExecutor {
                         );
                     }
 
-                    const columnSchema = schema.columnSchemas.get(fieldIdx);
-                    if (columnSchema) {
-                        columnSchema.comment = stmt.comment;
-                        console.log('[DDL] Column schema updated:', columnSchema);
-                    }
+                    const newSchema = this.updateColumnSchema(schema, fieldIdx, {comment: stmt.comment});
+                    this.tableSchemas.set(tableIdx, newSchema);
 
                     return {
                         success: true,
@@ -214,7 +215,12 @@ export class DdlExecutor {
 
             case 'ALTER_TABLE_COMMENT':
                 if (stmt.comment !== undefined) {
-                    schema.comment = stmt.comment;
+                    const newSchema = {
+                        ...schema,
+                        comment: stmt.comment
+                    };
+
+                    this.tableSchemas.set(tableIdx, newSchema);
 
                     return {
                         success: true,
@@ -267,5 +273,79 @@ export class DdlExecutor {
                 `Table '${tableName}' already exists`
             );
         }
+    }
+
+    private cloneMap<K, V>(map: Map<K, V>): Map<K, V> {
+        return new Map(map);
+    }
+
+    private cloneColumnSchema(columnSchema: ColumnSchema): ColumnSchema {
+        return {
+            name: columnSchema.name,
+            type: columnSchema.type,
+            primitiveKey: columnSchema.primitiveKey,
+            defaultValue: columnSchema.defaultValue,
+            comment: columnSchema.comment
+        };
+    }
+
+    private updateIdMappings(schema: TableSchema, fieldId: number, action: 'add' | 'remove', colName: string): TableSchema {
+        const newId2fieldName = this.cloneMap(schema.id2fieldName);
+        const newFieldName2id = this.cloneMap(schema.fieldName2id);
+
+        if (action === 'add') {
+            newId2fieldName.set(fieldId, colName);
+            newFieldName2id.set(colName, fieldId);
+        } else {
+            newId2fieldName.delete(fieldId);
+            newFieldName2id.delete(colName);
+        }
+
+        return {
+            ...schema,
+            id2fieldName: newId2fieldName,
+            fieldName2id: newFieldName2id
+        };
+    }
+
+    private addColumn(schema: TableSchema, fieldId: number, column: ColumnSchema): TableSchema {
+        const newSchema = this.updateIdMappings(schema, fieldId, 'add', column.name);
+        const newColumnSchemas = this.cloneMap(newSchema.columnSchemas);
+        newColumnSchemas.set(fieldId, this.cloneColumnSchema(column));
+
+        return {
+            ...newSchema,
+            counter: fieldId + 1,
+            columnSchemas: newColumnSchemas
+        };
+    }
+
+    private removeColumn(schema: TableSchema, fieldId: number, colName: string): TableSchema {
+        const newSchema = this.updateIdMappings(schema, fieldId, 'remove', colName);
+        const newColumnSchemas = this.cloneMap(newSchema.columnSchemas);
+        newColumnSchemas.delete(fieldId);
+
+        return {
+            ...newSchema,
+            columnSchemas: newColumnSchemas
+        };
+    }
+
+    private updateColumnSchema(schema: TableSchema, fieldId: number, updates: Partial<ColumnSchema>): TableSchema {
+        const columnSchema = schema.columnSchemas.get(fieldId);
+        if (!columnSchema) {
+            return schema;
+        }
+
+        const newColumnSchemas = this.cloneMap(schema.columnSchemas);
+        newColumnSchemas.set(fieldId, {
+            ...columnSchema,
+            ...updates
+        });
+
+        return {
+            ...schema,
+            columnSchemas: newColumnSchemas
+        };
     }
 }

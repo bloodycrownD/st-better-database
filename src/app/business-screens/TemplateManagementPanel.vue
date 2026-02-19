@@ -6,6 +6,7 @@
         v-model:visible="popupVisible"
         title="模版管理"
         :closable="true"
+        height="650px"
         @close="handleClose"
     >
       <template #titlePrefix>
@@ -50,6 +51,14 @@ import SqlPanelTab from '../business-components/SqlPanelTab.vue';
 import {useTemplateServices} from '../screens-composables/useServices.ts';
 import type {TableSchema} from '@/infra/sql';
 
+interface Props {
+  defaultTabOnTableSelect?: string;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  defaultTabOnTableSelect: 'template'
+});
+
 const {tableManagementService, sqlExecutorService} = useTemplateServices();
 
 const popupVisible = defineModel<boolean>('visible', {default: false});
@@ -70,6 +79,7 @@ const refreshTables = () => {
 
 const handleTableSelect = (tableName: string) => {
   selectedTable.value = tableName;
+  activeTab.value = props.defaultTabOnTableSelect;
 };
 
 const handleDrawerToggle = () => {

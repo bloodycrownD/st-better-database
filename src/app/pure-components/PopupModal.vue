@@ -42,7 +42,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const modalStyle = computed(() => {
   if (props.height) {
-    return {'max-height': props.height};
+    return {'height': props.height, 'max-height': props.height};
   }
   return {};
 });

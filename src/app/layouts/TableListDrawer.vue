@@ -34,6 +34,7 @@
 </template>
 
 <script setup lang="ts">
+import {onMounted, onUnmounted, ref} from 'vue';
 import type {TableSchema} from '@/infra/sql';
 
 interface Props {
@@ -49,10 +50,30 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   select: [tableName: string];
   create: [];
+  closeDrawer: [];
 }>();
+
+const windowWidth = ref(window.innerWidth);
+
+const handleResize = () => {
+  windowWidth.value = window.innerWidth;
+};
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+});
+
+const isMobile = () => windowWidth.value <= 768;
 
 const handleTableClick = (tableName: string) => {
   emit('select', tableName);
+  if (isMobile()) {
+    emit('closeDrawer');
+  }
 };
 
 const handleCreateClick = () => {
