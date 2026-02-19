@@ -1,5 +1,5 @@
 import {computed} from 'vue';
-import {ServiceBuilder} from '@/service/ServiceBuilder';
+import {ServiceBuilder} from '@/service/ServiceBuilder.ts';
 
 export function useChatServices() {
     const dataManagementService = computed(() => ServiceBuilder.chatDataManagementService);

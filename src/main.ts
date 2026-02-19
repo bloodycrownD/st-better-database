@@ -1,5 +1,5 @@
 import {createApp} from 'vue'
-import MainView from '@/app/pure-screens/MainView.vue'
+import MainView from '@/app/screens/pure-screens/MainView.vue'
 
 
 const container = document.createElement('div')

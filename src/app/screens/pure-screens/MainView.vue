@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import SettingsPanel from '@/app/pure-screens/SettingsPanel.vue'
+import SettingsPanel from '@/app/screens/pure-screens/SettingsPanel.vue'
 </script>
 
 <style scoped lang="less">

@@ -5,11 +5,11 @@
     </div>
     <div class="confirm-content">
       <div class="confirm-message">
-        确定要删除表 <strong>{{ tableName }}</strong> 吗？
+        确定要删除列 <strong>{{ column.name }}</strong> 吗？
       </div>
       <div class="confirm-warning">
         <i class="fa-solid fa-circle-info"></i>
-        <span>此操作不可撤销，表中的所有数据将被永久删除。</span>
+        <span>此操作不可撤销，列中的所有数据将被永久删除。</span>
       </div>
     </div>
     <div class="form-actions">
@@ -24,10 +24,11 @@
 
 <script setup lang="ts">
 import {ref} from 'vue';
-import Button from '@/app/pure-components/Button.vue';
+import Button from '@/app/components/pure-components/Button.vue';
+import type {ColumnSchema} from '@/infra/sql';
 
 const props = defineProps<{
-  tableName: string;
+  column: ColumnSchema;
 }>();
 
 const emit = defineEmits<{

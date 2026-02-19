@@ -164,14 +164,14 @@
 
 <script setup lang="ts">
 import {computed} from 'vue';
-import Button from '@/app/pure-components/Button.vue';
-import PopupModal from '@/app/pure-components/PopupModal.vue';
-import ToastNotification from '@/app/pure-components/ToastNotification.vue';
-import EmptyState from '@/app/pure-components/EmptyState.vue';
+import Button from '@/app/components/pure-components/Button.vue';
+import PopupModal from '@/app/components/pure-components/PopupModal.vue';
+import ToastNotification from '@/app/components/pure-components/ToastNotification.vue';
+import EmptyState from '@/app/components/pure-components/EmptyState.vue';
 import type {ColumnSchema, TableSchema} from '@/infra/sql';
 import type {TableManagementService} from '@/service/interfaces/table-management-service.ts';
-import {useToast} from '@/app/components-composables/useToast';
-import {useModals} from '@/app/components-composables/useModals';
+import {useToast} from '@/app/composables/components-composables/useToast.ts';
+import {useModals} from '@/app/composables/components-composables/useModals.ts';
 import CreateTableForm from './CreateTableForm.vue';
 import EditTableNameForm from './EditTableNameForm.vue';
 import EditTableCommentForm from './EditTableCommentForm.vue';

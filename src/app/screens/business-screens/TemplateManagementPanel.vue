@@ -41,14 +41,14 @@
 
 <script setup lang="ts">
 import {nextTick, ref, watch} from 'vue';
-import PopupModal from '@/app/pure-components/PopupModal.vue';
+import PopupModal from '@/app/components/pure-components/PopupModal.vue';
 import TableDrawerLayout from '@/app/layouts/TableDrawerLayout.vue';
-import type {TabItem} from '@/app/pure-components/TabContainer.vue';
-import TabContainer from '@/app/pure-components/TabContainer.vue';
-import DrawerToggle from '@/app/pure-components/DrawerToggle.vue';
-import TemplateManagementTab from '../business-components/TemplateManagementTab.vue';
-import SqlPanelTab from '../business-components/SqlPanelTab.vue';
-import {useTemplateServices} from '../screens-composables/useServices.ts';
+import type {TabItem} from '@/app/components/pure-components/TabContainer.vue';
+import TabContainer from '@/app/components/pure-components/TabContainer.vue';
+import DrawerToggle from '@/app/components/pure-components/DrawerToggle.vue';
+import TemplateManagementTab from '@/app/components/business-components/TemplateManagementTab.vue';
+import SqlPanelTab from '@/app/components/business-components/SqlPanelTab.vue';
+import {useTemplateServices} from '@/app/composables/screens-composables/useServices.ts';
 import type {TableSchema} from '@/infra/sql';
 
 interface Props {

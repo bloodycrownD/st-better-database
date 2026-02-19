@@ -67,10 +67,10 @@
 
 <script setup lang="ts">
 import {reactive, ref} from 'vue';
-import Button from '@/app/pure-components/Button.vue';
+import Button from '@/app/components/pure-components/Button.vue';
 import type {ColumnSchema} from '@/infra/sql';
 import {FieldType} from '@/infra/sql/enums/field-type.ts';
-import {useFormValidation} from '../components-composables/useFormValidation.ts';
+import {useFormValidation} from '@/app/composables/components-composables/useFormValidation.ts';
 
 interface Props {
   existingColumns?: ColumnSchema[];
