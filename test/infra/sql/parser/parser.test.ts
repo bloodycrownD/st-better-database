@@ -163,12 +163,13 @@ describe('Parser - CREATE TABLE with Comments', () => {
         expect(result.errors.length).toBe(0);
         expect(result.statements.length).toBe(1);
         expect(result.statements[0].type).toBe(StatementType.ALTER_TABLE);
-        
+
         const stmt = result.statements[0] as any;
         expect(stmt.tableName).toBe('users');
-        expect(stmt.opType).toBe('MODIFY_COLUMN_COMMENT');
+        expect(stmt.opType).toBe('MODIFY_COLUMN_PRIMITIVE_KEY');
         expect(stmt.columnName).toBe('id');
-        expect(stmt.comment).toBe('Updated primary key');
+        expect(stmt.columnDef.primitiveKey).toBe(true);
+        expect(stmt.columnDef.comment).toBe('Updated primary key');
     });
 
     it('should parse ALTER TABLE RENAME COLUMN', () => {

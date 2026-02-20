@@ -74,6 +74,9 @@ export class DdlExecutor {
             case 'MODIFY_COLUMN_COMMENT':
                 return this.modifyColumnComment(schema, tableName, stmt.columnName, stmt.comment);
 
+            case 'MODIFY_COLUMN_PRIMITIVE_KEY':
+                return this.modifyColumnPrimitiveKey(schema, tableName, stmt.columnName!, stmt.columnDef!);
+
             case 'ALTER_TABLE_COMMENT':
                 return this.modifyTableComment(schema, tableName, stmt.comment);
         }
@@ -284,6 +287,42 @@ export class DdlExecutor {
         return {
             success: true,
             message: `Table '${tableName}' comment updated`,
+            data: 0,
+            type: SqlType.DDL
+        };
+    }
+
+    private modifyColumnPrimitiveKey(schema: TableSchema, tableName: string, columnName: string, columnDef: any): SqlResult {
+        if (!columnName) {
+            throw new SqlValidationError('Column name is required', `ALTER TABLE ${tableName} MODIFY COLUMN`);
+        }
+
+        const fieldIdx = schema.fieldName2id[columnName];
+        if (fieldIdx === undefined) {
+            throw new SqlValidationError(
+                `Column '${columnName}' does not exist in table '${tableName}'`,
+                `ALTER TABLE ${tableName} MODIFY COLUMN ${columnName}`
+            );
+        }
+
+        const colSchema = schema.columnSchemas[fieldIdx]!;
+        const updatedColSchema: ColumnSchema = {
+            name: colSchema.name,
+            type: colSchema.type,
+            primitiveKey: columnDef.primitiveKey,
+            defaultValue: colSchema.defaultValue,
+            comment: columnDef.comment !== undefined ? columnDef.comment : colSchema.comment
+        };
+        const {[fieldIdx]: _, ...restColumnSchemas} = schema.columnSchemas;
+        schema.columnSchemas = {...restColumnSchemas, [fieldIdx]: updatedColSchema};
+
+        const updatedSchema: TableSchema = {...schema};
+        const tableIdx = this.structure.tableName2Idx[tableName]!;
+        this.structure.tableSchemas = {...this.structure.tableSchemas, [tableIdx]: updatedSchema};
+
+        return {
+            success: true,
+            message: `Column '${columnName}' primary key updated in table '${tableName}'`,
             data: 0,
             type: SqlType.DDL
         };

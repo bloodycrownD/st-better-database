@@ -23,6 +23,11 @@ export class DmlExecutor {
 
         let affectedRows = 0;
 
+        const primaryKeyColumns = Object.entries(schema.columnSchemas)
+            .filter(([_, col]) => col.primitiveKey)
+            .map(([idx, _]) => parseInt(idx))
+            .sort((a, b) => a - b);
+
         for (const valueRow of stmt.values) {
             const rowData: RowData = {};
 
@@ -60,9 +65,32 @@ export class DmlExecutor {
                 }
             }
 
-            const data = this.dataStorage.getTableData(tableIdx);
-            data.push(rowData);
-            this.dataStorage.setTableData(tableIdx, data);
+            if (primaryKeyColumns.length > 0) {
+                const data = this.dataStorage.getTableData(tableIdx);
+                const existingRow = data.find(row => {
+                    return primaryKeyColumns.every(idx => {
+                        return JSON.stringify(row[idx]) === JSON.stringify(rowData[idx]);
+                    });
+                });
+
+                if (existingRow) {
+                    for (const [colName] of Object.entries(providedColumns)) {
+                        const fieldIdx = schema.fieldName2id[colName];
+                        if (fieldIdx !== undefined) {
+                            const newValue = rowData[fieldIdx];
+                            existingRow[fieldIdx] = (newValue !== undefined) ? newValue : null;
+                        }
+                    }
+                    this.dataStorage.setTableData(tableIdx, data);
+                } else {
+                    data.push(rowData);
+                    this.dataStorage.setTableData(tableIdx, data);
+                }
+            } else {
+                const data = this.dataStorage.getTableData(tableIdx);
+                data.push(rowData);
+                this.dataStorage.setTableData(tableIdx, data);
+            }
             affectedRows++;
         }
 

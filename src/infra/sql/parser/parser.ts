@@ -418,11 +418,12 @@ export class Parser {
             }
         } else if (this.matchValue('MODIFY')) {
             this.expectValue('COLUMN');
-            opType = AlterTableOpType.MODIFY_COLUMN_COMMENT;
             columnName = this.parseIdentifier();
-            this.parseFieldType();
+            const type = this.parseFieldType();
+            let primitiveKey = false;
             if (this.matchValue('PRIMARY')) {
                 this.expectValue('KEY');
+                primitiveKey = true;
             }
             if (this.matchValue('COMMENT')) {
                 if (this.isCurrentType(TokenType.STRING)) {
@@ -431,6 +432,14 @@ export class Parser {
                 } else {
                     throw new Error(`Expected string value for COMMENT at position ${this.current.position}`);
                 }
+            }
+            if (primitiveKey) {
+                opType = AlterTableOpType.MODIFY_COLUMN_PRIMITIVE_KEY;
+                columnDef = {name: columnName, type, primitiveKey, comment};
+            } else if (comment !== undefined) {
+                opType = AlterTableOpType.MODIFY_COLUMN_COMMENT;
+            } else {
+                throw new Error(`Expected PRIMARY KEY or COMMENT after MODIFY COLUMN at position ${this.current.position}`);
             }
         } else if (this.matchValue('COMMENT')) {
             opType = AlterTableOpType.ALTER_TABLE_COMMENT;
