@@ -1,6 +1,7 @@
 import {type Row} from '@/infra/sql';
 import {ChatMessageManager} from '@/infra/sillytarvern/chat-message-manager.ts';
 import {ChatMetaManager} from "@/infra/sillytarvern/chat-meta-manager.ts";
+import {ExtensionSettingManager} from "@/infra/sillytarvern/extension-setting-manager.ts";
 
 export class ChatMessageHandler {
     private static instance: ChatMessageHandler;
@@ -9,12 +10,13 @@ export class ChatMessageHandler {
     }
 
     static init() {
-        if (!ChatMessageHandler.instance) {
-            const handler = new ChatMessageHandler();
-            handler.registerEventListeners();
-            ChatMessageHandler.instance = handler;
+        if (ExtensionSettingManager.instance.extensionSwitch){
+            if (!ChatMessageHandler.instance) {
+                const handler = new ChatMessageHandler();
+                handler.registerEventListeners();
+                ChatMessageHandler.instance = handler;
+            }
         }
-        return ChatMessageHandler.instance;
     }
 
     registerEventListeners() {

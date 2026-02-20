@@ -5,22 +5,24 @@ import {ExportFormat} from "@/infra/sql";
 
 export class Openapi {
     static init(): void {
-        const context = SillyTavern.getContext();
-        const {registerMacro, eventSource} = context;
+        if (ExtensionSettingManager.instance.extensionSwitch){
+            const context = SillyTavern.getContext();
+            const {registerMacro, eventSource} = context;
 
-        if (typeof window === 'undefined') {
-            return;
+            if (typeof window === 'undefined') {
+                return;
+            }
+
+            window.getTemplateSqlExecutor = () => ExtensionSettingManager.instance.tableTemplate;
+            window.getChatSqlExecutor = () => ChatMetaManager.instance.tableTemplate;
+
+            eventSource.on('prompt_template_prepare', (env: any) => {
+                env.getTemplateSqlExecutor = () => ExtensionSettingManager.instance.tableTemplate;
+                env.getChatSqlExecutor = () => ChatMetaManager.instance.tableTemplate;
+            });
+
+            this.registerMacros(registerMacro);
         }
-
-        window.getTemplateSqlExecutor = () => ExtensionSettingManager.instance.tableTemplate;
-        window.getChatSqlExecutor = () => ChatMetaManager.instance.tableTemplate;
-
-        eventSource.on('prompt_template_prepare', (env: any) => {
-            env.getTemplateSqlExecutor = () => ExtensionSettingManager.instance.tableTemplate;
-            env.getChatSqlExecutor = () => ChatMetaManager.instance.tableTemplate;
-        });
-
-        this.registerMacros(registerMacro);
     }
 
     private static registerMacros(registerMacro: (name: string, handler: () => unknown) => void): void {
