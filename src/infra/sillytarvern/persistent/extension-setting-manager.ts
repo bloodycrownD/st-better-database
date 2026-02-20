@@ -50,6 +50,8 @@ export class ExtensionSettingManager {
     private _systemSqlExecutorCache: SqlExecutor | null = null;
     private _systemSqlExecutorProxy: SqlExecutor | null = null;
 
+    private _chatStatusBarChangeListeners: Set<() => void> = new Set();
+
     private constructor() {
         const {extensionSettings} = SillyTavern.getContext();
 
@@ -149,8 +151,20 @@ export class ExtensionSettingManager {
     }
 
     set chatStatusBarSwitch(v: boolean) {
-        this._chatStatusBarSwitch = v;
-        this._saveToSettings();
+        if (this._chatStatusBarSwitch !== v) {
+            this._chatStatusBarSwitch = v;
+            this._saveToSettings();
+            this._notifyChatStatusBarChange();
+        }
+    }
+
+    onChatStatusBarChange(listener: () => void): () => void {
+        this._chatStatusBarChangeListeners.add(listener);
+        return () => this._chatStatusBarChangeListeners.delete(listener);
+    }
+
+    private _notifyChatStatusBarChange(): void {
+        this._chatStatusBarChangeListeners.forEach(listener => listener());
     }
 
     get chatStatusBarCode(): string {
@@ -160,6 +174,7 @@ export class ExtensionSettingManager {
     set chatStatusBarCode(v: string) {
         this._chatStatusBarCode = v;
         this._saveToSettings();
+        this._notifyChatStatusBarChange();
     }
 
     get extensionSwitch(): boolean {

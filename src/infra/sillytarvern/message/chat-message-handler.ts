@@ -2,6 +2,7 @@ import {type Row} from '@/infra/sql';
 import {ChatMessageManager} from '@/infra/sillytarvern/message/chat-message-manager.ts';
 import {ChatMetaManager} from "@/infra/sillytarvern/persistent/chat-meta-manager.ts";
 import {ExtensionSettingManager} from "@/infra/sillytarvern/persistent/extension-setting-manager.ts";
+import {TemplateRenderer} from '@/infra/sillytarvern/template-render';
 
 export class ChatMessageHandler {
     private static instance: ChatMessageHandler;
@@ -31,16 +32,20 @@ export class ChatMessageHandler {
 
     private onMessageReceived(messageId: number) {
         this.processMessage(messageId);
+        TemplateRenderer.getInstance().updateChatTemplateDisplay();
     }
 
     private onMessageEdited(messageId: number) {
         this.processMessage(messageId);
+        TemplateRenderer.getInstance().updateChatTemplateDisplay();
     }
 
     private onMessageDeleted() {
+        TemplateRenderer.getInstance().updateChatTemplateDisplay();
     }
 
     private onChatChanged() {
+        TemplateRenderer.getInstance().updateChatTemplateDisplay();
     }
 
     private processMessage(messageId: number) {
