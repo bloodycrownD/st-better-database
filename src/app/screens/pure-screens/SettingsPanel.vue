@@ -23,7 +23,7 @@
           <ToggleSwitch :checked="chatStatusBarSwitch" @update:checked="chatStatusBarSwitch = $event"/>
           <Button>
             <i class="fa-solid fa-pen-to-square" style="margin-right: 6px;"></i>
-            样式设置
+            前端代码
           </Button>
         </div>
       </template>
