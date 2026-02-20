@@ -1,9 +1,8 @@
 import {createApp} from 'vue'
 import MainView from '@/app/screens/pure-screens/MainView.vue'
-import {ChatMessageHandler} from "@/infra/sillytarvern";
-import {Openapi} from "@/infra/openapi";
+import {AutoConfig} from "@/infra/auto-config.ts";
 
-
+AutoConfig.init();
 const container = document.createElement('div')
 const extensionsSettings = document.querySelector('#extensions_settings')
 if (extensionsSettings) {
@@ -11,5 +10,3 @@ if (extensionsSettings) {
     const app = createApp(MainView)
     app.mount(container)
 }
-ChatMessageHandler.init();
-Openapi.init();
