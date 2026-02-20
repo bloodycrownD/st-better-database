@@ -1,3 +1,5 @@
+/// <reference types="vitest/globals" />
+
 export {};
 
 declare global {
@@ -27,7 +29,7 @@ declare global {
 }
 
 declare global {
-    const SillyTavern: {
+    var SillyTavern: {
         getContext: () => {
             extensionSettings: Record<string, ExtensionSettings>;
             saveSettingsDebounced: () => void;
@@ -42,10 +44,4 @@ declare global {
             registerMacro: (name: string, handler: () => unknown) => void;
         };
     };
-
-    namespace NodeJS {
-        interface Global {
-            SillyTavern: typeof SillyTavern;
-        }
-    }
 }

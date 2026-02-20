@@ -1,5 +1,7 @@
 import './global.d.ts';
 
+/// <reference path="./global.d.ts" />
+
 (global as any).SillyTavern = {
   getContext: () => ({
     extensionSettings: {},
