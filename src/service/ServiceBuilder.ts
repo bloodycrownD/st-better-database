@@ -1,12 +1,12 @@
-import {ChatDataManagementService} from "@/service/impl/chat-data-management-service.ts";
-import {ChatTableManagementService} from "@/service/impl/chat-table-management-service.ts";
-import {TemplateTableManagementService} from "@/service/impl/template-table-management-service.ts";
+import {ChatDataManagementService} from "@/service/impl/chat/chat-data-management-service.ts";
+import {ChatTableManagementService} from "@/service/impl/chat/chat-table-management-service.ts";
+import {TemplateTableManagementService} from "@/service/impl/template/template-table-management-service.ts";
 import type {DataManagementService} from "@/service/interfaces/data-management-service.ts";
 import type {TableManagementService} from "@/service/interfaces/table-management-service.ts";
-import {ChatSqlExecutorService} from "@/service/impl/chat-sql-executor-service.ts";
-import {TemplateSqlExecutorService} from "@/service/impl/template-sql-executor-service.ts";
+import {ChatSqlExecutorService} from "@/service/impl/chat/chat-sql-executor-service.ts";
+import {TemplateSqlExecutorService} from "@/service/impl/template/template-sql-executor-service.ts";
 import type {SqlExecutorService} from "@/service/interfaces/sql-executor-service.ts";
-import {ChatDatabaseSyncService} from "@/service/impl/chat-database-sync-service.ts";
+import {ChatDatabaseSyncService} from "@/service/impl/chat/chat-database-sync-service.ts";
 import type {DatabaseSyncService} from "@/service/interfaces/database-sync-service.ts";
 
 export class ServiceBuilder {
