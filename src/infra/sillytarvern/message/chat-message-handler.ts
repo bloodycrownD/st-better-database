@@ -11,7 +11,7 @@ export class ChatMessageHandler {
     }
 
     static init() {
-        if (ExtensionSettingManager.instance.extensionSwitch){
+        if (ExtensionSettingManager.instance.extensionSwitch) {
             if (!ChatMessageHandler.instance) {
                 const handler = new ChatMessageHandler();
                 handler.registerEventListeners();

@@ -95,7 +95,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref, computed, watch, nextTick} from 'vue';
+import {computed, nextTick, ref, watch} from 'vue';
 import CardItem from '@/app/components/pure-components/CardItem.vue';
 import ToggleSwitch from '@/app/components/pure-components/ToggleSwitch.vue';
 import Button from '@/app/components/pure-components/Button.vue';

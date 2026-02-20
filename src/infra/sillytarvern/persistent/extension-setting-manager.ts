@@ -2,6 +2,7 @@ import {DatabaseBuilder, type SqlExecutor} from "@/infra/sql";
 
 interface ExtensionSettings {
     [key: string]: unknown;
+
     tableTemplate: any;
     chatStatusBarSwitch: boolean;
     chatStatusBarCode: string;

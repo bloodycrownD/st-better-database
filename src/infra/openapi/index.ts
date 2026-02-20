@@ -5,7 +5,7 @@ import {ExportFormat} from "@/infra/sql";
 
 export class Openapi {
     static init(): void {
-        if (ExtensionSettingManager.instance.extensionSwitch){
+        if (ExtensionSettingManager.instance.extensionSwitch) {
             const context = SillyTavern.getContext();
             const {registerMacro, eventSource} = context;
 

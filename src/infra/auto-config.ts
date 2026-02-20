@@ -3,8 +3,8 @@ import {Openapi} from "@/infra/openapi";
 import {TemplateRenderer} from "@/infra/sillytarvern/template-render";
 import {ExtensionSettingManager} from "@/infra/sillytarvern/persistent/extension-setting-manager";
 
-export class AutoConfig{
-    static init(){
+export class AutoConfig {
+    static init() {
         ChatMessageHandler.init();
         Openapi.init();
 

@@ -167,14 +167,14 @@ const exportedSql = ref('');
 const formatValue = (value: any): string => {
   if (value === null) return 'NULL';
   if (value === undefined) return '';
-  
+
   const str = String(value);
   return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/\n/g, '\\n')
-    .replace(/<br>/gi, '&lt;br&gt;');
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\n/g, '\\n')
+      .replace(/<br>/gi, '&lt;br&gt;');
 };
 
 const loadTableData = () => {

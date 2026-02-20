@@ -1,5 +1,8 @@
 import {ChatSqlExecutor, type SqlExecutor} from "@/infra/sql";
-import {createAutoSaveProxy, ExtensionSettingManager} from "@/infra/sillytarvern/persistent/extension-setting-manager.ts";
+import {
+    createAutoSaveProxy,
+    ExtensionSettingManager
+} from "@/infra/sillytarvern/persistent/extension-setting-manager.ts";
 
 /**
  * ChatMetaManager 管理 SillyTavern 聊天级别的元数据持久化
