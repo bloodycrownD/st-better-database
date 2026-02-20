@@ -57,22 +57,24 @@
         :icon="toast.icon"
     />
 
-    <PopupModal v-if="showAddDataModal" visible title="添加数据" @close="showAddDataModal = false">
-      <DataForm
-          :columns="columnList"
-          @submit="handleAddData"
-          @cancel="showAddDataModal = false"
-      />
-    </PopupModal>
+    <DataForm
+        v-if="showAddDataModal"
+        title="添加数据"
+        :columns="columnList"
+        modal-width="50vw"
+        @submit="handleAddData"
+        @cancel="showAddDataModal = false"
+    />
 
-    <PopupModal v-if="showEditDataModal && editingData" visible title="编辑数据" @close="showEditDataModal = false">
-      <DataForm
-          :columns="columnList"
-          :initial-data="editingData.row"
-          @submit="handleEditData"
-          @cancel="showEditDataModal = false"
-      />
-    </PopupModal>
+    <DataForm
+        v-if="showEditDataModal && editingData"
+        title="编辑数据"
+        :columns="columnList"
+        :initial-data="editingData.row"
+        modal-width="50vw"
+        @submit="handleEditData"
+        @cancel="showEditDataModal = false"
+    />
 
     <DeleteDataConfirm v-if="showDeleteDataModal" modal-width="500px" modal-height="auto"
                        @confirm="handleDeleteData" @cancel="showDeleteDataModal = false"/>
@@ -86,7 +88,6 @@
 <script setup lang="ts">
 import {computed, onMounted, ref, watch} from 'vue';
 import Button from '@/app/components/pure-components/Button.vue';
-import PopupModal from '@/app/components/pure-components/PopupModal.vue';
 import ToastNotification from '@/app/components/pure-components/ToastNotification.vue';
 import EmptyState from '@/app/components/pure-components/EmptyState.vue';
 import type {ColumnSchema, TableSchema, SqlValue} from '@/infra/sql';
