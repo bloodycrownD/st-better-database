@@ -31,11 +31,11 @@ jobs:
 
       - name: Prepare dist branch files
         run: |
-          mkdir -p deploy
-          cp dist/index.js deploy/
+          mkdir -p deploy/dist
+          cp dist/index.js deploy/dist/
           cp manifest.json deploy/
-          echo "*.map" > deploy/.gitignore
-          echo "node_modules/" >> deploy/.gitignore
+          echo "*.map" > deploy/dist/.gitignore
+          echo "node_modules/" >> deploy/dist/.gitignore
 
       - name: Deploy to dist branch
         uses: peaceiris/actions-gh-pages@v3
