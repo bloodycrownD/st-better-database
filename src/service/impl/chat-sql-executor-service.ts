@@ -1,6 +1,6 @@
 import type {SqlExecutorService} from "@/service/interfaces/sql-executor-service.ts";
 import {type SqlResult, SqlType} from "@/infra/sql";
-import {ChatMetaManager} from "@/infra/sillytarvern/chat-meta-manager.ts";
+import {ChatMetaManager} from "@/infra/sillytarvern/persistent/chat-meta-manager.ts";
 
 export class ChatSqlExecutorService implements SqlExecutorService {
     execute(sql: string): SqlResult {

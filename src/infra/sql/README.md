@@ -105,13 +105,13 @@ DataStorage仅存储数据快照，不包含表结构映射。
 src/infra/sql/
 ├── interfaces/      # 接口层（无实现）
 │   ├── core/
-│   │   └── sql-executor.ts      # SqlExecutor接口
+│   │   └── chat-sql-executor.ts      # SqlExecutor接口
 │   └── storage/
 │       └── data-storage.ts      # DataStorage接口
 │
 ├── impl/            # 实现层（所有具体实现）
 │   ├── core/
-│   │   └── sql-executor.ts      # SimpleSqlExecutor实现
+│   │   └── chat-sql-executor.ts      # SimpleSqlExecutor实现
 │   ├── storage/
 │   │   └── data-storage.ts      # SimpleDataStorage实现
 │   ├── executors/

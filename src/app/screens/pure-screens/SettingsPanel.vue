@@ -96,7 +96,7 @@ import ToggleSwitch from '@/app/components/pure-components/ToggleSwitch.vue';
 import Button from '@/app/components/pure-components/Button.vue';
 import TemplateManagementPanel from '@/app/screens/business-screens/TemplateManagementPanel.vue';
 import PopupModal from '@/app/components/pure-components/PopupModal.vue';
-import {ExtensionSettingManager} from '@/infra/sillytarvern/extension-setting-manager';
+import {ExtensionSettingManager} from '@/infra/sillytarvern/persistent/extension-setting-manager.ts';
 
 const settings = ExtensionSettingManager.instance;
 

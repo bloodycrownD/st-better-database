@@ -1,5 +1,5 @@
-import {ExtensionSettingManager} from '@/infra/sillytarvern/extension-setting-manager.ts';
-import {ChatMetaManager} from '@/infra/sillytarvern/chat-meta-manager.ts';
+import {ExtensionSettingManager} from '@/infra/sillytarvern/persistent/extension-setting-manager.ts';
+import {ChatMetaManager} from '@/infra/sillytarvern/persistent/chat-meta-manager.ts';
 import {ServiceBuilder} from '@/service/ServiceBuilder.ts';
 import {ExportFormat} from "@/infra/sql";
 

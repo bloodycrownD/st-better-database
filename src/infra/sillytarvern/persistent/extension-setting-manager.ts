@@ -1,4 +1,4 @@
-import {DatabaseBuilder, type SqlExecutor} from "../sql";
+import {DatabaseBuilder, type SqlExecutor} from "@/infra/sql";
 
 interface ExtensionSettings {
     [key: string]: unknown;

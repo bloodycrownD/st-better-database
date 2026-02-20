@@ -1,6 +1,6 @@
 import {AbstractTableManagementService} from "@/service/abstract/abstract-table-management-service.ts";
 import type {SqlExecutor} from "@/infra/sql";
-import {ChatMetaManager} from "@/infra/sillytarvern/chat-meta-manager.ts";
+import {ChatMetaManager} from "@/infra/sillytarvern/persistent/chat-meta-manager.ts";
 
 export class ChatTableManagementService extends AbstractTableManagementService {
     get executor(): SqlExecutor {

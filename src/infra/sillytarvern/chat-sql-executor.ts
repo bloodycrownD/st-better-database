@@ -7,7 +7,7 @@ import {
     SqlType,
     type TableSchema
 } from "@/infra/sql";
-import {ChatMessageManager} from "@/infra/sillytarvern/chat-message-manager.ts";
+import {ChatMessageManager} from "@/infra/sillytarvern/message/chat-message-manager.ts";
 
 export class ChatSqlExecutor implements SqlExecutor {
     /**

@@ -1,7 +1,7 @@
 import {type Row} from '@/infra/sql';
-import {ChatMessageManager} from '@/infra/sillytarvern/chat-message-manager.ts';
-import {ChatMetaManager} from "@/infra/sillytarvern/chat-meta-manager.ts";
-import {ExtensionSettingManager} from "@/infra/sillytarvern/extension-setting-manager.ts";
+import {ChatMessageManager} from '@/infra/sillytarvern/message/chat-message-manager.ts';
+import {ChatMetaManager} from "@/infra/sillytarvern/persistent/chat-meta-manager.ts";
+import {ExtensionSettingManager} from "@/infra/sillytarvern/persistent/extension-setting-manager.ts";
 
 export class ChatMessageHandler {
     private static instance: ChatMessageHandler;

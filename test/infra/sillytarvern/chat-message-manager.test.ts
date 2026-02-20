@@ -13,7 +13,7 @@ beforeAll(() => {
     } as any;
 });
 
-import { ChatMessageManager } from '@/infra/sillytarvern/chat-message-manager';
+import { ChatMessageManager } from '@/infra/sillytarvern/message/chat-message-manager.ts';
 
 describe('ChatMessageManager', () => {
     let mockChat: any[];

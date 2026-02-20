@@ -13,9 +13,9 @@ beforeAll(() => {
     } as any;
 });
 
-import { ChatMessageHandler } from '@/infra/sillytarvern/chat-message-handler';
-import { ChatMessageManager } from '@/infra/sillytarvern/chat-message-manager';
-import { ChatMetaManager } from '@/infra/sillytarvern/chat-meta-manager';
+import { ChatMessageHandler } from '@/infra/sillytarvern/message/chat-message-handler.ts';
+import { ChatMessageManager } from '@/infra/sillytarvern/message/chat-message-manager.ts';
+import { ChatMetaManager } from '@/infra/sillytarvern/persistent/chat-meta-manager.ts';
 import { SimpleSqlExecutor } from '@/infra/sql';
 import { SqlType } from '@/infra/sql';
 
