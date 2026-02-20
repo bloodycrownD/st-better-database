@@ -3,7 +3,7 @@ name: Build and Deploy to Dist Branch
 on:
   push:
     branches:
-      - main
+      - master
 
 permissions:
   contents: write
@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout main branch
+      - name: Checkout master branch
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: master
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
