@@ -1,15 +1,16 @@
-import {DatabaseBuilder, type Row, type SqlExecutor} from '@/infra/sql';
+import {type Row} from '@/infra/sql';
 import {ChatMessageManager} from '@/infra/sillytarvern/chat-message-manager.ts';
+import {ChatMetaManager} from "@/infra/sillytarvern/chat-meta-manager.ts";
 
 export class ChatMessageHandler {
     private static instance: ChatMessageHandler;
 
-    constructor(private readonly sqlExecutor: SqlExecutor) {
+    constructor() {
     }
 
     static init() {
         if (!ChatMessageHandler.instance) {
-            const handler = new ChatMessageHandler(DatabaseBuilder.newExecutor());
+            const handler = new ChatMessageHandler();
             handler.registerEventListeners();
             ChatMessageHandler.instance = handler;
         }
@@ -54,21 +55,27 @@ export class ChatMessageHandler {
             return;
         }
 
-        const commitRows = this.sqlExecutor.dml2row(commitContent);
-        const rowContent = ChatMessageManager.extractRow(message.mes);
-        let existingRows: Row[] = [];
+        try {
+            const commitRows = ChatMetaManager.instance.tableTemplate.dml2row(commitContent);
 
-        if (rowContent) {
-            try {
-                existingRows = JSON.parse(rowContent) as Row[];
-            } catch (e) {
-                existingRows = [];
+            const rowContent = ChatMessageManager.extractRow(message.mes);
+            let existingRows: Row[] = [];
+
+            if (rowContent) {
+                try {
+                    existingRows = JSON.parse(rowContent) as Row[];
+                } catch (e) {
+                    existingRows = [];
+                }
             }
+
+            const mergedRows = [...existingRows, ...commitRows];
+            const newRowContent = JSON.stringify(mergedRows);
+
+            ChatMessageManager.replaceCommitWithRow(messageId, newRowContent);
+        } catch (error) {
+            console.error('[ChatMessageHandler] Failed to convert commit to row:', error);
+            return;
         }
-
-        const mergedRows = [...existingRows, ...commitRows];
-        const newRowContent = JSON.stringify(mergedRows);
-
-        ChatMessageManager.updateOrAppendRow(messageId, newRowContent);
     }
 }

@@ -82,38 +82,36 @@ export class ChatMessageManager {
         return this.extractTagContent(message, ChatMessageManager.ROW_START_TAG, ChatMessageManager.ROW_END_TAG);
     }
 
-    static updateOrAppendRow(messageId: number, newRowContent: string): void {
+    static replaceCommitWithRow(messageId: number, newRowContent: string): void {
         const context = SillyTavern.getContext();
         const chat = context?.chat || [];
         const message = chat[messageId];
 
-        if (!message || !message.mes) {
+        if (!message) {
             return;
         }
 
-        const messageText = message.mes;
-        let result: string;
+        let text = message.mes || '';
 
-        const rowEndPos = messageText.lastIndexOf(ChatMessageManager.ROW_END_TAG);
-        if (rowEndPos !== -1) {
-            const rowStartPos = messageText.lastIndexOf(ChatMessageManager.ROW_START_TAG, rowEndPos);
-            if (rowStartPos !== -1) {
-                const beforeRow = messageText.substring(0, rowStartPos);
-                const afterRow = messageText.substring(rowEndPos + ChatMessageManager.ROW_END_TAG.length);
-                result = beforeRow + ChatMessageManager.ROW_START_TAG + newRowContent + ChatMessageManager.ROW_END_TAG + afterRow;
-            } else {
-                result = messageText;
-            }
-        } else {
-            const commitEndPos = messageText.lastIndexOf(ChatMessageManager.COMMIT_END_TAG);
-            if (commitEndPos !== -1) {
-                result = messageText.substring(0, commitEndPos + ChatMessageManager.COMMIT_END_TAG.length) + ChatMessageManager.ROW_START_TAG + newRowContent + ChatMessageManager.ROW_END_TAG;
-            } else {
-                result = ChatMessageManager.ROW_START_TAG + newRowContent + ChatMessageManager.ROW_END_TAG;
+        const commitEndPos = text.lastIndexOf(ChatMessageManager.COMMIT_END_TAG);
+        if (commitEndPos !== -1) {
+            const commitStartPos = text.lastIndexOf(ChatMessageManager.COMMIT_START_TAG, commitEndPos);
+            if (commitStartPos !== -1) {
+                text = text.substring(0, commitStartPos) + text.substring(commitEndPos + ChatMessageManager.COMMIT_END_TAG.length);
             }
         }
 
-        message.mes = result;
+        const rowEndPos = text.lastIndexOf(ChatMessageManager.ROW_END_TAG);
+        if (rowEndPos !== -1) {
+            const rowStartPos = text.lastIndexOf(ChatMessageManager.ROW_START_TAG, rowEndPos);
+            if (rowStartPos !== -1) {
+                text = text.substring(0, rowStartPos) + ChatMessageManager.ROW_START_TAG + newRowContent + ChatMessageManager.ROW_END_TAG + text.substring(rowEndPos + ChatMessageManager.ROW_END_TAG.length);
+            }
+        } else {
+            text = text + ChatMessageManager.ROW_START_TAG + newRowContent + ChatMessageManager.ROW_END_TAG;
+        }
+
+        message.mes = text;
         context?.saveChat();
     }
 
