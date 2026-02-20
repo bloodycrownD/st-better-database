@@ -1,5 +1,8 @@
 import {DatabaseBuilder, type SqlExecutor} from "../sql";
 
+/**
+ * 创建自动保存代理，拦截 execute 方法以实现自动持久化
+ */
 export function createAutoSaveProxy(executor: SqlExecutor, onSave: () => void): SqlExecutor {
     return new Proxy(executor, {
         get(target, prop) {
@@ -16,6 +19,14 @@ export function createAutoSaveProxy(executor: SqlExecutor, onSave: () => void): 
     });
 }
 
+/**
+ * ExtensionSettingManager 管理 SillyTavern 扩展级别的设置持久化
+ * 
+ * 设计说明：
+ * - 使用立即初始化（eager initialization）：static readonly _instance = new ExtensionSettingManager()
+ * - 原因：extensionSettings 在扩展加载时就已经可用，不存在时序问题
+ * - chatMetadata 与 extensionSettings 不同：后者在全局层面，前者在聊天层面
+ */
 export class ExtensionSettingManager {
     static readonly MODULE_NAME = 'ST_BETTER_DATABASE';
 
@@ -89,3 +100,4 @@ export class ExtensionSettingManager {
         return ExtensionSettingManager._instance;
     }
 }
+
