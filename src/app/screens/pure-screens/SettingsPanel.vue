@@ -15,7 +15,7 @@
       <template #left>
         <div style="display: flex; align-items: center; gap: 10px;">
           <i class="fa-solid fa-paper-plane" style="margin-right: 6px;"></i>
-          <span>对话推送</span>
+          <span>对话状态栏</span>
         </div>
       </template>
       <template #right>
