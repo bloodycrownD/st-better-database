@@ -15,7 +15,7 @@
           </Button>
           <Button type="danger" @click="handleBatchDelete" :disabled="selectedRows.size === 0">
             <i class="fa-solid fa-trash" style="margin-right: 6px;"></i>
-            批量删除 ({{ selectedRows.size }})
+            批量删除
           </Button>
           <Button @click="handleExport">
             <i class="fa-solid fa-download" style="margin-right: 6px;"></i>
