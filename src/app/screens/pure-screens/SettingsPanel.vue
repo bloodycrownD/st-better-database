@@ -14,17 +14,6 @@
     <CardItem>
       <template #left>
         <div style="display: flex; align-items: center; gap: 10px;">
-          <i class="fa-solid fa-file-lines" style="margin-right: 6px;"></i>
-          <span>日志开关</span>
-        </div>
-      </template>
-      <template #right>
-        <ToggleSwitch :checked="false"/>
-      </template>
-    </CardItem>
-    <CardItem>
-      <template #left>
-        <div style="display: flex; align-items: center; gap: 10px;">
           <i class="fa-solid fa-paper-plane" style="margin-right: 6px;"></i>
           <span>对话推送</span>
         </div>

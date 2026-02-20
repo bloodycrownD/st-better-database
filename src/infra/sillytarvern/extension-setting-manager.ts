@@ -4,6 +4,7 @@ interface ExtensionSettings {
     tableTemplate: any;
     chatStatusBarSwitch: boolean;
     chatStatusBarCode: string;
+    extensionSwitch: boolean;
     systemSqlExecutor: any;
 }
 
@@ -44,6 +45,7 @@ export class ExtensionSettingManager {
 
     private _chatStatusBarSwitch: boolean = false;
     private _chatStatusBarCode: string = '';
+    private _extensionSwitch: boolean = false;
     private _systemSqlExecutorCache: SqlExecutor | null = null;
     private _systemSqlExecutorProxy: SqlExecutor | null = null;
 
@@ -55,6 +57,7 @@ export class ExtensionSettingManager {
                 tableTemplate: null,
                 chatStatusBarSwitch: false,
                 chatStatusBarCode: '',
+                extensionSwitch: false,
                 systemSqlExecutor: null
             };
         }
@@ -79,6 +82,7 @@ export class ExtensionSettingManager {
 
             this._chatStatusBarSwitch = settings.chatStatusBarSwitch ?? false;
             this._chatStatusBarCode = settings.chatStatusBarCode ?? '';
+            this._extensionSwitch = settings.extensionSwitch ?? false;
 
             if (settings.systemSqlExecutor) {
                 try {
@@ -99,6 +103,7 @@ export class ExtensionSettingManager {
             settings.tableTemplate = this._tableTemplateCache?.serialize();
             settings.chatStatusBarSwitch = this._chatStatusBarSwitch;
             settings.chatStatusBarCode = this._chatStatusBarCode;
+            settings.extensionSwitch = this._extensionSwitch;
             settings.systemSqlExecutor = this._systemSqlExecutorCache?.serialize();
         }
         SillyTavern.getContext().saveSettingsDebounced();
@@ -144,6 +149,15 @@ export class ExtensionSettingManager {
 
     set chatStatusBarCode(v: string) {
         this._chatStatusBarCode = v;
+        this._saveToSettings();
+    }
+
+    get extensionSwitch(): boolean {
+        return this._extensionSwitch;
+    }
+
+    set extensionSwitch(v: boolean) {
+        this._extensionSwitch = v;
         this._saveToSettings();
     }
 
