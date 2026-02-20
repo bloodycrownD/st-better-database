@@ -1,5 +1,4 @@
-import type {SqlResult, SqlValue} from '@/infra/sql';
-import type {Where} from '@/infra/sql';
+import type {SqlResult, SqlValue, Where} from '@/infra/sql';
 
 export interface DataManagementService {
 

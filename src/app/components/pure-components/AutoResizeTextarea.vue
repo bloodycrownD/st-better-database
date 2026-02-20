@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref, watch, nextTick, onMounted, onBeforeUnmount, computed} from 'vue';
+import {computed, nextTick, onBeforeUnmount, onMounted, ref, watch} from 'vue';
 
 const props = withDefaults(
     defineProps<{

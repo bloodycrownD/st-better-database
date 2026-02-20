@@ -1,6 +1,7 @@
 <template>
   <div class="drop-table-confirm-wrapper" :style="modalStyle">
-    <PopupModal :visible="true" title="删除表" :width="modalWidth" :height="modalHeight" :closable="false" @close="handleCancel">
+    <PopupModal :visible="true" title="删除表" :width="modalWidth" :height="modalHeight" :closable="false"
+                @close="handleCancel">
       <div class="confirm-container">
         <div class="confirm-icon-wrapper">
           <i class="fa-solid fa-triangle-exclamation warning-icon"></i>
@@ -27,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref, computed} from 'vue';
+import {computed, ref} from 'vue';
 import Button from '@/app/components/pure-components/Button.vue';
 import PopupModal from '@/app/components/pure-components/PopupModal.vue';
 

@@ -1,6 +1,5 @@
 import type {Row, RowData, TableSchema} from '@/infra/sql';
-import {ActionType, SqlExecutionError} from '@/infra/sql';
-import {ExpressionEvaluator} from '@/infra/sql';
+import {ActionType, ExpressionEvaluator, SqlExecutionError} from '@/infra/sql';
 
 export class RowConverter {
     private expressionEvaluator: ExpressionEvaluator;

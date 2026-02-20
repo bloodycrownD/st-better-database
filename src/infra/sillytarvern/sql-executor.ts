@@ -1,4 +1,12 @@
-import {type DataStorage, ExportFormat, type Row, type SqlExecutor, type SqlResult, SqlType, type TableSchema} from "@/infra/sql";
+import {
+    type DataStorage,
+    ExportFormat,
+    type Row,
+    type SqlExecutor,
+    type SqlResult,
+    SqlType,
+    type TableSchema
+} from "@/infra/sql";
 import {ChatMessageManager} from "@/infra/sillytarvern/chat-message-manager.ts";
 
 export class ChatSqlExecutor implements SqlExecutor {
@@ -91,6 +99,7 @@ export class ChatSqlExecutor implements SqlExecutor {
 
         throw new Error(`无法识别SQL类型: ${sql}`);
     }
+
     private executeDml(sql: string): number {
         const rows = this.tableTemplate.dml2row(sql);
         ChatMessageManager.processLastRows(content => {

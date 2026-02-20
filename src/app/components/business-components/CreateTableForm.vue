@@ -1,6 +1,7 @@
 <template>
   <div class="form-wrapper" :style="modalStyle">
-    <PopupModal :visible="true" title="创建表" :width="computedModalWidth" :height="modalHeight" :closable="false" @close="handleCancel">
+    <PopupModal :visible="true" title="创建表" :width="computedModalWidth" :height="modalHeight" :closable="false"
+                @close="handleCancel">
       <div class="form-container">
         <div class="form-section">
           <div class="form-item">
@@ -135,7 +136,7 @@
 </template>
 
 <script setup lang="ts">
-import {reactive, ref, computed, onMounted, onBeforeUnmount} from 'vue';
+import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue';
 import Button from '@/app/components/pure-components/Button.vue';
 import PopupModal from '@/app/components/pure-components/PopupModal.vue';
 import AutoResizeTextarea from '@/app/components/pure-components/AutoResizeTextarea.vue';

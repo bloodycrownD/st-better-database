@@ -1,4 +1,4 @@
-import {type SqlExecutor, type Row} from '@/infra/sql';
+import {type Row, type SqlExecutor} from '@/infra/sql';
 import {ChatMessageManager} from '@/infra/sillytarvern/chat-message-manager.ts';
 
 export class ChatMessageHandler {

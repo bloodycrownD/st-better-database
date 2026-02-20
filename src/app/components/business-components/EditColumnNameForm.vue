@@ -1,6 +1,7 @@
 <template>
   <div class="form-wrapper" :style="modalStyle">
-    <PopupModal :visible="true" title="修改列名" :width="computedModalWidth" :height="modalHeight" :closable="false" @close="handleCancel">
+    <PopupModal :visible="true" title="修改列名" :width="computedModalWidth" :height="modalHeight" :closable="false"
+                @close="handleCancel">
       <div class="form-container">
         <div class="form-item">
           <label class="form-label">当前列名</label>
@@ -39,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, ref, watch, onMounted, onBeforeUnmount} from 'vue';
+import {computed, onBeforeUnmount, onMounted, ref, watch} from 'vue';
 import Button from '@/app/components/pure-components/Button.vue';
 import PopupModal from '@/app/components/pure-components/PopupModal.vue';
 import type {ColumnSchema} from '@/infra/sql';

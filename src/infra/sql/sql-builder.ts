@@ -1,10 +1,10 @@
 import type {SqlValue} from './types/core';
 import type {JoinType} from './enums/join-type';
 
-type WhereNode = 
-    | {type: 'condition', sql: string}
-    | {type: 'and', left: WhereNode, right: WhereNode}
-    | {type: 'or', left: WhereNode, right: WhereNode};
+type WhereNode =
+    | { type: 'condition', sql: string }
+    | { type: 'and', left: WhereNode, right: WhereNode }
+    | { type: 'or', left: WhereNode, right: WhereNode };
 
 export class Where {
     private root?: WhereNode;
@@ -134,7 +134,7 @@ export class Where {
 abstract class AbstractWrapper<T extends AbstractWrapper<T>> {
     protected whereCondition?: Where;
     protected orderByClauses: string[] = [];
-    protected joins: {type: string; table: string; on: string}[] = [];
+    protected joins: { type: string; table: string; on: string }[] = [];
 
     where(condition: Where): T {
         this.whereCondition = condition;

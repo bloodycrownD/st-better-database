@@ -1,6 +1,6 @@
 <template>
   <div class="table-management-tab">
-    <EmptyState v-if="!selectedTable" icon="fa-solid fa-table" text="请选择一个表格进行管理" />
+    <EmptyState v-if="!selectedTable" icon="fa-solid fa-table" text="请选择一个表格进行管理"/>
 
     <div v-else class="table-detail">
       <div class="table-header">
@@ -48,7 +48,7 @@
           </Button>
         </div>
         <div class="columns-list">
-          <EmptyState v-if="columnList.length === 0" icon="fa-solid fa-columns" text="暂无列定义" variant="compact" />
+          <EmptyState v-if="columnList.length === 0" icon="fa-solid fa-columns" text="暂无列定义" variant="compact"/>
           <div v-else>
             <div v-for="[fieldId, column] in columnList" :key="fieldId" class="column-item">
               <div class="column-main">
@@ -85,10 +85,10 @@
     </div>
 
     <ToastNotification
-      :visible="toast.visible"
-      :message="toast.message"
-      :type="toast.type"
-      :icon="toast.icon"
+        :visible="toast.visible"
+        :message="toast.message"
+        :type="toast.type"
+        :icon="toast.icon"
     />
 
     <CreateTableForm
@@ -106,10 +106,12 @@
         @cancel="showEditTableNameModal = false"
     />
 
-    <EditTableCommentForm v-if="showEditTableCommentModal" :comment="currentTable.comment" @save="handleEditTableComment"
+    <EditTableCommentForm v-if="showEditTableCommentModal" :comment="currentTable.comment"
+                          @save="handleEditTableComment"
                           @cancel="showEditTableCommentModal = false"/>
 
-    <DropTableConfirm v-if="showDropTableModal" :table-name="currentTable.tableName" modal-width="500px" modal-height="auto"
+    <DropTableConfirm v-if="showDropTableModal" :table-name="currentTable.tableName" modal-width="500px"
+                      modal-height="auto"
                       @confirm="handleDropTable" @cancel="showDropTableModal = false"/>
 
     <AddColumnForm
@@ -127,11 +129,12 @@
         @cancel="showEditColumnNameModal = false"
     />
 
-    <EditColumnCommentForm v-if="showEditColumnCommentModal && editingColumn" :column="editingColumn.column" @save="handleEditColumnComment"
+    <EditColumnCommentForm v-if="showEditColumnCommentModal && editingColumn" :column="editingColumn.column"
+                           @save="handleEditColumnComment"
                            @cancel="showEditColumnCommentModal = false"/>
 
     <DropColumnConfirm v-if="showDropColumnModal && editingColumn" :column="editingColumn.column" modal-width="500px"
-                        modal-height="auto" @confirm="handleDropColumn" @cancel="showDropColumnModal = false"/>
+                       modal-height="auto" @confirm="handleDropColumn" @cancel="showDropColumnModal = false"/>
 
     <PopupModal v-if="showDDLModal" visible title="DDL语句" @close="showDDLModal = false">
       <DDLDisplay :ddl="exportedDDL" @close="showDDLModal = false"/>

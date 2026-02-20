@@ -59,10 +59,10 @@ export class ChatMessageManager {
         return ChatMessageManager.processMessage(index, ChatMessageManager.ROW_START_TAG, ChatMessageManager.ROW_END_TAG, processer)
     }
 
-    static processLastRows(processer: (content: string | null) => string){
+    static processLastRows(processer: (content: string | null) => string) {
         const context = SillyTavern.getContext();
         const chat = context?.chat || [];
-        if (chat.length == 0){
+        if (chat.length == 0) {
             context?.chat.push({
                 id: 0,
                 name: '',

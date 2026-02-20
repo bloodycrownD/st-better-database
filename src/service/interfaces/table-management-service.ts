@@ -42,6 +42,7 @@ export interface TableManagementService {
      * @param comment
      */
     alterColumnComment(tableName: string, columnName: string, comment: string): SqlResult;
+
     /**
      * 删除列
      * @param tableName 表名

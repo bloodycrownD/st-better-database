@@ -1,9 +1,9 @@
-import {SQLBuilder, ExportFormat, SqlType} from "@/infra/sql";
 import type {ColumnSchema, SqlExecutor, SqlResult, TableSchema} from "@/infra/sql";
+import {ExportFormat, SQLBuilder, SqlType} from "@/infra/sql";
 import type {TableManagementService} from "@/service/interfaces/table-management-service.ts";
 
-export abstract class AbstractTableManagementService implements TableManagementService{
-    abstract get executor():SqlExecutor;
+export abstract class AbstractTableManagementService implements TableManagementService {
+    abstract get executor(): SqlExecutor;
 
     createTable(tableName: string, columns: Array<ColumnSchema>, comment?: string): SqlResult {
         const columnDefs = new Map<string, string>();

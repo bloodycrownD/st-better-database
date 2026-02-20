@@ -1,5 +1,4 @@
-import type {DataStorage} from '@/infra/sql';
-import type {RowData} from '@/infra/sql';
+import type {DataStorage, RowData} from '@/infra/sql';
 
 /**
  * DataStorage实现类

@@ -1,6 +1,7 @@
 <template>
   <div class="delete-data-confirm-wrapper" :style="modalStyle">
-    <PopupModal :visible="true" title="删除数据" :width="modalWidth" :height="modalHeight" :closable="false" @close="handleCancel">
+    <PopupModal :visible="true" title="删除数据" :width="modalWidth" :height="modalHeight" :closable="false"
+                @close="handleCancel">
       <div class="confirm-container">
         <div class="confirm-content">
           <i class="fa-solid fa-triangle-exclamation warning-icon"></i>

@@ -10,7 +10,7 @@ export class ChatMetaManager {
     private _tableTemplateProxy: SqlExecutor | null = null;
 
     private constructor() {
-        const { chatMetadata } = SillyTavern.getContext();
+        const {chatMetadata} = SillyTavern.getContext();
 
         if (!chatMetadata[ChatMetaManager.MODULE_NAME]) {
             chatMetadata[ChatMetaManager.MODULE_NAME] = {
@@ -22,7 +22,7 @@ export class ChatMetaManager {
     }
 
     private _loadFromMetadata(): void {
-        const { chatMetadata } = SillyTavern.getContext();
+        const {chatMetadata} = SillyTavern.getContext();
         const settings = chatMetadata[ChatMetaManager.MODULE_NAME];
 
         if (settings && settings.tableTemplate) {
@@ -37,7 +37,7 @@ export class ChatMetaManager {
     }
 
     private _saveToMetadata(): void {
-        const { chatMetadata } = SillyTavern.getContext();
+        const {chatMetadata} = SillyTavern.getContext();
         if (!chatMetadata[ChatMetaManager.MODULE_NAME]) {
             chatMetadata[ChatMetaManager.MODULE_NAME] = {};
         }

@@ -1,8 +1,5 @@
-import type {ColumnSchema, TableSchema} from '@/infra/sql';
+import type {ColumnSchema, DataStorage, ExecutorStructure, SqlResult, TableSchema} from '@/infra/sql';
 import {SqlType, SqlValidationError} from '@/infra/sql';
-import type {SqlResult} from '@/infra/sql';
-import type {DataStorage} from '@/infra/sql';
-import type {ExecutorStructure} from '@/infra/sql';
 
 export class DdlExecutor {
     constructor(

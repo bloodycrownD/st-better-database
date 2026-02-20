@@ -1,9 +1,9 @@
-import {type SqlExecutor, type SqlResult, type SqlValue, Where, SQLBuilder, ExportFormat, SqlType} from "@/infra/sql";
+import {ExportFormat, SQLBuilder, type SqlExecutor, type SqlResult, SqlType, type SqlValue, Where} from "@/infra/sql";
 import type {DataManagementService} from "@/service/interfaces/data-management-service.ts";
 
-export abstract class AbstractDataManagementService implements DataManagementService{
+export abstract class AbstractDataManagementService implements DataManagementService {
 
-    abstract get executor():SqlExecutor;
+    abstract get executor(): SqlExecutor;
 
     queryData(tableName: string, where?: Where): SqlResult {
         const sql = SQLBuilder.select()
@@ -40,6 +40,7 @@ export abstract class AbstractDataManagementService implements DataManagementSer
             .build();
         return this.executor.execute(sql, [SqlType.DML]);
     }
+
     export(tableName: string): string {
         return this.executor.export(ExportFormat.INSERT_SQL, tableName);
     }

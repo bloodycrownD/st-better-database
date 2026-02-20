@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import {ref} from 'vue';
 import SettingsPanel from '@/app/screens/pure-screens/SettingsPanel.vue';
 import ExtraMesButtons from '@/app/components/pure-components/ExtraMesButtons.vue';
 import ChatManagementPanel from '@/app/screens/business-screens/ChatManagementPanel.vue';

@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ToastType } from '@/app/composables/components-composables/useToast.ts';
+import type {ToastType} from '@/app/composables/components-composables/useToast.ts';
 
 interface Props {
   visible: boolean;

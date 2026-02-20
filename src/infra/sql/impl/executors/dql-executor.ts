@@ -1,9 +1,5 @@
-import type {TableSchema} from '@/infra/sql';
-import type {ExecutorStructure} from '@/infra/sql';
-import {SqlType} from '@/infra/sql';
-import type {SqlResult} from '@/infra/sql';
-import type {DataStorage} from '@/infra/sql';
-import {ExpressionEvaluator} from '@/infra/sql';
+import type {DataStorage, ExecutorStructure, SqlResult, TableSchema} from '@/infra/sql';
+import {ExpressionEvaluator, SqlType} from '@/infra/sql';
 
 export class DqlExecutor {
     private expressionEvaluator: ExpressionEvaluator;

@@ -1,6 +1,4 @@
-import type {DataStorage, TableSchema} from '@/infra/sql';
-import type {SqlResult} from '@/infra/sql';
-import type {Row} from '@/infra/sql';
+import type {DataStorage, Row, SqlResult, TableSchema} from '@/infra/sql';
 import {ExportFormat, SqlType} from '../../index';
 
 /**

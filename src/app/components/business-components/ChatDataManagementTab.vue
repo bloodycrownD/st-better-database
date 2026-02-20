@@ -1,6 +1,6 @@
 <template>
   <div class="chat-data-management-tab">
-    <EmptyState v-if="!selectedTable" icon="fa-solid fa-table" text="请选择一个表格进行管理" />
+    <EmptyState v-if="!selectedTable" icon="fa-solid fa-table" text="请选择一个表格进行管理"/>
 
     <div v-else class="data-detail">
       <div class="data-toolbar">
@@ -25,59 +25,59 @@
       </div>
 
       <div class="data-list">
-        <EmptyState v-if="dataList.length === 0" icon="fa-solid fa-database" text="暂无数据" />
+        <EmptyState v-if="dataList.length === 0" icon="fa-solid fa-database" text="暂无数据"/>
         <div v-else class="table-container">
           <table class="data-table">
             <thead>
-              <tr>
-                <th v-if="showCheckboxColumn" class="checkbox-header sticky-col" style="left: 0">
-                  <label class="checkbox-wrapper">
-                    <input type="checkbox" 
-                           :checked="selectedRows.size === dataList.length && dataList.length > 0" 
-                           @change="handleSelectAll" />
-                  </label>
-                </th>
-                <th class="actions-header sticky-col" :style="{ left: showCheckboxColumn ? '50px' : '0' }">
-                  操作
-                </th>
-                <th v-for="column in columnList" :key="column.name" 
-                    :class="['column-header', column.primitiveKey ? 'sticky-col primary-key' : '']"
-                    :style="{ 
-                      left: column.primitiveKey 
-                        ? (showCheckboxColumn ? '150px' : '100px') 
-                        : undefined 
+            <tr>
+              <th v-if="showCheckboxColumn" class="checkbox-header sticky-col" style="left: 0">
+                <label class="checkbox-wrapper">
+                  <input type="checkbox"
+                         :checked="selectedRows.size === dataList.length && dataList.length > 0"
+                         @change="handleSelectAll"/>
+                </label>
+              </th>
+              <th class="actions-header sticky-col" :style="{ left: showCheckboxColumn ? '50px' : '0' }">
+                操作
+              </th>
+              <th v-for="column in columnList" :key="column.name"
+                  :class="['column-header', column.primitiveKey ? 'sticky-col primary-key' : '']"
+                  :style="{
+                      left: column.primitiveKey
+                        ? (showCheckboxColumn ? '150px' : '100px')
+                        : undefined
                     }">
-                  {{ column.name }}
-                </th>
-              </tr>
+                {{ column.name }}
+              </th>
+            </tr>
             </thead>
             <tbody>
-              <tr v-for="(row, rowIndex) in dataList" :key="rowIndex" class="table-row">
-                <td v-if="showCheckboxColumn" class="checkbox-cell sticky-col" style="left: 0">
-                  <label class="checkbox-wrapper">
-                    <input type="checkbox" :checked="selectedRows.has(rowIndex)" @change="handleRowSelect(rowIndex)" />
-                  </label>
-                </td>
-                <td class="actions-cell sticky-col" :style="{ left: showCheckboxColumn ? '50px' : '0' }">
-                  <div class="row-actions">
-                    <Button size="small" @click="openEditDataModal(rowIndex, row)">
-                      <i class="fa-solid fa-pen"></i>
-                    </Button>
-                    <Button type="danger" size="small" @click="openDeleteDataModal(rowIndex)">
-                      <i class="fa-solid fa-trash"></i>
-                    </Button>
-                  </div>
-                </td>
-                <td v-for="column in columnList" :key="column.name" 
-                    :class="['table-cell', column.primitiveKey ? 'primary-key sticky-col' : '']"
-                    :style="{ 
-                      left: column.primitiveKey 
-                        ? (showCheckboxColumn ? '150px' : '100px') 
-                        : undefined 
+            <tr v-for="(row, rowIndex) in dataList" :key="rowIndex" class="table-row">
+              <td v-if="showCheckboxColumn" class="checkbox-cell sticky-col" style="left: 0">
+                <label class="checkbox-wrapper">
+                  <input type="checkbox" :checked="selectedRows.has(rowIndex)" @change="handleRowSelect(rowIndex)"/>
+                </label>
+              </td>
+              <td class="actions-cell sticky-col" :style="{ left: showCheckboxColumn ? '50px' : '0' }">
+                <div class="row-actions">
+                  <Button size="small" @click="openEditDataModal(rowIndex, row)">
+                    <i class="fa-solid fa-pen"></i>
+                  </Button>
+                  <Button type="danger" size="small" @click="openDeleteDataModal(rowIndex)">
+                    <i class="fa-solid fa-trash"></i>
+                  </Button>
+                </div>
+              </td>
+              <td v-for="column in columnList" :key="column.name"
+                  :class="['table-cell', column.primitiveKey ? 'primary-key sticky-col' : '']"
+                  :style="{
+                      left: column.primitiveKey
+                        ? (showCheckboxColumn ? '150px' : '100px')
+                        : undefined
                     }">
-                  <span class="cell-value">{{ formatValue(row[column.name]) }}</span>
-                </td>
-              </tr>
+                <span class="cell-value">{{ formatValue(row[column.name]) }}</span>
+              </td>
+            </tr>
             </tbody>
           </table>
         </div>
@@ -125,7 +125,7 @@ import Button from '@/app/components/pure-components/Button.vue';
 import PopupModal from '@/app/components/pure-components/PopupModal.vue';
 import ToastNotification from '@/app/components/pure-components/ToastNotification.vue';
 import EmptyState from '@/app/components/pure-components/EmptyState.vue';
-import type {ColumnSchema, TableSchema, SqlValue} from '@/infra/sql';
+import type {ColumnSchema, SqlValue, TableSchema} from '@/infra/sql';
 import {Where} from '@/infra/sql';
 import type {DataManagementService} from '@/service/interfaces/data-management-service.ts';
 import {useToast} from '@/app/composables/components-composables/useToast.ts';
@@ -171,7 +171,7 @@ const showAddDataModal = ref(false);
 const showEditDataModal = ref(false);
 const showDeleteDataModal = ref(false);
 const showExportModal = ref(false);
-const editingData = ref<{index: number, row: any} | null>(null);
+const editingData = ref<{ index: number, row: any } | null>(null);
 const exportedSql = ref('');
 
 const formatValue = (value: any): string => {

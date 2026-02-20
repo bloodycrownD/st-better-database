@@ -4,7 +4,7 @@ export function createAutoSaveProxy(executor: SqlExecutor, onSave: () => void): 
     return new Proxy(executor, {
         get(target, prop) {
             const value = (target as any)[prop];
-            if (typeof value === 'function' &&prop === 'execute') {
+            if (typeof value === 'function' && prop === 'execute') {
                 return function (...args: any[]) {
                     const result = value.apply(target, args);
                     onSave();
