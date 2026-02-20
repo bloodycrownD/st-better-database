@@ -113,10 +113,8 @@
                             @cancel="showEditTableCommentModal = false"/>
     </PopupModal>
 
-    <PopupModal v-if="showDropTableModal" visible title="删除表" @close="showDropTableModal = false">
-      <DropTableConfirm :table-name="currentTable.tableName" @confirm="handleDropTable"
-                        @cancel="showDropTableModal = false"/>
-    </PopupModal>
+    <DropTableConfirm v-if="showDropTableModal" :table-name="currentTable.tableName" modal-width="500px" modal-height="auto"
+                      @confirm="handleDropTable" @cancel="showDropTableModal = false"/>
 
     <PopupModal v-if="showAddColumnModal" visible title="添加列" @close="showAddColumnModal = false">
       <AddColumnForm
@@ -142,10 +140,8 @@
                              @cancel="showEditColumnCommentModal = false"/>
     </PopupModal>
 
-    <PopupModal v-if="showDropColumnModal && editingColumn" visible title="删除列" @close="showDropColumnModal = false">
-      <DropColumnConfirm :column="editingColumn.column" @confirm="handleDropColumn"
-                         @cancel="showDropColumnModal = false"/>
-    </PopupModal>
+    <DropColumnConfirm v-if="showDropColumnModal && editingColumn" :column="editingColumn.column" modal-width="500px"
+                        modal-height="auto" @confirm="handleDropColumn" @cancel="showDropColumnModal = false"/>
 
     <PopupModal v-if="showDDLModal" visible title="DDL语句" @close="showDDLModal = false">
       <DDLDisplay :ddl="exportedDDL" @close="showDDLModal = false"/>

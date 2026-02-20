@@ -1,34 +1,41 @@
 <template>
-  <div class="confirm-container">
-    <div class="confirm-icon-wrapper">
-      <i class="fa-solid fa-triangle-exclamation warning-icon"></i>
-    </div>
-    <div class="confirm-content">
-      <div class="confirm-message">
-        确定要删除列 <strong>{{ column.name }}</strong> 吗？
+  <div class="drop-column-confirm-wrapper" :style="modalStyle">
+    <PopupModal :visible="true" title="删除列" :width="modalWidth" :height="modalHeight" :closable="false" @close="handleCancel">
+      <div class="confirm-container">
+        <div class="confirm-icon-wrapper">
+          <i class="fa-solid fa-triangle-exclamation warning-icon"></i>
+        </div>
+        <div class="confirm-content">
+          <div class="confirm-message">
+            确定要删除列 <strong>{{ column.name }}</strong> 吗？
+          </div>
+          <div class="confirm-warning">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>此操作不可撤销，列中的所有数据将被永久删除。</span>
+          </div>
+        </div>
+        <div class="form-actions">
+          <Button @click="handleCancel">取消</Button>
+          <Button type="danger" :disabled="isSubmitting" @click="handleConfirm">
+            <i v-if="isSubmitting" class="fa-solid fa-spinner fa-spin"></i>
+            <span>确认删除</span>
+          </Button>
+        </div>
       </div>
-      <div class="confirm-warning">
-        <i class="fa-solid fa-circle-info"></i>
-        <span>此操作不可撤销，列中的所有数据将被永久删除。</span>
-      </div>
-    </div>
-    <div class="form-actions">
-      <Button @click="handleCancel">取消</Button>
-      <Button type="danger" :disabled="isSubmitting" @click="handleConfirm">
-        <i v-if="isSubmitting" class="fa-solid fa-spinner fa-spin"></i>
-        <span>确认删除</span>
-      </Button>
-    </div>
+    </PopupModal>
   </div>
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue';
+import {ref, computed} from 'vue';
 import Button from '@/app/components/pure-components/Button.vue';
+import PopupModal from '@/app/components/pure-components/PopupModal.vue';
 import type {ColumnSchema} from '@/infra/sql';
 
 const props = defineProps<{
   column: ColumnSchema;
+  modalWidth?: string;
+  modalHeight?: string;
 }>();
 
 const emit = defineEmits<{
@@ -37,6 +44,17 @@ const emit = defineEmits<{
 }>();
 
 const isSubmitting = ref(false);
+
+const modalStyle = computed(() => {
+  const style: Record<string, string> = {};
+  if (props.modalWidth) {
+    style['--confirm-modal-width'] = props.modalWidth;
+  }
+  if (props.modalHeight) {
+    style['--confirm-modal-height'] = props.modalHeight;
+  }
+  return style;
+});
 
 const handleConfirm = () => {
   isSubmitting.value = true;
@@ -49,6 +67,11 @@ const handleCancel = () => {
 </script>
 
 <style scoped lang="less">
+.drop-column-confirm-wrapper {
+  --confirm-modal-width: 500px;
+  --confirm-modal-height: auto;
+}
+
 .confirm-container {
   padding: 24px 20px;
   text-align: center;
@@ -103,8 +126,11 @@ const handleCancel = () => {
   justify-content: center;
 }
 
-// 移动端适配
 @media (max-width: 768px) {
+  .drop-column-confirm-wrapper {
+    --confirm-modal-width: 90vw;
+  }
+
   .confirm-container {
     padding: 20px 16px;
   }

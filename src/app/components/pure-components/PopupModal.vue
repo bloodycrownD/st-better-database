@@ -33,6 +33,7 @@ interface Props {
   closable?: boolean;
   maskClosable?: boolean;
   height?: string;
+  width?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -41,10 +42,16 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const modalStyle = computed(() => {
+  const style: Record<string, string> = {};
   if (props.height) {
-    return {'height': props.height, 'max-height': props.height};
+    style['height'] = props.height;
+    style['max-height'] = props.height;
   }
-  return {};
+  if (props.width) {
+    style['width'] = props.width;
+    style['max-width'] = props.width;
+  }
+  return style;
 });
 
 const emit = defineEmits<{

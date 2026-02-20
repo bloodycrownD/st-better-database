@@ -74,9 +74,8 @@
       />
     </PopupModal>
 
-    <PopupModal v-if="showDeleteDataModal" visible title="删除数据" @close="showDeleteDataModal = false">
-      <DeleteDataConfirm @confirm="handleDeleteData" @cancel="showDeleteDataModal = false"/>
-    </PopupModal>
+    <DeleteDataConfirm v-if="showDeleteDataModal" modal-width="500px" modal-height="auto"
+                       @confirm="handleDeleteData" @cancel="showDeleteDataModal = false"/>
 
     <PopupModal v-if="showExportModal" visible title="导出数据" @close="showExportModal = false">
       <ExportDisplay :sql="exportedSql" @close="showExportModal = false"/>
