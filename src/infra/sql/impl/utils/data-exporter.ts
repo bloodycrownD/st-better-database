@@ -26,6 +26,18 @@ export class DataExporter {
             return this.exportTable(schema, data, format, tableIdx);
         }
 
+        if (format === ExportFormat.STANDARD_DATA) {
+            const standardData: Record<string, Record<string, SqlValue>[]> = {};
+            for (const [tableIdxStr, schema] of Object.entries(tableSchemas)) {
+                const tableIdx = parseInt(tableIdxStr);
+                const data = dataStorage.getTableData(tableIdx);
+                const tableData = this.exportAsStandardData(schema, data);
+                const parsed = JSON.parse(tableData);
+                Object.assign(standardData, parsed);
+            }
+            return JSON.stringify(standardData, null, 2);
+        }
+
         const results: string[] = [];
         for (const [tableIdxStr, schema] of Object.entries(tableSchemas)) {
             const tableIdx = parseInt(tableIdxStr);
