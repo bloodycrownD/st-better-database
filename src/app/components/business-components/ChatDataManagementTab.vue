@@ -88,6 +88,7 @@
 <script setup lang="ts">
 import {computed, onMounted, ref, watch} from 'vue';
 import Button from '@/app/components/pure-components/Button.vue';
+import PopupModal from '@/app/components/pure-components/PopupModal.vue';
 import ToastNotification from '@/app/components/pure-components/ToastNotification.vue';
 import EmptyState from '@/app/components/pure-components/EmptyState.vue';
 import type {ColumnSchema, TableSchema, SqlValue} from '@/infra/sql';

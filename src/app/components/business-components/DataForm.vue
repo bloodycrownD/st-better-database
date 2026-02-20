@@ -15,13 +15,14 @@
                 :placeholder="column.comment || `请输入${column.name}`"
                 class="form-input"
             />
-            <textarea
+            <AutoResizeTextarea
                 v-else
-                v-model="formData[column.name]"
+                :model-value="String(formData[column.name] || '')"
+                @update:model-value="(val: string) => formData[column.name] = val"
                 :placeholder="column.comment || `请输入${column.name}`"
-                class="form-textarea"
-                rows="4"
-            ></textarea>
+                :min-rows="1"
+                :max-rows="10"
+            />
             <div v-if="column.comment" class="form-hint">{{ column.comment }}</div>
           </div>
         </div>
@@ -38,6 +39,7 @@
 import {reactive, watch, computed, ref, onMounted, onBeforeUnmount} from 'vue';
 import Button from '@/app/components/pure-components/Button.vue';
 import PopupModal from '@/app/components/pure-components/PopupModal.vue';
+import AutoResizeTextarea from '@/app/components/pure-components/AutoResizeTextarea.vue';
 import type {ColumnSchema, SqlValue} from '@/infra/sql';
 
 interface Props {
@@ -167,92 +169,92 @@ watch(() => props.initialData, () => {
 .data-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  max-height: 500px;
+  gap: 24px;
+  max-height: 65vh;
 }
 
 .form-content {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   overflow-y: auto;
-  padding: 4px;
+  padding: 8px 4px;
 }
 
 .form-item {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .form-label {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--SmartThemeBodyColor);
+  letter-spacing: 0.3px;
 }
 
 .required-mark {
   color: #ef4444;
-  margin-left: 2px;
+  margin-left: 4px;
+  font-size: 14px;
 }
 
 .form-input {
-  padding: 10px 12px;
-  border: 1px solid var(--SmartThemeBorderColor);
-  border-radius: 4px;
+  padding: 12px 16px;
+  border: 1.5px solid var(--SmartThemeBorderColor);
+  border-radius: 8px;
   background: var(--SmartThemeBlurTintColor);
   color: var(--SmartThemeBodyColor);
-  font-size: 13px;
-  transition: all 0.2s;
+  font-size: 14px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--SmartThemeBorderColor) 50%, transparent);
+  }
 
   &:focus {
     outline: none;
-    border-color: color-mix(in srgb, var(--SmartThemeBorderColor) 70%, transparent);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--SmartThemeBorderColor) 30%, transparent);
+    border-color: var(--SmartThemeEmColor);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--SmartThemeEmColor) 20%, transparent);
+    background: var(--SmartThemeBlurTintColor);
   }
 
   &::placeholder {
-    color: color-mix(in srgb, var(--SmartThemeBodyColor) 30%, transparent);
-  }
-}
-
-.form-textarea {
-  padding: 10px 12px;
-  border: 1px solid var(--SmartThemeBorderColor);
-  border-radius: 4px;
-  background: var(--SmartThemeBlurTintColor);
-  color: var(--SmartThemeBodyColor);
-  font-size: 13px;
-  transition: all 0.2s;
-  resize: vertical;
-  min-height: 80px;
-  max-height: 300px;
-  line-height: 1.5;
-  word-wrap: break-word;
-  white-space: pre-wrap;
-
-  &:focus {
-    outline: none;
-    border-color: color-mix(in srgb, var(--SmartThemeBorderColor) 70%, transparent);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--SmartThemeBorderColor) 30%, transparent);
+    color: color-mix(in srgb, var(--SmartThemeBodyColor) 40%, transparent);
+    font-size: 13px;
   }
 
-  &::placeholder {
-    color: color-mix(in srgb, var(--SmartThemeBodyColor) 30%, transparent);
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 }
 
 .form-hint {
-  font-size: 11px;
-  color: color-mix(in srgb, var(--SmartThemeBodyColor) 50%, transparent);
+  font-size: 12px;
+  color: color-mix(in srgb, var(--SmartThemeBodyColor) 45%, transparent);
+  margin-top: -4px;
+  line-height: 1.5;
+  padding-left: 2px;
 }
 
 .form-actions {
   display: flex;
   gap: 12px;
   justify-content: flex-end;
-  padding-top: 8px;
-  border-top: 1px solid var(--SmartThemeBorderColor);
+  padding: 20px 0 8px 0;
+  border-top: 1.5px solid var(--SmartThemeBorderColor);
+  margin-top: 4px;
+
+  > button {
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 }
 
 @media (max-width: 768px) {
@@ -261,19 +263,47 @@ watch(() => props.initialData, () => {
   }
 
   .data-form {
-    max-height: 400px;
+    gap: 20px;
+    max-height: 70vh;
+  }
+
+  .form-content {
+    gap: 16px;
+    padding: 4px;
+  }
+
+  .form-item {
+    gap: 8px;
+  }
+
+  .form-label {
+    font-size: 15px;
   }
 
   .form-input {
-    font-size: 14px;
-    padding: 12px;
+    padding: 14px 16px;
+    font-size: 16px;
+    border-radius: 10px;
+
+    &::placeholder {
+      font-size: 15px;
+    }
+  }
+
+  .form-hint {
+    font-size: 13px;
   }
 
   .form-actions {
     flex-direction: column-reverse;
+    gap: 10px;
+    padding: 16px 0 4px 0;
 
     > button {
       width: 100%;
+      padding: 14px 20px;
+      font-size: 15px;
+      border-radius: 10px;
     }
   }
 }
