@@ -8,7 +8,7 @@
         </div>
       </template>
       <template #right>
-        <ToggleSwitch :checked="false"/>
+        <ToggleSwitch :checked="extensionSwitch" @update:checked="extensionSwitch = $event"/>
       </template>
     </CardItem>
     <CardItem>
@@ -20,7 +20,7 @@
       </template>
       <template #right>
         <div style="display: flex; align-items: center; gap: 10px;">
-          <ToggleSwitch :checked="false"/>
+          <ToggleSwitch :checked="chatStatusBarSwitch" @update:checked="chatStatusBarSwitch = $event"/>
           <Button>
             <i class="fa-solid fa-pen-to-square" style="margin-right: 6px;"></i>
             样式设置
@@ -70,11 +70,24 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue';
+import {ref, computed} from 'vue';
 import CardItem from '@/app/components/pure-components/CardItem.vue';
 import ToggleSwitch from '@/app/components/pure-components/ToggleSwitch.vue';
 import Button from '@/app/components/pure-components/Button.vue';
 import TemplateManagementPanel from '@/app/screens/business-screens/TemplateManagementPanel.vue';
+import {ExtensionSettingManager} from '@/infra/sillytarvern/extension-setting-manager';
+
+const settings = ExtensionSettingManager.instance;
+
+const extensionSwitch = computed({
+  get: () => settings.extensionSwitch,
+  set: (v: boolean) => settings.extensionSwitch = v
+});
+
+const chatStatusBarSwitch = computed({
+  get: () => settings.chatStatusBarSwitch,
+  set: (v: boolean) => settings.chatStatusBarSwitch = v
+});
 
 const templateManagementPanelRef = ref<InstanceType<typeof TemplateManagementPanel>>();
 
