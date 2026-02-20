@@ -2,9 +2,17 @@
   <div :class="['table-list-drawer', { 'is-drawer': isDrawer }]">
     <div class="drawer-header">
       <span class="drawer-title">表格列表</span>
-      <button class="create-table-btn" title="创建新表" @click="handleCreateClick">
-        <i class="fa-solid fa-plus"></i>
-      </button>
+      <div class="header-actions">
+        <button v-if="showSyncButtons" class="sync-btn" title="从模板同步" @click="handleSyncClick">
+          <i class="fa-solid fa-rotate"></i>
+        </button>
+        <button v-if="showSyncButtons" class="push-btn" title="推送至模板" @click="handlePushClick">
+          <i class="fa-solid fa-share-from-square"></i>
+        </button>
+        <button class="create-table-btn" title="创建新表" @click="handleCreateClick">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+      </div>
     </div>
     <div class="drawer-body">
       <div v-if="tables.length === 0" class="empty-state">
@@ -41,16 +49,20 @@ interface Props {
   tables: TableSchema[];
   selectedTable?: string;
   isDrawer?: boolean;
+  showSyncButtons?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  isDrawer: true
+  isDrawer: true,
+  showSyncButtons: false
 });
 
 const emit = defineEmits<{
   select: [tableName: string];
   create: [];
   closeDrawer: [];
+  sync: [];
+  push: [];
 }>();
 
 const windowWidth = ref(window.innerWidth);
@@ -79,6 +91,14 @@ const handleTableClick = (tableName: string) => {
 const handleCreateClick = () => {
   emit('create');
 };
+
+const handleSyncClick = () => {
+  emit('sync');
+};
+
+const handlePushClick = () => {
+  emit('push');
+};
 </script>
 
 <style scoped lang="less">
@@ -102,6 +122,36 @@ const handleCreateClick = () => {
   font-size: 14px;
   font-weight: 600;
   color: var(--SmartThemeBodyColor);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sync-btn,
+.push-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--SmartThemeBorderColor);
+  border-radius: 6px;
+  background: var(--SmartThemeBlurTintColor);
+  color: var(--SmartThemeEmColor);
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: color-mix(in srgb, var(--SmartThemeBorderColor) 50%, transparent);
+    color: var(--SmartThemeBodyColor);
+  }
+
+  i {
+    font-size: 13px;
+  }
 }
 
 .create-table-btn {

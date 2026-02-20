@@ -3,8 +3,9 @@
     <div class="layout-content">
       <Transition name="drawer-slide">
         <div v-if="drawerExpanded" class="layout-drawer">
-          <TableListDrawer :tables="tables" :selected-table="selectedTable" @select="handleTableSelect"
-                           @create="handleCreateTable" @close-drawer="handleCloseDrawer"/>
+          <TableListDrawer :tables="tables" :selected-table="selectedTable" :show-sync-buttons="showSyncButtons"
+                           @select="handleTableSelect" @create="handleCreateTable" @close-drawer="handleCloseDrawer"
+                           @sync="handleSync" @push="handlePush"/>
         </div>
       </Transition>
       <div class="layout-main">
@@ -22,14 +23,19 @@ interface Props {
   drawerExpanded: boolean;
   tables: TableSchema[];
   selectedTable?: string;
+  showSyncButtons?: boolean;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  showSyncButtons: false
+});
 
 const emit = defineEmits<{
   'update:drawerExpanded': [value: boolean];
   selectTable: [tableName: string];
   createTable: [];
+  sync: [];
+  push: [];
 }>();
 
 const handleTableSelect = (tableName: string) => {
@@ -42,6 +48,14 @@ const handleCreateTable = () => {
 
 const handleCloseDrawer = () => {
   emit('update:drawerExpanded', false);
+};
+
+const handleSync = () => {
+  emit('sync');
+};
+
+const handlePush = () => {
+  emit('push');
 };
 </script>
 

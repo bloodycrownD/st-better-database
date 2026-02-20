@@ -5,11 +5,13 @@ export function useChatServices() {
     const dataManagementService = computed(() => ServiceBuilder.chatDataManagementService);
     const tableManagementService = computed(() => ServiceBuilder.chatTableManagementService);
     const sqlExecutorService = computed(() => ServiceBuilder.chatSqlExecutorService);
+    const databaseSyncService = computed(() => ServiceBuilder.chatDatabaseSyncService);
 
     return {
         dataManagementService,
         tableManagementService,
-        sqlExecutorService
+        sqlExecutorService,
+        databaseSyncService
     };
 }
 

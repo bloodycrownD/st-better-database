@@ -16,8 +16,11 @@
           v-model:drawer-expanded="drawerExpanded"
           :tables="tables"
           :selected-table="selectedTable"
+          :show-sync-buttons="true"
           @select-table="handleTableSelect"
           @create-table="handleCreateTable"
+          @sync="handleSync"
+          @push="handlePush"
       >
         <TabContainer v-model:active-tab="activeTab" :tabs="tabs">
           <template #data>
@@ -68,7 +71,7 @@ const props = withDefaults(defineProps<Props>(), {
   defaultTabOnTableSelect: 'data'
 });
 
-const {dataManagementService, tableManagementService, sqlExecutorService} = useChatServices();
+const {dataManagementService, tableManagementService, sqlExecutorService, databaseSyncService} = useChatServices();
 
 const popupVisible = defineModel<boolean>('visible', {default: false});
 const drawerExpanded = ref(false);
@@ -100,6 +103,16 @@ const handleCreateTable = async () => {
   activeTab.value = 'template';
   await nextTick();
   tableTabRef.value?.openCreateTableModal();
+};
+
+const handleSync = () => {
+  databaseSyncService.value.syncTableFromTemplate();
+  refreshTables();
+};
+
+const handlePush = () => {
+  databaseSyncService.value.pushTableToTemplate();
+  refreshTables();
 };
 
 const handleClose = () => {

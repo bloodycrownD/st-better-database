@@ -6,6 +6,8 @@ import type {TableManagementService} from "@/service/interfaces/table-management
 import {ChatSqlExecutorService} from "@/service/impl/chat-sql-executor-service.ts";
 import {TemplateSqlExecutorService} from "@/service/impl/template-sql-executor-service.ts";
 import type {SqlExecutorService} from "@/service/interfaces/sql-executor-service.ts";
+import {ChatDatabaseSyncService} from "@/service/impl/chat-database-sync-service.ts";
+import type {DatabaseSyncService} from "@/service/interfaces/database-sync-service.ts";
 
 export class ServiceBuilder {
     private static readonly _chatDataManagementService: DataManagementService = new ChatDataManagementService();
@@ -13,6 +15,7 @@ export class ServiceBuilder {
     private static readonly _chatSqlExecutorService: SqlExecutorService = new ChatSqlExecutorService();
     private static readonly _templateSqlExecutorService: SqlExecutorService = new TemplateSqlExecutorService();
     private static readonly _templateTableManagementService: TableManagementService = new TemplateTableManagementService();
+    private static readonly _chatDatabaseSyncService: DatabaseSyncService = new ChatDatabaseSyncService();
 
     static get chatDataManagementService(): DataManagementService {
         return ServiceBuilder._chatDataManagementService;
@@ -32,5 +35,9 @@ export class ServiceBuilder {
 
     static get templateTableManagementService(): TableManagementService {
         return ServiceBuilder._templateTableManagementService;
+    }
+
+    static get chatDatabaseSyncService(): DatabaseSyncService {
+        return ServiceBuilder._chatDatabaseSyncService;
     }
 }
