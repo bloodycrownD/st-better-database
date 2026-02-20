@@ -21,6 +21,7 @@ export default defineConfig({
       formats: ['es'],
     },
     cssCodeSplit: false,
+    sourcemap: true,
     rollupOptions: {
       output: {
         inlineDynamicImports: true
