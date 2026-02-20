@@ -13,4 +13,6 @@ export enum ExportFormat {
     DDL = 'DDL',
     /** MARKDOWN 格式 */
     MARKDOWN = 'MARKDOWN',
+    /** 标准数据格式: Record<string, Record<string, SqlValue>[]> */
+    STANDARD_DATA = 'STANDARD_DATA',
 }

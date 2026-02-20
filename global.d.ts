@@ -46,6 +46,7 @@ declare global {
     interface Window {
         getTemplateSqlExecutor: () => SqlExecutor;
         getChatSqlExecutor: () => SqlExecutor;
+        chatDatabaseData: () => any;
     }
 
     const $: any;

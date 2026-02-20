@@ -1,4 +1,4 @@
-import type {DataStorage, Row, RowData, TableSchema} from '@/infra/sql';
+import type {DataStorage, Row, RowData, SqlValue, TableSchema} from '@/infra/sql';
 import {ActionType, ExportFormat, SQLBuilder, SqlExecutionError} from '@/infra/sql';
 import {MarkdownExporter} from './markdown';
 
@@ -48,6 +48,8 @@ export class DataExporter {
                 return this.exportAsDDL(schema);
             case ExportFormat.MARKDOWN:
                 return this.exportAsMarkdown(schema, data);
+            case ExportFormat.STANDARD_DATA:
+                return this.exportAsStandardData(schema, data);
             default:
                 throw new SqlExecutionError(`Unknown export format: ${format}`);
         }
@@ -99,6 +101,22 @@ export class DataExporter {
 
     private exportAsMarkdown(schema: TableSchema, data: RowData[]): string {
         return MarkdownExporter.exportTable(schema, data);
+    }
+
+    private exportAsStandardData(schema: TableSchema, data: RowData[]): string {
+        const standardData: Record<string, Record<string, SqlValue>[]> = {};
+        const rows: Record<string, SqlValue>[] = [];
+
+        for (const row of data) {
+            const rowData: Record<string, SqlValue> = {};
+            for (const [fieldIdxStr, fieldName] of Object.entries(schema.id2fieldName)) {
+                const fieldIdx = parseInt(fieldIdxStr);
+                rowData[fieldName] = row[fieldIdx] ?? null;
+            }
+            rows.push(rowData);
+        }
+        standardData[schema.tableName] = rows;
+        return JSON.stringify(standardData, null, 2);
     }
 
     private exportAsDDL(schema: TableSchema): string {

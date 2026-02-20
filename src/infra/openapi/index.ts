@@ -15,7 +15,7 @@ export class Openapi {
 
             window.getTemplateSqlExecutor = () => ExtensionSettingManager.instance.tableTemplate;
             window.getChatSqlExecutor = () => ChatMetaManager.instance.tableTemplate;
-
+            window.chatDatabaseData = () => JSON.parse(ChatMetaManager.instance.tableTemplate.export(ExportFormat.STANDARD_DATA));
             eventSource.on('prompt_template_prepare', (env: any) => {
                 env.getTemplateSqlExecutor = () => ExtensionSettingManager.instance.tableTemplate;
                 env.getChatSqlExecutor = () => ChatMetaManager.instance.tableTemplate;

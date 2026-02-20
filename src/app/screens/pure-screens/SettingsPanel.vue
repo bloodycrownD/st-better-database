@@ -80,6 +80,7 @@
   >
     <div style="display: flex; flex-direction: column; gap: 12px;">
       <textarea
+          ref="textareaRef"
           v-model="tempCode"
           rows="10"
           style="width: 100%; padding: 12px; border: 1px solid var(--SmartThemeBorderColor); border-radius: 6px; background: var(--black30a); color: var(--SmartThemeBodyColor); font-family: monospace; resize: vertical;"
@@ -94,7 +95,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref, computed} from 'vue';
+import {ref, computed, watch, nextTick} from 'vue';
 import CardItem from '@/app/components/pure-components/CardItem.vue';
 import ToggleSwitch from '@/app/components/pure-components/ToggleSwitch.vue';
 import Button from '@/app/components/pure-components/Button.vue';
@@ -115,16 +116,26 @@ const chatStatusBarSwitch = computed({
   set: (v: boolean) => settings.chatStatusBarSwitch = v
 });
 
-const chatStatusBarCode = computed({
-  get: () => settings.chatStatusBarCode,
-  set: (v: string) => settings.chatStatusBarCode = v
-});
-
 const codeModalVisible = ref(false);
 const tempCode = ref('');
+const textareaRef = ref<HTMLTextAreaElement>();
+
+const forceUpdate = ref(0);
+
+watch(codeModalVisible, async (visible) => {
+  if (visible) {
+    forceUpdate.value++;
+    await nextTick();
+    const currentCode = settings.chatStatusBarCode;
+    tempCode.value = currentCode;
+    await nextTick();
+    if (textareaRef.value) {
+      textareaRef.value.value = currentCode;
+    }
+  }
+});
 
 const handleCodeEditClick = () => {
-  tempCode.value = chatStatusBarCode.value;
   codeModalVisible.value = true;
 };
 
@@ -133,7 +144,7 @@ const handleCodeModalClose = () => {
 };
 
 const handleCodeModalConfirm = () => {
-  chatStatusBarCode.value = tempCode.value;
+  settings.chatStatusBarCode = tempCode.value;
   codeModalVisible.value = false;
 };
 
