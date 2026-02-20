@@ -1,5 +1,12 @@
 import {DatabaseBuilder, type SqlExecutor} from "../sql";
 
+interface ExtensionSettings {
+    tableTemplate: any;
+    chatStatusBarSwitch: boolean;
+    chatStatusBarCode: string;
+    systemSqlExecutor: any;
+}
+
 /**
  * 创建自动保存代理，拦截 execute 方法以实现自动持久化
  */
@@ -21,7 +28,7 @@ export function createAutoSaveProxy(executor: SqlExecutor, onSave: () => void): 
 
 /**
  * ExtensionSettingManager 管理 SillyTavern 扩展级别的设置持久化
- * 
+ *
  * 设计说明：
  * - 使用立即初始化（eager initialization）：static readonly _instance = new ExtensionSettingManager()
  * - 原因：extensionSettings 在扩展加载时就已经可用，不存在时序问题
@@ -35,12 +42,20 @@ export class ExtensionSettingManager {
     private _tableTemplateCache: SqlExecutor | null = null;
     private _tableTemplateProxy: SqlExecutor | null = null;
 
+    private _chatStatusBarSwitch: boolean = false;
+    private _chatStatusBarCode: string = '';
+    private _systemSqlExecutorCache: SqlExecutor | null = null;
+    private _systemSqlExecutorProxy: SqlExecutor | null = null;
+
     private constructor() {
         const {extensionSettings} = SillyTavern.getContext();
 
         if (!extensionSettings[ExtensionSettingManager.MODULE_NAME]) {
             extensionSettings[ExtensionSettingManager.MODULE_NAME] = {
-                tableTemplate: null
+                tableTemplate: null,
+                chatStatusBarSwitch: false,
+                chatStatusBarCode: '',
+                systemSqlExecutor: null
             };
         }
 
@@ -49,15 +64,30 @@ export class ExtensionSettingManager {
 
     private _loadFromSettings(): void {
         const {extensionSettings} = SillyTavern.getContext();
-        const settings = extensionSettings[ExtensionSettingManager.MODULE_NAME];
+        const settings = extensionSettings[ExtensionSettingManager.MODULE_NAME] as ExtensionSettings | undefined;
 
-        if (settings && settings.tableTemplate) {
-            try {
-                this._tableTemplateCache = DatabaseBuilder.newExecutor();
-                this._tableTemplateCache.deserialize(settings.tableTemplate);
-            } catch (e) {
-                console.error('Failed to deserialize tableTemplate:', e);
-                this._tableTemplateCache = null;
+        if (settings) {
+            if (settings.tableTemplate) {
+                try {
+                    this._tableTemplateCache = DatabaseBuilder.newExecutor();
+                    this._tableTemplateCache.deserialize(settings.tableTemplate);
+                } catch (e) {
+                    console.error('Failed to deserialize tableTemplate:', e);
+                    this._tableTemplateCache = null;
+                }
+            }
+
+            this._chatStatusBarSwitch = settings.chatStatusBarSwitch ?? false;
+            this._chatStatusBarCode = settings.chatStatusBarCode ?? '';
+
+            if (settings.systemSqlExecutor) {
+                try {
+                    this._systemSqlExecutorCache = DatabaseBuilder.newExecutor();
+                    this._systemSqlExecutorCache.deserialize(settings.systemSqlExecutor);
+                } catch (e) {
+                    console.error('Failed to deserialize systemSqlExecutor:', e);
+                    this._systemSqlExecutorCache = null;
+                }
             }
         }
     }
@@ -67,6 +97,9 @@ export class ExtensionSettingManager {
         const settings = extensionSettings[ExtensionSettingManager.MODULE_NAME];
         if (settings) {
             settings.tableTemplate = this._tableTemplateCache?.serialize();
+            settings.chatStatusBarSwitch = this._chatStatusBarSwitch;
+            settings.chatStatusBarCode = this._chatStatusBarCode;
+            settings.systemSqlExecutor = this._systemSqlExecutorCache?.serialize();
         }
         SillyTavern.getContext().saveSettingsDebounced();
     }
@@ -93,6 +126,49 @@ export class ExtensionSettingManager {
         }
 
         this._tableTemplateProxy = null;
+        this._saveToSettings();
+    }
+
+    get chatStatusBarSwitch(): boolean {
+        return this._chatStatusBarSwitch;
+    }
+
+    set chatStatusBarSwitch(v: boolean) {
+        this._chatStatusBarSwitch = v;
+        this._saveToSettings();
+    }
+
+    get chatStatusBarCode(): string {
+        return this._chatStatusBarCode;
+    }
+
+    set chatStatusBarCode(v: string) {
+        this._chatStatusBarCode = v;
+        this._saveToSettings();
+    }
+
+    get systemSqlExecutor(): SqlExecutor {
+        if (!this._systemSqlExecutorCache) {
+            this._systemSqlExecutorCache = DatabaseBuilder.newExecutor();
+        }
+
+        if (!this._systemSqlExecutorProxy) {
+            this._systemSqlExecutorProxy = createAutoSaveProxy(this._systemSqlExecutorCache, () => this._saveToSettings());
+        }
+
+        return this._systemSqlExecutorProxy;
+    }
+
+    set systemSqlExecutor(v: SqlExecutor | object) {
+        if (typeof v === 'object' && 'serialize' in v) {
+            const serialized = (v as any).serialize();
+            this._systemSqlExecutorCache = DatabaseBuilder.newExecutor();
+            this._systemSqlExecutorCache.deserialize(serialized);
+        } else {
+            this._systemSqlExecutorCache = v as SqlExecutor;
+        }
+
+        this._systemSqlExecutorProxy = null;
         this._saveToSettings();
     }
 
