@@ -13,18 +13,15 @@
                 v-if="!isTextType(column.type)"
                 v-model="formData[column.name]"
                 :type="getInputType(column.type)"
-                :placeholder="column.comment || `请输入${column.name}`"
                 class="form-input"
             />
             <AutoResizeTextarea
                 v-else
                 :model-value="String(formData[column.name] || '')"
                 @update:model-value="(val: string) => formData[column.name] = val"
-                :placeholder="column.comment || `请输入${column.name}`"
                 :min-rows="1"
                 :max-rows="10"
             />
-            <div v-if="column.comment" class="form-hint">{{ column.comment }}</div>
           </div>
         </div>
         <div class="form-actions">

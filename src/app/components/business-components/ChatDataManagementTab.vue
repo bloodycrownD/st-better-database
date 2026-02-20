@@ -167,7 +167,14 @@ const exportedSql = ref('');
 const formatValue = (value: any): string => {
   if (value === null) return 'NULL';
   if (value === undefined) return '';
-  return String(value);
+  
+  const str = String(value);
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\n/g, '\\n')
+    .replace(/<br>/gi, '&lt;br&gt;');
 };
 
 const loadTableData = () => {
@@ -488,6 +495,9 @@ thead th.checkbox-header.sticky-col {
   max-width: 300px;
   min-width: 120px;
   background: var(--SmartThemeBlurTintColor);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
   &:last-child {
     border-right: none;
@@ -501,10 +511,12 @@ thead th.checkbox-header.sticky-col {
 
 .cell-value {
   color: var(--SmartThemeBodyColor);
-  word-break: break-word;
-  white-space: pre-wrap;
+  text-align: center;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   line-height: 1.5;
-  overflow-wrap: break-word;
 }
 
 .checkbox-cell {
