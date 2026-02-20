@@ -1,138 +1,144 @@
 <template>
-  <div class="form-container">
-    <div class="form-section">
-      <div class="form-item">
-        <label class="form-label">
-          表名
-          <span class="required">*</span>
-        </label>
-        <input
-            v-model="formData.tableName"
-            class="form-input"
-            :class="{ 'has-error': getFieldError('tableName') }"
-            type="text"
-            placeholder="请输入表名（如：user_info）"
-        />
-        <div v-if="getFieldError('tableName')" class="field-error">
-          <i class="fa-solid fa-circle-exclamation"></i>
-          {{ getFieldError('tableName') }}
+  <div class="form-wrapper" :style="modalStyle">
+    <PopupModal :visible="true" title="创建表" :width="computedModalWidth" :height="modalHeight" :closable="false" @close="handleCancel">
+      <div class="form-container">
+        <div class="form-section">
+          <div class="form-item">
+            <label class="form-label">
+              表名
+              <span class="required">*</span>
+            </label>
+            <input
+                v-model="formData.tableName"
+                class="form-input"
+                :class="{ 'has-error': getFieldError('tableName') }"
+                type="text"
+                placeholder="请输入表名（如：user_info）"
+            />
+            <div v-if="getFieldError('tableName')" class="field-error">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              {{ getFieldError('tableName') }}
+            </div>
+            <div class="field-hint">只能包含字母、数字和下划线，不能以数字开头</div>
+          </div>
+
+          <div class="form-item">
+            <label class="form-label">注释</label>
+            <AutoResizeTextarea
+                v-model="formData.comment"
+                :placeholder="'请输入表注释（可选）'"
+                :min-rows="2"
+                :max-rows="6"
+            />
+            <div class="field-hint">描述表的用途，便于理解</div>
+          </div>
         </div>
-        <div class="field-hint">只能包含字母、数字和下划线，不能以数字开头</div>
-      </div>
 
-      <div class="form-item">
-        <label class="form-label">注释</label>
-        <input
-            v-model="formData.comment"
-            class="form-input"
-            type="text"
-            placeholder="请输入表注释（可选）"
-        />
-        <div class="field-hint">描述表的用途，便于理解</div>
-      </div>
-    </div>
+        <div class="form-section columns-section">
+          <div class="section-header">
+            <label class="form-label">
+              列定义
+              <span class="required">*</span>
+            </label>
+            <span class="column-count">{{ formData.columns.length }} 列</span>
+          </div>
 
-    <div class="form-section columns-section">
-      <div class="section-header">
-        <label class="form-label">
-          列定义
-          <span class="required">*</span>
-        </label>
-        <span class="column-count">{{ formData.columns.length }} 列</span>
-      </div>
+          <div v-if="getFieldError('columns')" class="field-error section-error">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            {{ getFieldError('columns') }}
+          </div>
 
-      <div v-if="getFieldError('columns')" class="field-error section-error">
-        <i class="fa-solid fa-circle-exclamation"></i>
-        {{ getFieldError('columns') }}
-      </div>
+          <div class="columns-list">
+            <div
+                v-for="(column, index) in formData.columns"
+                :key="column.id"
+                class="column-card"
+                :class="{ 'has-error': getFieldError(`column_${index}`) }"
+            >
+              <div class="column-card-header">
+                <span class="column-number">#{{ index + 1 }}</span>
+                <button class="remove-btn" @click="removeColumn(index)" title="删除此列">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
 
-      <div class="columns-list">
-        <div
-            v-for="(column, index) in formData.columns"
-            :key="column.id"
-            class="column-card"
-            :class="{ 'has-error': getFieldError(`column_${index}`) }"
-        >
-          <div class="column-card-header">
-            <span class="column-number">#{{ index + 1 }}</span>
-            <button class="remove-btn" @click="removeColumn(index)" title="删除此列">
-              <i class="fa-solid fa-trash"></i>
+              <div class="column-card-body">
+                <div class="form-row">
+                  <div class="form-col form-col-name">
+                    <label class="field-label">列名 <span class="required">*</span></label>
+                    <input
+                        v-model="column.name"
+                        class="form-input"
+                        type="text"
+                        placeholder="列名"
+                    />
+                  </div>
+                  <div class="form-col form-col-type">
+                    <label class="field-label">类型</label>
+                    <select v-model="column.type" class="form-select">
+                      <option :value="FieldType.STRING">STRING</option>
+                      <option :value="FieldType.NUMBER">NUMBER</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div v-if="getFieldError(`column_${index}`)" class="field-error">
+                  <i class="fa-solid fa-circle-exclamation"></i>
+                  {{ getFieldError(`column_${index}`) }}
+                </div>
+
+                <div class="form-row">
+                  <div class="form-col form-col-default">
+                    <label class="field-label">默认值</label>
+                    <input
+                        v-model="column.defaultValue"
+                        class="form-input"
+                        type="text"
+                        placeholder="可选"
+                    />
+                  </div>
+                  <div class="form-col form-col-comment">
+                    <label class="field-label">注释</label>
+                    <AutoResizeTextarea
+                        v-model="column.comment"
+                        placeholder="可选"
+                        :min-rows="1"
+                        :max-rows="4"
+                    />
+                  </div>
+                </div>
+
+                <label class="checkbox-label">
+                  <input v-model="column.primitiveKey" type="checkbox"/>
+                  <span>设为主键</span>
+                </label>
+              </div>
+            </div>
+
+            <button class="add-column-btn" @click="addColumn">
+              <i class="fa-solid fa-plus"></i>
+              <span>添加列</span>
             </button>
           </div>
-
-          <div class="column-card-body">
-            <div class="form-row">
-              <div class="form-col form-col-name">
-                <label class="field-label">列名 <span class="required">*</span></label>
-                <input
-                    v-model="column.name"
-                    class="form-input"
-                    type="text"
-                    placeholder="列名"
-                />
-              </div>
-              <div class="form-col form-col-type">
-                <label class="field-label">类型</label>
-                <select v-model="column.type" class="form-select">
-                  <option :value="FieldType.STRING">STRING</option>
-                  <option :value="FieldType.NUMBER">NUMBER</option>
-                </select>
-              </div>
-            </div>
-
-            <div v-if="getFieldError(`column_${index}`)" class="field-error">
-              <i class="fa-solid fa-circle-exclamation"></i>
-              {{ getFieldError(`column_${index}`) }}
-            </div>
-
-            <div class="form-row">
-              <div class="form-col form-col-default">
-                <label class="field-label">默认值</label>
-                <input
-                    v-model="column.defaultValue"
-                    class="form-input"
-                    type="text"
-                    placeholder="可选"
-                />
-              </div>
-              <div class="form-col form-col-comment">
-                <label class="field-label">注释</label>
-                <input
-                    v-model="column.comment"
-                    class="form-input"
-                    type="text"
-                    placeholder="可选"
-                />
-              </div>
-            </div>
-
-            <label class="checkbox-label">
-              <input v-model="column.primitiveKey" type="checkbox"/>
-              <span>设为主键</span>
-            </label>
-          </div>
         </div>
 
-        <button class="add-column-btn" @click="addColumn">
-          <i class="fa-solid fa-plus"></i>
-          <span>添加列</span>
-        </button>
+        <div class="form-actions">
+          <Button @click="handleCancel">取消</Button>
+          <Button type="primary" :disabled="isSubmitting" @click="handleCreate">
+            <i v-if="isSubmitting" class="fa-solid fa-spinner fa-spin"></i>
+            <span>创建</span>
+          </Button>
+        </div>
       </div>
-    </div>
-
-    <div class="form-actions">
-      <Button @click="handleCancel">取消</Button>
-      <Button type="primary" :disabled="isSubmitting" @click="handleCreate">
-        <i v-if="isSubmitting" class="fa-solid fa-spinner fa-spin"></i>
-        <span>创建</span>
-      </Button>
-    </div>
+    </PopupModal>
   </div>
 </template>
 
 <script setup lang="ts">
-import {reactive, ref} from 'vue';
+import {reactive, ref, computed, onMounted, onBeforeUnmount} from 'vue';
 import Button from '@/app/components/pure-components/Button.vue';
+import PopupModal from '@/app/components/pure-components/PopupModal.vue';
+import AutoResizeTextarea from '@/app/components/pure-components/AutoResizeTextarea.vue';
 import type {ColumnSchema, TableSchema} from '@/infra/sql';
 import {FieldType} from '@/infra/sql/enums/field-type.ts';
 import {useFormValidation} from '@/app/composables/components-composables/useFormValidation.ts';
@@ -152,6 +158,33 @@ const emit = defineEmits<{
 
 const {getFieldError, validateCreateTableForm, clearErrors} = useFormValidation();
 const isSubmitting = ref(false);
+
+const isMobile = ref(false);
+
+const updateMobileStatus = () => {
+  isMobile.value = window.innerWidth <= 768;
+};
+
+onMounted(() => {
+  updateMobileStatus();
+  window.addEventListener('resize', updateMobileStatus);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateMobileStatus);
+});
+
+const computedModalWidth = computed(() => {
+  return isMobile.value ? '100%' : '50vw';
+});
+
+const modalHeight = 'auto';
+
+const modalStyle = computed(() => {
+  const style: Record<string, string> = {};
+  style['--form-modal-width'] = isMobile.value ? '100%' : '50vw';
+  return style;
+});
 
 interface ColumnFormData extends ColumnSchema {
   id: number;
@@ -194,7 +227,6 @@ const handleCreate = () => {
     return;
   }
 
-  // 移除 id 字段，只保留 ColumnSchema 字段
   const columns: ColumnSchema[] = formData.columns.map(col => ({
     name: col.name.trim(),
     type: col.type,
@@ -217,19 +249,22 @@ const handleCancel = () => {
   emit('cancel');
 };
 
-// 初始添加一列
 if (formData.columns.length === 0) {
   addColumn();
 }
 </script>
 
 <style scoped lang="less">
+.form-wrapper {
+  --form-modal-width: 50vw;
+  --form-modal-height: auto;
+}
+
 .form-container {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 20px;
-  max-height: 70vh;
+  max-height: 65vh;
   overflow-y: auto;
 }
 
@@ -247,43 +282,51 @@ if (formData.columns.length === 0) {
 
 .form-label {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--SmartThemeBodyColor);
   display: flex;
   align-items: center;
   gap: 4px;
+  letter-spacing: 0.3px;
 }
 
 .required {
   color: #ef4444;
+  margin-left: 4px;
 }
 
 .form-input,
 .form-select {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid var(--SmartThemeBorderColor);
-  border-radius: 6px;
+  padding: 12px 16px;
+  border: 1.5px solid var(--SmartThemeBorderColor);
+  border-radius: 8px;
   background: var(--SmartThemeBlurTintColor);
   color: var(--SmartThemeBodyColor);
   font-size: 14px;
-  outline: none;
-  transition: all 0.2s;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--SmartThemeBorderColor) 50%, transparent);
+  }
 
   &:focus {
-    border-color: var(--SmartThemeBorderColor);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--SmartThemeBorderColor) 30%, transparent);
+    outline: none;
+    border-color: var(--SmartThemeEmColor);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--SmartThemeEmColor) 20%, transparent);
+    background: var(--SmartThemeBlurTintColor);
   }
 
   &::placeholder {
-    color: color-mix(in srgb, var(--SmartThemeBodyColor) 30%, transparent);
+    color: color-mix(in srgb, var(--SmartThemeBodyColor) 40%, transparent);
+    font-size: 13px;
   }
 
   &.has-error {
     border-color: #ef4444;
 
     &:focus {
-      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
     }
   }
 }
@@ -309,11 +352,13 @@ if (formData.columns.length === 0) {
 
 .field-hint {
   font-size: 12px;
-  color: color-mix(in srgb, var(--SmartThemeBodyColor) 50%, transparent);
+  color: color-mix(in srgb, var(--SmartThemeBodyColor) 45%, transparent);
+  line-height: 1.5;
+  padding-left: 2px;
 }
 
 .columns-section {
-  border-top: 1px solid var(--SmartThemeBorderColor);
+  border-top: 1.5px solid var(--SmartThemeBorderColor);
   padding-top: 20px;
 }
 
@@ -339,7 +384,7 @@ if (formData.columns.length === 0) {
 
 .column-card {
   background: var(--SmartThemeBlurTintColor);
-  border: 1px solid var(--SmartThemeBorderColor);
+  border: 1.5px solid var(--SmartThemeBorderColor);
   border-radius: 8px;
   overflow: hidden;
 
@@ -354,7 +399,7 @@ if (formData.columns.length === 0) {
   align-items: center;
   padding: 10px 12px;
   background: color-mix(in srgb, var(--SmartThemeBorderColor) 20%, transparent);
-  border-bottom: 1px solid var(--SmartThemeBorderColor);
+  border-bottom: 1.5px solid var(--SmartThemeBorderColor);
 }
 
 .column-number {
@@ -419,6 +464,7 @@ if (formData.columns.length === 0) {
 
   .required {
     font-size: 12px;
+    margin-left: 4px;
   }
 }
 
@@ -467,18 +513,25 @@ if (formData.columns.length === 0) {
   display: flex;
   gap: 12px;
   justify-content: flex-end;
-  padding-top: 16px;
-  border-top: 1px solid var(--SmartThemeBorderColor);
+  padding: 20px 0 8px 0;
+  border-top: 1.5px solid var(--SmartThemeBorderColor);
+  margin-top: 4px;
 
-  button[type="primary"] {
-    background: var(--SmartThemeBorderColor);
+  > button {
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
-// 移动端适配
 @media (max-width: 768px) {
+  .form-wrapper {
+    --form-modal-width: 100%;
+  }
+
   .form-container {
-    padding: 16px;
     gap: 20px;
   }
 
@@ -502,9 +555,14 @@ if (formData.columns.length === 0) {
 
   .form-actions {
     flex-direction: column-reverse;
+    gap: 10px;
+    padding: 16px 0 4px 0;
 
-    > * {
+    > button {
       width: 100%;
+      padding: 14px 20px;
+      font-size: 15px;
+      border-radius: 10px;
     }
   }
 }

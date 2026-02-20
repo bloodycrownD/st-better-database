@@ -91,54 +91,44 @@
       :icon="toast.icon"
     />
 
-    <PopupModal v-if="showCreateTableModal" visible title="创建表" @close="showCreateTableModal = false">
-      <CreateTableForm
-          :existing-tables="tables"
-          @create="handleCreateTable"
-          @cancel="showCreateTableModal = false"
-      />
-    </PopupModal>
+    <CreateTableForm
+        v-if="showCreateTableModal"
+        :existing-tables="tables"
+        @create="handleCreateTable"
+        @cancel="showCreateTableModal = false"
+    />
 
-    <PopupModal v-if="showEditTableNameModal" visible title="修改表名" @close="showEditTableNameModal = false">
-      <EditTableNameForm
-          :table-name="currentTable.tableName"
-          :existing-tables="tables"
-          @save="handleEditTableName"
-          @cancel="showEditTableNameModal = false"
-      />
-    </PopupModal>
+    <EditTableNameForm
+        v-if="showEditTableNameModal"
+        :table-name="currentTable.tableName"
+        :existing-tables="tables"
+        @save="handleEditTableName"
+        @cancel="showEditTableNameModal = false"
+    />
 
-    <PopupModal v-if="showEditTableCommentModal" visible title="修改表注释" @close="showEditTableCommentModal = false">
-      <EditTableCommentForm :comment="currentTable.comment" @save="handleEditTableComment"
-                            @cancel="showEditTableCommentModal = false"/>
-    </PopupModal>
+    <EditTableCommentForm v-if="showEditTableCommentModal" :comment="currentTable.comment" @save="handleEditTableComment"
+                          @cancel="showEditTableCommentModal = false"/>
 
     <DropTableConfirm v-if="showDropTableModal" :table-name="currentTable.tableName" modal-width="500px" modal-height="auto"
                       @confirm="handleDropTable" @cancel="showDropTableModal = false"/>
 
-    <PopupModal v-if="showAddColumnModal" visible title="添加列" @close="showAddColumnModal = false">
-      <AddColumnForm
-          :existing-columns="existingColumns"
-          @create="handleAddColumn"
-          @cancel="showAddColumnModal = false"
-      />
-    </PopupModal>
+    <AddColumnForm
+        v-if="showAddColumnModal"
+        :existing-columns="existingColumns"
+        @create="handleAddColumn"
+        @cancel="showAddColumnModal = false"
+    />
 
-    <PopupModal v-if="showEditColumnNameModal && editingColumn" visible title="修改列名"
-                @close="showEditColumnNameModal = false">
-      <EditColumnNameForm
-          :column="editingColumn.column"
-          :existing-columns="existingColumnsForEdit"
-          @save="handleEditColumnName"
-          @cancel="showEditColumnNameModal = false"
-      />
-    </PopupModal>
+    <EditColumnNameForm
+        v-if="showEditColumnNameModal && editingColumn"
+        :column="editingColumn.column"
+        :existing-columns="existingColumnsForEdit"
+        @save="handleEditColumnName"
+        @cancel="showEditColumnNameModal = false"
+    />
 
-    <PopupModal v-if="showEditColumnCommentModal && editingColumn" visible title="修改列注释"
-                @close="showEditColumnCommentModal = false">
-      <EditColumnCommentForm :column="editingColumn.column" @save="handleEditColumnComment"
-                             @cancel="showEditColumnCommentModal = false"/>
-    </PopupModal>
+    <EditColumnCommentForm v-if="showEditColumnCommentModal && editingColumn" :column="editingColumn.column" @save="handleEditColumnComment"
+                           @cancel="showEditColumnCommentModal = false"/>
 
     <DropColumnConfirm v-if="showDropColumnModal && editingColumn" :column="editingColumn.column" modal-width="500px"
                         modal-height="auto" @confirm="handleDropColumn" @cancel="showDropColumnModal = false"/>
@@ -166,7 +156,6 @@ import DropTableConfirm from './DropTableConfirm.vue';
 import AddColumnForm from './AddColumnForm.vue';
 import EditColumnNameForm from './EditColumnNameForm.vue';
 import EditColumnCommentForm from './EditColumnCommentForm.vue';
-import DropColumnConfirm from './DropColumnConfirm.vue';
 import DDLDisplay from './DDLDisplay.vue';
 
 interface Props {

@@ -1,42 +1,47 @@
 <template>
-  <div class="form-container">
-    <div class="form-item">
-      <label class="form-label">当前表名</label>
-      <input :value="tableName" class="form-input" type="text" disabled/>
-    </div>
+  <div class="form-wrapper" :style="modalStyle">
+    <PopupModal :visible="true" title="修改表名" :width="computedModalWidth" :height="modalHeight" :closable="false" @close="handleCancel">
+      <div class="form-container">
+        <div class="form-item">
+          <label class="form-label">当前表名</label>
+          <input :value="tableName" class="form-input" type="text" disabled/>
+        </div>
 
-    <div class="form-item">
-      <label class="form-label">
-        新表名
-        <span class="required">*</span>
-      </label>
-      <input
-          v-model="newTableName"
-          class="form-input"
-          :class="{ 'has-error': getFieldError('tableName') }"
-          type="text"
-          placeholder="请输入新表名"
-      />
-      <div v-if="getFieldError('tableName')" class="field-error">
-        <i class="fa-solid fa-circle-exclamation"></i>
-        {{ getFieldError('tableName') }}
+        <div class="form-item">
+          <label class="form-label">
+            新表名
+            <span class="required">*</span>
+          </label>
+          <input
+              v-model="newTableName"
+              class="form-input"
+              :class="{ 'has-error': getFieldError('tableName') }"
+              type="text"
+              placeholder="请输入新表名"
+          />
+          <div v-if="getFieldError('tableName')" class="field-error">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            {{ getFieldError('tableName') }}
+          </div>
+          <div class="field-hint">只能包含字母、数字和下划线，不能以数字开头</div>
+        </div>
+
+        <div class="form-actions">
+          <Button @click="handleCancel">取消</Button>
+          <Button type="primary" :disabled="isSubmitting || !hasChanged" @click="handleSave">
+            <i v-if="isSubmitting" class="fa-solid fa-spinner fa-spin"></i>
+            <span>保存</span>
+          </Button>
+        </div>
       </div>
-      <div class="field-hint">只能包含字母、数字和下划线，不能以数字开头</div>
-    </div>
-
-    <div class="form-actions">
-      <Button @click="handleCancel">取消</Button>
-      <Button type="primary" :disabled="isSubmitting || !hasChanged" @click="handleSave">
-        <i v-if="isSubmitting" class="fa-solid fa-spinner fa-spin"></i>
-        <span>保存</span>
-      </Button>
-    </div>
+    </PopupModal>
   </div>
 </template>
 
 <script setup lang="ts">
-import {computed, ref, watch} from 'vue';
+import {computed, ref, watch, onMounted, onBeforeUnmount} from 'vue';
 import Button from '@/app/components/pure-components/Button.vue';
+import PopupModal from '@/app/components/pure-components/PopupModal.vue';
 import type {TableSchema} from '@/infra/sql';
 import {useFormValidation} from '@/app/composables/components-composables/useFormValidation.ts';
 
@@ -57,6 +62,33 @@ const emit = defineEmits<{
 const {getFieldError, validateEditTableNameForm, clearErrors} = useFormValidation();
 const isSubmitting = ref(false);
 const newTableName = ref(props.tableName);
+
+const isMobile = ref(false);
+
+const updateMobileStatus = () => {
+  isMobile.value = window.innerWidth <= 768;
+};
+
+onMounted(() => {
+  updateMobileStatus();
+  window.addEventListener('resize', updateMobileStatus);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateMobileStatus);
+});
+
+const computedModalWidth = computed(() => {
+  return isMobile.value ? '100%' : '50vw';
+});
+
+const modalHeight = 'auto';
+
+const modalStyle = computed(() => {
+  const style: Record<string, string> = {};
+  style['--form-modal-width'] = isMobile.value ? '100%' : '50vw';
+  return style;
+});
 
 const hasChanged = computed(() => {
   return newTableName.value.trim() !== props.tableName;
@@ -95,49 +127,65 @@ const handleCancel = () => {
 </script>
 
 <style scoped lang="less">
+.form-wrapper {
+  --form-modal-width: 50vw;
+  --form-modal-height: auto;
+}
+
 .form-container {
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .form-item {
-  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .form-label {
-  display: block;
-  margin-bottom: 8px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--SmartThemeBodyColor);
+  letter-spacing: 0.3px;
 }
 
 .required {
   color: #ef4444;
+  margin-left: 4px;
 }
 
 .form-input {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid var(--SmartThemeBorderColor);
-  border-radius: 6px;
+  padding: 12px 16px;
+  border: 1.5px solid var(--SmartThemeBorderColor);
+  border-radius: 8px;
   background: var(--SmartThemeBlurTintColor);
   color: var(--SmartThemeBodyColor);
   font-size: 14px;
-  outline: none;
-  transition: all 0.2s;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--SmartThemeBorderColor) 50%, transparent);
+  }
 
   &:focus {
-    border-color: var(--SmartThemeBorderColor);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--SmartThemeBorderColor) 30%, transparent);
+    outline: none;
+    border-color: var(--SmartThemeEmColor);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--SmartThemeEmColor) 20%, transparent);
+    background: var(--SmartThemeBlurTintColor);
   }
 
   &::placeholder {
-    color: color-mix(in srgb, var(--SmartThemeBodyColor) 30%, transparent);
+    color: color-mix(in srgb, var(--SmartThemeBodyColor) 40%, transparent);
+    font-size: 13px;
   }
 
   &:disabled {
-    background: color-mix(in srgb, var(--SmartThemeBorderColor) 30%, transparent);
+    opacity: 0.6;
     cursor: not-allowed;
+    background: color-mix(in srgb, var(--SmartThemeBorderColor) 30%, transparent);
     color: color-mix(in srgb, var(--SmartThemeBodyColor) 50%, transparent);
   }
 
@@ -145,7 +193,7 @@ const handleCancel = () => {
     border-color: #ef4444;
 
     &:focus {
-      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
     }
   }
 }
@@ -156,7 +204,6 @@ const handleCancel = () => {
   gap: 6px;
   font-size: 13px;
   color: #ef4444;
-  margin-top: 6px;
 
   i {
     font-size: 14px;
@@ -165,30 +212,69 @@ const handleCancel = () => {
 
 .field-hint {
   font-size: 12px;
-  color: color-mix(in srgb, var(--SmartThemeBodyColor) 50%, transparent);
-  margin-top: 6px;
+  color: color-mix(in srgb, var(--SmartThemeBodyColor) 45%, transparent);
+  line-height: 1.5;
+  padding-left: 2px;
 }
 
 .form-actions {
   display: flex;
   gap: 12px;
   justify-content: flex-end;
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid var(--SmartThemeBorderColor);
+  padding: 20px 0 8px 0;
+  border-top: 1.5px solid var(--SmartThemeBorderColor);
+  margin-top: 4px;
+
+  > button {
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 }
 
-// 移动端适配
 @media (max-width: 768px) {
+  .form-wrapper {
+    --form-modal-width: 100%;
+  }
+
   .form-container {
-    padding: 16px;
+    gap: 16px;
+  }
+
+  .form-item {
+    gap: 8px;
+  }
+
+  .form-label {
+    font-size: 15px;
+  }
+
+  .form-input {
+    padding: 14px 16px;
+    font-size: 16px;
+    border-radius: 10px;
+
+    &::placeholder {
+      font-size: 15px;
+    }
+  }
+
+  .field-hint {
+    font-size: 13px;
   }
 
   .form-actions {
     flex-direction: column-reverse;
+    gap: 10px;
+    padding: 16px 0 4px 0;
 
-    > * {
+    > button {
       width: 100%;
+      padding: 14px 20px;
+      font-size: 15px;
+      border-radius: 10px;
     }
   }
 }
