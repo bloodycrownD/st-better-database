@@ -56,7 +56,7 @@
         </div>
       </template>
       <template #right>
-        <Button>
+        <Button @click="handleSystemDataManagementClick">
           <i class="fa-solid fa-gear" style="margin-right: 6px;"></i>
           数据管理
         </Button>
@@ -67,6 +67,10 @@
   <TemplateManagementPanel ref="templateManagementPanelRef">
     <template #default></template>
   </TemplateManagementPanel>
+
+  <SystemDataManagementPanel ref="systemDataManagementPanelRef">
+    <template #default></template>
+  </SystemDataManagementPanel>
 
   <PopupModal
       v-model:visible="codeModalVisible"
@@ -95,6 +99,7 @@ import CardItem from '@/app/components/pure-components/CardItem.vue';
 import ToggleSwitch from '@/app/components/pure-components/ToggleSwitch.vue';
 import Button from '@/app/components/pure-components/Button.vue';
 import TemplateManagementPanel from '@/app/screens/business-screens/TemplateManagementPanel.vue';
+import SystemDataManagementPanel from '@/app/screens/business-screens/SystemDataManagementPanel.vue';
 import PopupModal from '@/app/components/pure-components/PopupModal.vue';
 import {ExtensionSettingManager} from '@/infra/sillytarvern/persistent/extension-setting-manager.ts';
 
@@ -133,8 +138,13 @@ const handleCodeModalConfirm = () => {
 };
 
 const templateManagementPanelRef = ref<InstanceType<typeof TemplateManagementPanel>>();
+const systemDataManagementPanelRef = ref<InstanceType<typeof SystemDataManagementPanel>>();
 
 const handleTemplateManagementClick = () => {
   templateManagementPanelRef.value?.open();
+};
+
+const handleSystemDataManagementClick = () => {
+  systemDataManagementPanelRef.value?.open();
 };
 </script>

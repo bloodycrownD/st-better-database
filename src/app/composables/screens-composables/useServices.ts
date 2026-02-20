@@ -24,3 +24,17 @@ export function useTemplateServices() {
         sqlExecutorService
     };
 }
+
+export function useSystemServices() {
+    const dataManagementService = computed(() => ServiceBuilder.systemDataManagementService);
+    const tableManagementService = computed(() => ServiceBuilder.systemTableManagementService);
+    const sqlExecutorService = computed(() => ServiceBuilder.systemSqlExecutorService);
+    const databaseSyncService = computed(() => ServiceBuilder.systemDatabaseSyncService);
+
+    return {
+        dataManagementService,
+        tableManagementService,
+        sqlExecutorService,
+        databaseSyncService
+    };
+}
