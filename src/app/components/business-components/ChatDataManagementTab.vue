@@ -27,13 +27,6 @@
       <div class="data-list">
         <EmptyState v-if="dataList.length === 0" icon="fa-solid fa-database" text="暂无数据" />
         <div v-else class="data-rows">
-          <div class="data-header">
-            <label class="checkbox-wrapper">
-              <input type="checkbox" :checked="isAllSelected" @change="handleSelectAll" />
-              <span class="checkbox-label">全选</span>
-            </label>
-            <div class="header-actions">操作</div>
-          </div>
           <div v-for="(row, rowIndex) in dataList" :key="rowIndex" class="data-row">
             <label class="checkbox-wrapper">
               <input type="checkbox" :checked="selectedRows.has(rowIndex)" @change="handleRowSelect(rowIndex)" />
@@ -137,10 +130,6 @@ const showExportModal = ref(false);
 const editingData = ref<{index: number, row: any} | null>(null);
 const exportedSql = ref('');
 
-const isAllSelected = computed(() => {
-  return dataList.value.length > 0 && selectedRows.value.size === dataList.value.length;
-});
-
 const formatValue = (value: any): string => {
   if (value === null) return 'NULL';
   if (value === undefined) return '';
@@ -231,14 +220,6 @@ const handleDeleteData = () => {
     } else {
       showToast(result.message || '删除失败', 'error');
     }
-  }
-};
-
-const handleSelectAll = () => {
-  if (isAllSelected.value) {
-    selectedRows.value.clear();
-  } else {
-    selectedRows.value = new Set(dataList.value.map((_, index) => index));
   }
 };
 
@@ -345,7 +326,7 @@ onMounted(() => {
 
 .data-list {
   flex: 1;
-  overflow-y: auto;
+  overflow: auto;
   padding: 12px;
 }
 
@@ -353,16 +334,6 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-
-.data-header {
-  display: flex;
-  align-items: center;
-  padding: 8px 12px;
-  background: color-mix(in srgb, var(--SmartThemeBorderColor) 50%, transparent);
-  border-radius: 6px;
-  border: 1px solid var(--SmartThemeBorderColor);
-  margin-bottom: 8px;
 }
 
 .checkbox-wrapper {
@@ -374,29 +345,16 @@ onMounted(() => {
   flex-shrink: 0;
   cursor: pointer;
   border-right: 1px solid var(--SmartThemeBorderColor);
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  background: var(--SmartThemeBlurTintColor);
 }
 
 .checkbox-wrapper input[type="checkbox"] {
   width: 16px;
   height: 16px;
   cursor: pointer;
-}
-
-.checkbox-label {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--SmartThemeBodyColor);
-  user-select: none;
-}
-
-.header-actions {
-  padding: 12px;
-  width: 80px;
-  flex-shrink: 0;
-  border-right: 1px solid var(--SmartThemeBorderColor);
-  font-size: 12px;
-  font-weight: 500;
-  color: color-mix(in srgb, var(--SmartThemeBodyColor) 50%, transparent);
 }
 
 .data-row {
@@ -408,25 +366,24 @@ onMounted(() => {
   background: var(--SmartThemeBlurTintColor);
   border: 1px solid var(--SmartThemeBorderColor);
   transition: all 0.2s;
-  overflow-x: auto;
 
   &:hover {
     border-color: color-mix(in srgb, var(--SmartThemeBorderColor) 70%, transparent);
-  }
-
-  > .checkbox-wrapper {
-    width: 80px;
   }
 }
 
 .row-actions {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 8px;
   padding: 12px;
   width: 80px;
   flex-shrink: 0;
   border-right: 1px solid var(--SmartThemeBorderColor);
+  position: sticky;
+  left: 80px;
+  z-index: 9;
+  background: var(--SmartThemeBlurTintColor);
 }
 
 .row-content {
