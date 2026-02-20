@@ -188,5 +188,25 @@ describe('Parser - CREATE TABLE with Comments', () => {
         expect(stmt.columnName).toBe('name');
         expect(stmt.newColumnName).toBe('username');
     });
+
+    it('should reject COMMENT before PRIMARY KEY', () => {
+        const sql = 'CREATE TABLE story_status(name STRING COMMENT "状态名称" PRIMARY KEY, content STRING)';
+        const result = Parser.parse(sql);
+
+        expect(result.errors.length).toBeGreaterThan(0);
+        expect(result.errors[0]).toContain('Parse error');
+    });
+
+    it('should accept COMMENT after PRIMARY KEY', () => {
+        const sql = 'CREATE TABLE story_status(name STRING PRIMARY KEY COMMENT "状态名称", content STRING)';
+        const result = Parser.parse(sql);
+
+        expect(result.errors.length).toBe(0);
+        expect(result.statements.length).toBe(1);
+        expect(result.statements[0].type).toBe(StatementType.CREATE_TABLE);
+        
+        const stmt = result.statements[0] as any;
+        expect(stmt.columns[0].comment).toBe('状态名称');
+    });
 });
 

@@ -24,6 +24,9 @@
           <span v-else>影响: {{ result.data }} 行</span>
         </div>
       </div>
+      <div v-if="result.message" class="result-message" :class="{'error': !result.success}">
+        {{ result.message }}
+      </div>
     </div>
   </div>
 </template>
@@ -161,6 +164,18 @@ const handleExecute = () => {
 .stat-item {
   font-size: 12px;
   color: color-mix(in srgb, var(--SmartThemeBodyColor) 50%, transparent);
+}
+
+.result-message {
+  padding: 10px 16px;
+  font-size: 12px;
+  border-top: 1px solid var(--SmartThemeBorderColor);
+  background: color-mix(in srgb, var(--SmartThemeBorderColor) 30%, transparent);
+
+  &.error {
+    background: color-mix(in srgb, #e74c3c 20%, transparent);
+    color: #e74c3c;
+  }
 }
 
 @media (max-width: 768px) {
