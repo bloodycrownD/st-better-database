@@ -92,6 +92,10 @@ export class DdlExecutor {
         this.structure.tableName2Idx = restTableName2Idx;
         this.dataStorage.setTableData(tableIdx, []);
 
+        if (Object.keys(this.structure.tableSchemas).length === 0) {
+            this.structure.tableIdxCounter = 0;
+        }
+
         return {
             success: true,
             message: `Table '${tableName}' dropped`,

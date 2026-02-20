@@ -1,8 +1,19 @@
-import {type Row, type SqlExecutor} from '@/infra/sql';
+import {DatabaseBuilder, type Row, type SqlExecutor} from '@/infra/sql';
 import {ChatMessageManager} from '@/infra/sillytarvern/chat-message-manager.ts';
 
 export class ChatMessageHandler {
+    private static instance: ChatMessageHandler;
+
     constructor(private readonly sqlExecutor: SqlExecutor) {
+    }
+
+    static init() {
+        if (!ChatMessageHandler.instance) {
+            const handler = new ChatMessageHandler(DatabaseBuilder.newExecutor());
+            handler.registerEventListeners();
+            ChatMessageHandler.instance = handler;
+        }
+        return ChatMessageHandler.instance;
     }
 
     registerEventListeners() {

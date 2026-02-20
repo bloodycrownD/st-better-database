@@ -1,5 +1,6 @@
 import {createApp} from 'vue'
 import MainView from '@/app/screens/pure-screens/MainView.vue'
+import {ChatMessageHandler} from "@/infra/sillytarvern";
 
 
 const container = document.createElement('div')
@@ -9,3 +10,4 @@ if (extensionsSettings) {
     const app = createApp(MainView)
     app.mount(container)
 }
+ChatMessageHandler.init();
