@@ -41,12 +41,7 @@
                 操作
               </th>
               <th v-for="column in columnList" :key="column.name"
-                  :class="['column-header', column.primitiveKey ? 'sticky-col primary-key' : '']"
-                  :style="{
-                      left: column.primitiveKey
-                        ? (showCheckboxColumn ? '150px' : '100px')
-                        : undefined
-                    }">
+                  :class="['column-header', column.primitiveKey ? 'primary-key' : '']">
                 {{ column.name }}
               </th>
             </tr>
@@ -69,12 +64,7 @@
                 </div>
               </td>
               <td v-for="column in columnList" :key="column.name"
-                  :class="['table-cell', column.primitiveKey ? 'primary-key sticky-col' : '']"
-                  :style="{
-                      left: column.primitiveKey
-                        ? (showCheckboxColumn ? '150px' : '100px')
-                        : undefined
-                    }">
+                  :class="['table-cell', column.primitiveKey ? 'primary-key' : '']">
                 <span class="cell-value">{{ formatValue(row[column.name]) }}</span>
               </td>
             </tr>
@@ -537,10 +527,6 @@ thead th.checkbox-header.sticky-col {
 
 .checkbox-cell.sticky-col {
   box-shadow: 2px 0 10px -3px rgba(0, 0, 0, 0.15);
-}
-
-.primary-key.sticky-col {
-  box-shadow: 2px 0 10px -3px rgba(218, 165, 32, 0.25);
 }
 
 .checkbox-wrapper {
