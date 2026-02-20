@@ -1,3 +1,5 @@
+import type {SqlExecutor} from '@/infra/sql';
+
 export {};
 
 declare global {
@@ -20,19 +22,31 @@ declare global {
         CHAT_CHANGED: string;
     }
 
+    interface ChatMetadata {
+        tableTemplate?: unknown;
+        [key: string]: unknown;
+    }
+
     const SillyTavern: {
         getContext: () => {
             extensionSettings: Record<string, ExtensionSettings>;
             saveSettingsDebounced: () => void;
             chat: ChatMessage[];
             saveChat: () => void;
-            chatMetadata: Record<string, any>;
+            chatMetadata: Record<string, ChatMetadata>;
             saveMetadata: () => void;
             eventSource: {
-                on: (event: string, handler: (...args: any[]) => void) => void;
+                on: (event: string, handler: (...args: unknown[]) => void) => void;
             };
             event_types: EventTypes;
+            registerMacro: (name: string, handler: () => unknown) => void;
         };
     };
-    const $:any;
+
+    interface Window {
+        getTemplateSqlExecutor: () => SqlExecutor;
+        getChatSqlExecutor: () => SqlExecutor;
+    }
+
+    const $: any;
 }

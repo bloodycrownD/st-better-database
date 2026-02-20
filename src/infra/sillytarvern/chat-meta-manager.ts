@@ -70,10 +70,9 @@ export class ChatMetaManager {
 
     private _saveToMetadata(): void {
         const {chatMetadata} = SillyTavern.getContext();
-        if (!chatMetadata[ChatMetaManager.MODULE_NAME]) {
-            chatMetadata[ChatMetaManager.MODULE_NAME] = {};
-        }
-        chatMetadata[ChatMetaManager.MODULE_NAME].tableTemplate = this._tableTemplateCache?.serialize();
+        const metadata = chatMetadata[ChatMetaManager.MODULE_NAME] || {};
+        metadata.tableTemplate = this._tableTemplateCache?.serialize();
+        chatMetadata[ChatMetaManager.MODULE_NAME] = metadata;
         SillyTavern.getContext().saveMetadata();
     }
 
