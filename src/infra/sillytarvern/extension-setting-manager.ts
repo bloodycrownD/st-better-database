@@ -1,6 +1,7 @@
 import {DatabaseBuilder, type SqlExecutor} from "../sql";
 
 interface ExtensionSettings {
+    [key: string]: unknown;
     tableTemplate: any;
     chatStatusBarSwitch: boolean;
     chatStatusBarCode: string;
@@ -75,7 +76,6 @@ export class ExtensionSettingManager {
                     this._tableTemplateCache = DatabaseBuilder.newExecutor();
                     this._tableTemplateCache.deserialize(settings.tableTemplate);
                 } catch (e) {
-                    console.error('Failed to deserialize tableTemplate:', e);
                     this._tableTemplateCache = null;
                 }
             }
@@ -89,7 +89,6 @@ export class ExtensionSettingManager {
                     this._systemSqlExecutorCache = DatabaseBuilder.newExecutor();
                     this._systemSqlExecutorCache.deserialize(settings.systemSqlExecutor);
                 } catch (e) {
-                    console.error('Failed to deserialize systemSqlExecutor:', e);
                     this._systemSqlExecutorCache = null;
                 }
             }
@@ -98,14 +97,25 @@ export class ExtensionSettingManager {
 
     private _saveToSettings(): void {
         const {extensionSettings} = SillyTavern.getContext();
-        const settings = extensionSettings[ExtensionSettingManager.MODULE_NAME];
-        if (settings) {
-            settings.tableTemplate = this._tableTemplateCache?.serialize();
-            settings.chatStatusBarSwitch = this._chatStatusBarSwitch;
-            settings.chatStatusBarCode = this._chatStatusBarCode;
-            settings.extensionSwitch = this._extensionSwitch;
-            settings.systemSqlExecutor = this._systemSqlExecutorCache?.serialize();
+        let settings = extensionSettings[ExtensionSettingManager.MODULE_NAME] as ExtensionSettings | undefined;
+
+        if (!settings) {
+            settings = {
+                tableTemplate: null,
+                chatStatusBarSwitch: false,
+                chatStatusBarCode: '',
+                extensionSwitch: false,
+                systemSqlExecutor: null
+            };
+            extensionSettings[ExtensionSettingManager.MODULE_NAME] = settings;
         }
+
+        settings.tableTemplate = this._tableTemplateCache?.serialize();
+        settings.chatStatusBarSwitch = this._chatStatusBarSwitch;
+        settings.chatStatusBarCode = this._chatStatusBarCode;
+        settings.extensionSwitch = this._extensionSwitch;
+        settings.systemSqlExecutor = this._systemSqlExecutorCache?.serialize();
+
         SillyTavern.getContext().saveSettingsDebounced();
     }
 
