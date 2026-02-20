@@ -156,6 +156,7 @@ import DropTableConfirm from './DropTableConfirm.vue';
 import AddColumnForm from './AddColumnForm.vue';
 import EditColumnNameForm from './EditColumnNameForm.vue';
 import EditColumnCommentForm from './EditColumnCommentForm.vue';
+import DropColumnConfirm from './DropColumnConfirm.vue';
 import DDLDisplay from './DDLDisplay.vue';
 
 interface Props {

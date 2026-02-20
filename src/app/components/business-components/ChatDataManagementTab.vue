@@ -13,9 +13,9 @@
             <i class="fa-solid fa-plus" style="margin-right: 6px;"></i>
             添加数据
           </Button>
-          <Button type="danger" @click="handleBatchDelete" :disabled="selectedRows.size === 0">
+          <Button type="danger" @click="handleBatchDelete">
             <i class="fa-solid fa-trash" style="margin-right: 6px;"></i>
-            批量删除
+            {{ batchDeleteButtonText }}
           </Button>
           <Button @click="handleExport">
             <i class="fa-solid fa-download" style="margin-right: 6px;"></i>
@@ -26,26 +26,60 @@
 
       <div class="data-list">
         <EmptyState v-if="dataList.length === 0" icon="fa-solid fa-database" text="暂无数据" />
-        <div v-else class="data-rows">
-          <div v-for="(row, rowIndex) in dataList" :key="rowIndex" class="data-row">
-            <label class="checkbox-wrapper">
-              <input type="checkbox" :checked="selectedRows.has(rowIndex)" @change="handleRowSelect(rowIndex)" />
-            </label>
-            <div class="row-actions">
-              <Button size="small" @click="openEditDataModal(rowIndex, row)">
-                <i class="fa-solid fa-pen"></i>
-              </Button>
-              <Button type="danger" size="small" @click="openDeleteDataModal(rowIndex)">
-                <i class="fa-solid fa-trash"></i>
-              </Button>
-            </div>
-            <div class="row-content">
-              <div v-for="[fieldId, value] in getRowData(row, rowIndex)" :key="fieldId" class="data-cell">
-                <span class="field-name">{{ fieldId }}</span>
-                <span class="field-value">{{ formatValue(value) }}</span>
-              </div>
-            </div>
-          </div>
+        <div v-else class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th v-if="showCheckboxColumn" class="checkbox-header sticky-col" style="left: 0">
+                  <label class="checkbox-wrapper">
+                    <input type="checkbox" 
+                           :checked="selectedRows.size === dataList.length && dataList.length > 0" 
+                           @change="handleSelectAll" />
+                  </label>
+                </th>
+                <th class="actions-header sticky-col" :style="{ left: showCheckboxColumn ? '50px' : '0' }">
+                  操作
+                </th>
+                <th v-for="column in columnList" :key="column.name" 
+                    :class="['column-header', column.primitiveKey ? 'sticky-col primary-key' : '']"
+                    :style="{ 
+                      left: column.primitiveKey 
+                        ? (showCheckboxColumn ? '150px' : '100px') 
+                        : undefined 
+                    }">
+                  {{ column.name }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(row, rowIndex) in dataList" :key="rowIndex" class="table-row">
+                <td v-if="showCheckboxColumn" class="checkbox-cell sticky-col" style="left: 0">
+                  <label class="checkbox-wrapper">
+                    <input type="checkbox" :checked="selectedRows.has(rowIndex)" @change="handleRowSelect(rowIndex)" />
+                  </label>
+                </td>
+                <td class="actions-cell sticky-col" :style="{ left: showCheckboxColumn ? '50px' : '0' }">
+                  <div class="row-actions">
+                    <Button size="small" @click="openEditDataModal(rowIndex, row)">
+                      <i class="fa-solid fa-pen"></i>
+                    </Button>
+                    <Button type="danger" size="small" @click="openDeleteDataModal(rowIndex)">
+                      <i class="fa-solid fa-trash"></i>
+                    </Button>
+                  </div>
+                </td>
+                <td v-for="column in columnList" :key="column.name" 
+                    :class="['table-cell', column.primitiveKey ? 'primary-key sticky-col' : '']"
+                    :style="{ 
+                      left: column.primitiveKey 
+                        ? (showCheckboxColumn ? '150px' : '100px') 
+                        : undefined 
+                    }">
+                  <span class="cell-value">{{ formatValue(row[column.name]) }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -120,8 +154,17 @@ const columnList = computed<ColumnSchema[]>(() => {
   return Object.values(currentTable.value.columnSchemas);
 });
 
+const batchDeleteButtonText = computed(() => {
+  if (batchDeleteMode.value === 'none') return '批量删除';
+  if (batchDeleteMode.value === 'selecting') return '取消删除';
+  if (batchDeleteMode.value === 'confirming') return '确认删除';
+  return '批量删除';
+});
+
 const dataList = ref<any[]>([]);
 const selectedRows = ref<Set<number>>(new Set());
+const showCheckboxColumn = ref(false);
+const batchDeleteMode = ref<'none' | 'selecting' | 'confirming'>('none');
 const {toast, showToast} = useToast();
 
 const showAddDataModal = ref(false);
@@ -135,13 +178,6 @@ const formatValue = (value: any): string => {
   if (value === null) return 'NULL';
   if (value === undefined) return '';
   return String(value);
-};
-
-const getRowData = (row: any, rowIndex: number): Array<[string, any]> => {
-  if (!Array.isArray(row)) {
-    return Object.entries(row).map(([key, value]) => [key, value]);
-  }
-  return row.map((value, idx) => [`${rowIndex}-${idx}`, value]);
 };
 
 const loadTableData = () => {
@@ -230,36 +266,67 @@ const handleRowSelect = (rowIndex: number) => {
   } else {
     selectedRows.value.add(rowIndex);
   }
+  if (selectedRows.value.size > 0) {
+    batchDeleteMode.value = 'confirming';
+  } else {
+    batchDeleteMode.value = 'selecting';
+  }
+};
+
+const handleSelectAll = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  if (target.checked) {
+    dataList.value.forEach((_, index) => selectedRows.value.add(index));
+  } else {
+    selectedRows.value.clear();
+  }
+  if (selectedRows.value.size > 0) {
+    batchDeleteMode.value = 'confirming';
+  } else {
+    batchDeleteMode.value = 'selecting';
+  }
 };
 
 const handleBatchDelete = () => {
-  if (selectedRows.value.size === 0) {
-    showToast('请先选择要删除的数据', 'error');
-    return;
-  }
-
-  if (currentTable.value.tableName) {
-    let successCount = 0;
-    const primaryKeyColumn = columnList.value.find(col => col.primitiveKey);
-
-    selectedRows.value.forEach(rowIndex => {
-      const row = dataList.value[rowIndex];
-      let where = Where.of();
-
-      if (primaryKeyColumn) {
-        const pkValue = row[primaryKeyColumn.name];
-        where = where.eq(primaryKeyColumn.name, pkValue);
-      }
-
-      const result = props.dataService.deleteData(currentTable.value.tableName, where);
-      if (result.success) {
-        successCount++;
-      }
-    });
-
+  if (batchDeleteMode.value === 'none') {
+    batchDeleteMode.value = 'selecting';
+    showCheckboxColumn.value = true;
     selectedRows.value.clear();
-    loadTableData();
-    showToast(`成功删除 ${successCount} 条数据`);
+  } else if (batchDeleteMode.value === 'selecting') {
+    batchDeleteMode.value = 'none';
+    showCheckboxColumn.value = false;
+    selectedRows.value.clear();
+  } else if (batchDeleteMode.value === 'confirming') {
+    if (selectedRows.value.size === 0) {
+      showToast('请先选择要删除的数据', 'error');
+      return;
+    }
+
+    if (currentTable.value.tableName) {
+      let successCount = 0;
+      const primaryKeyColumn = columnList.value.find(col => col.primitiveKey);
+
+      selectedRows.value.forEach(rowIndex => {
+        const row = dataList.value[rowIndex];
+        let where = Where.of();
+
+        if (primaryKeyColumn) {
+          const pkValue = row[primaryKeyColumn.name];
+          where = where.eq(primaryKeyColumn.name, pkValue);
+        }
+
+        const result = props.dataService.deleteData(currentTable.value.tableName, where);
+        if (result.success) {
+          successCount++;
+        }
+      });
+
+      selectedRows.value.clear();
+      loadTableData();
+      showToast(`成功删除 ${successCount} 条数据`);
+      batchDeleteMode.value = 'none';
+      showCheckboxColumn.value = false;
+    }
   }
 };
 
@@ -327,29 +394,160 @@ onMounted(() => {
 
 .data-list {
   flex: 1;
-  overflow: auto;
-  padding: 12px;
-}
-
-.data-rows {
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+}
+
+.table-container {
+  flex: 1;
+  overflow: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+thead {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--SmartThemeBlurTintColor);
+}
+
+thead th {
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--SmartThemeBorderColor);
+  font-weight: 600;
+  color: var(--SmartThemeBodyColor);
+  white-space: nowrap;
+  background: var(--SmartThemeBlurTintColor);
+}
+
+tbody th {
+  text-align: left;
+  padding: 12px 16px;
+  font-weight: 600;
+  color: var(--SmartThemeBodyColor);
+  white-space: nowrap;
+}
+
+.checkbox-header {
+  width: 50px;
+  text-align: center;
+  padding: 12px 8px;
+}
+
+.column-header {
+  min-width: 120px;
+}
+
+.actions-header {
+  width: 100px;
+  text-align: center;
+  padding: 12px 8px;
+}
+
+.sticky-col {
+  position: sticky;
+  background: var(--SmartThemeBlurTintColor);
+  z-index: 20;
+  left: 0;
+}
+
+thead th.sticky-col {
+  z-index: 32;
+  left: 0;
+}
+
+.primary-key {
+  background: color-mix(in srgb, rgba(218, 165, 32, 0.15) 50%, var(--SmartThemeBlurTintColor));
+  border-right: 2px solid color-mix(in srgb, rgba(218, 165, 32, 0.3) 50%, var(--SmartThemeBorderColor));
+}
+
+thead th.primary-key {
+  background: color-mix(in srgb, rgba(218, 165, 32, 0.2) 50%, var(--SmartThemeBlurTintColor));
+}
+
+thead th.actions-header.sticky-col {
+  z-index: 31;
+}
+
+thead th.checkbox-header.sticky-col {
+  z-index: 32;
+}
+
+.table-row {
+  border-bottom: 1px solid var(--SmartThemeBorderColor);
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--SmartThemeBorderColor) 20%, transparent);
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.table-cell {
+  padding: 10px 16px;
+  border-right: 1px solid var(--SmartThemeBorderColor);
+  max-width: 300px;
+  min-width: 120px;
+  background: var(--SmartThemeBlurTintColor);
+
+  &:last-child {
+    border-right: none;
+  }
+}
+
+.table-cell.primary-key {
+  background: color-mix(in srgb, rgba(59, 130, 246, 0.1) 50%, var(--SmartThemeBlurTintColor));
+  border-right: 2px solid color-mix(in srgb, rgba(59, 130, 246, 0.3) 50%, var(--SmartThemeBorderColor));
+}
+
+.cell-value {
+  color: var(--SmartThemeBodyColor);
+  word-break: break-word;
+  white-space: pre-wrap;
+  line-height: 1.5;
+  overflow-wrap: break-word;
+}
+
+.checkbox-cell {
+  width: 50px;
+  text-align: center;
+  padding: 10px 8px;
+  border-right: 1px solid var(--SmartThemeBorderColor);
+}
+
+.actions-cell {
+  width: 100px;
+  padding: 10px 8px;
+  text-align: center;
+  border-right: 1px solid var(--SmartThemeBorderColor);
+}
+
+.actions-cell.sticky-col {
+  box-shadow: 3px 0 10px -3px rgba(0, 0, 0, 0.25);
+}
+
+.checkbox-cell.sticky-col {
+  box-shadow: 2px 0 10px -3px rgba(0, 0, 0, 0.15);
+}
+
+.primary-key.sticky-col {
+  box-shadow: 2px 0 10px -3px rgba(218, 165, 32, 0.25);
 }
 
 .checkbox-wrapper {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 12px;
-  width: 80px;
-  flex-shrink: 0;
+  justify-content: center;
   cursor: pointer;
-  border-right: 1px solid var(--SmartThemeBorderColor);
-  position: sticky;
-  left: 0;
-  z-index: 10;
-  background: var(--SmartThemeBlurTintColor);
 }
 
 .checkbox-wrapper input[type="checkbox"] {
@@ -358,72 +556,10 @@ onMounted(() => {
   cursor: pointer;
 }
 
-.data-row {
-  display: flex;
-  justify-content: flex-start;
-  align-items: stretch;
-  padding: 0;
-  border-radius: 6px;
-  background: var(--SmartThemeBlurTintColor);
-  border: 1px solid var(--SmartThemeBorderColor);
-  transition: all 0.2s;
-
-  &:hover {
-    border-color: color-mix(in srgb, var(--SmartThemeBorderColor) 70%, transparent);
-  }
-}
-
 .row-actions {
   display: flex;
-  flex-direction: row;
-  gap: 8px;
-  padding: 12px;
-  width: 80px;
-  flex-shrink: 0;
-  border-right: 1px solid var(--SmartThemeBorderColor);
-  position: sticky;
-  left: 80px;
-  z-index: 9;
-  background: var(--SmartThemeBlurTintColor);
-}
-
-.row-content {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 0;
-  min-width: 0;
-}
-
-.data-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 200px;
-  max-width: 300px;
-  padding: 12px;
-  border-right: 1px solid var(--SmartThemeBorderColor);
-  flex-shrink: 0;
-
-  &:last-child {
-    border-right: none;
-  }
-}
-
-.field-name {
-  font-size: 11px;
-  font-weight: 500;
-  color: color-mix(in srgb, var(--SmartThemeBodyColor) 50%, transparent);
-  text-transform: uppercase;
-  flex-shrink: 0;
-}
-
-.field-value {
-  font-size: 13px;
-  color: var(--SmartThemeBodyColor);
-  word-break: break-word;
-  white-space: pre-wrap;
-  line-height: 1.5;
-  overflow-wrap: break-word;
+  gap: 4px;
+  justify-content: center;
 }
 
 @media (max-width: 768px) {
@@ -446,27 +582,21 @@ onMounted(() => {
     }
   }
 
-  .data-list {
-    padding: 8px;
+  thead th, .table-cell {
+    padding: 8px 10px;
   }
 
-  .data-row {
-    flex-direction: column;
-    gap: 10px;
-    padding: 10px;
+  .column-header {
+    min-width: 80px;
   }
 
-  .row-content {
-    margin-right: 0;
-    grid-template-columns: 1fr;
+  .table-cell {
+    max-width: 150px;
+    min-width: 80px;
   }
 
-  .row-actions {
-    width: 100%;
-    justify-content: flex-end;
-    border-top: 1px solid var(--SmartThemeBorderColor);
-    padding-top: 8px;
-    margin-top: 4px;
+  .actions-header, .actions-cell {
+    width: 70px;
   }
 }
 </style>
