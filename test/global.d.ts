@@ -24,22 +24,28 @@ declare global {
         tableTemplate?: unknown;
         [key: string]: unknown;
     }
+}
 
-    interface Global {
-        SillyTavern: {
-            getContext: () => {
-                extensionSettings: Record<string, ExtensionSettings>;
-                saveSettingsDebounced: () => void;
-                chat: ChatMessage[];
-                saveChat: () => void;
-                chatMetadata: Record<string, ChatMetadata>;
-                saveMetadata: () => void;
-                eventSource: {
-                    on: (event: string, handler: (...args: unknown[]) => void) => void;
-                };
-                event_types: EventTypes;
-                registerMacro: (name: string, handler: () => unknown) => void;
+declare global {
+    const SillyTavern: {
+        getContext: () => {
+            extensionSettings: Record<string, ExtensionSettings>;
+            saveSettingsDebounced: () => void;
+            chat: ChatMessage[];
+            saveChat: () => void;
+            chatMetadata: Record<string, ChatMetadata>;
+            saveMetadata: () => void;
+            eventSource: {
+                on: (event: string, handler: (...args: unknown[]) => void) => void;
             };
+            event_types: EventTypes;
+            registerMacro: (name: string, handler: () => unknown) => void;
         };
+    };
+
+    namespace NodeJS {
+        interface Global {
+            SillyTavern: typeof SillyTavern;
+        }
     }
 }

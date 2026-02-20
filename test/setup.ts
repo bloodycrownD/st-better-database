@@ -1,4 +1,4 @@
-import '../global.d.ts';
+import './global.d.ts';
 
 (global as any).SillyTavern = {
   getContext: () => ({

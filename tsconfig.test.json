@@ -8,6 +8,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["test/**/*.ts", "test/**/*.tsx", "global.d.ts"],
+  "include": ["test/**/*.ts", "test/**/*.tsx", "test/global.d.ts", "global.d.ts"],
   "exclude": ["node_modules", "dist"]
 }
