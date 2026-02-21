@@ -180,7 +180,19 @@ export class DmlExecutor {
         }
 
         const colSchema = schema.columnSchemas[fieldIdx];
-        if (!colSchema || colSchema.type !== FieldType.STRING) {
+        if (!colSchema) {
+            throw new SqlValidationError(
+                `Column '${colName}' does not exist in table '${tableName}'`,
+                `APPEND INTO ${tableName}`
+            );
+        }
+        if (colSchema.primitiveKey) {
+            throw new SqlValidationError(
+                `Cannot APPEND to primary key column '${colName}'`,
+                `APPEND INTO ${tableName}`
+            );
+        }
+        if (colSchema.type !== FieldType.STRING) {
             throw new SqlValidationError(
                 `Column '${colName}' must be STRING type for APPEND operation`,
                 `APPEND INTO ${tableName}`

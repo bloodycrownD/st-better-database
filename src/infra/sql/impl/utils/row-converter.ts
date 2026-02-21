@@ -30,7 +30,7 @@ export class RowConverter {
         for (const stmt of statements) {
             switch (stmt.type) {
                 case 'INSERT':
-                    rows.push(this.convertInsertToRow(stmt, tableSchemas, getTableIdxByName));
+                    rows.push(...this.convertInsertToRow(stmt, tableSchemas, getTableIdxByName));
                     break;
                 case 'UPDATE':
                     rows.push(this.convertUpdateToRow(stmt, tableSchemas, getTableIdxByName));
@@ -88,27 +88,28 @@ export class RowConverter {
         stmt: any,
         tableSchemas: Record<number, TableSchema>,
         getTableIdxByName: (tableName: string) => number | undefined
-    ): Row {
+    ): Row[] {
         const tableName = stmt.tableName;
         const tableIdx = getTableIdxByName(tableName)!;
         const schema = tableSchemas[tableIdx]!;
-
-        const after: Record<number, any> = {};
+        const rows: Row[] = [];
 
         for (const valueRow of stmt.values) {
+            const after: Record<number, any> = {};
             for (let i = 0; i < stmt.columns.length; i++) {
                 const colName = stmt.columns[i];
                 const fieldIdx = schema.fieldName2id[colName]!;
                 const expr = valueRow[i];
                 after[fieldIdx] = this.expressionEvaluator.evaluateExpression(expr, schema, tableIdx, null);
             }
+            rows.push({
+                action: ActionType.INSERT,
+                tableIdx,
+                after
+            });
         }
 
-        return {
-            action: ActionType.INSERT,
-            tableIdx,
-            after
-        };
+        return rows;
     }
 
     private convertUpdateToRow(

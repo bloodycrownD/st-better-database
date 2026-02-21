@@ -202,6 +202,12 @@ describe('DML Operations', () => {
             }).toThrow(SqlValidationError);
         });
 
+        it('should throw error when appending to primary key column', () => {
+            expect(() => {
+                executor.execute('APPEND INTO users (id) VALUES (\'100\')', [SqlType.DML]);
+            }).toThrow(SqlValidationError);
+        });
+
         it('should append to null values', () => {
             executor.execute('CREATE TABLE messages (id NUMBER, content STRING)', [SqlType.DDL]);
             executor.execute('INSERT INTO messages (id, content) VALUES (1, NULL)', [SqlType.DML]);
