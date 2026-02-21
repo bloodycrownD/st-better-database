@@ -2,8 +2,8 @@ name: Build and Deploy to Dist Branch
 
 on:
   push:
-    branches:
-      - master
+    tags:
+      - 'v*'
 
 permissions:
   contents: write
