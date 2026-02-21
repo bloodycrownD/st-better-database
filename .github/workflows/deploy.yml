@@ -1,4 +1,4 @@
-name: Build and Deploy to Dist Branch
+name: Build and Release
 
 on:
   push:
@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  build-and-deploy:
+  build-and-release:
     runs-on: ubuntu-latest
     
     steps:
@@ -29,17 +29,17 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Prepare dist branch files
+      - name: Prepare release files
         run: |
-          mkdir -p deploy/dist
-          cp dist/index.js deploy/dist/
-          cp manifest.json deploy/
-          echo "*.map" > deploy/dist/.gitignore
-          echo "node_modules/" >> deploy/dist/.gitignore
+          mkdir -p release/dist
+          cp dist/index.js release/dist/
+          cp manifest.json release/
+          cd release
+          zip -r release.zip .
 
-      - name: Deploy to dist branch
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./deploy
-          publish_branch: dist
+          files: release/release.zip
+          draft: false
+          prerelease: false
