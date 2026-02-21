@@ -45,6 +45,7 @@ export class ChatMessageHandler {
     }
 
     private onChatChanged() {
+        ChatMetaManager.instance.reload();
         TemplateRenderer.getInstance().updateChatTemplateDisplay();
     }
 
