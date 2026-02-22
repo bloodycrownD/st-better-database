@@ -62,9 +62,9 @@ describe('ChatMessageManager', () => {
 
     describe('extractCommitted', () => {
         it('should extract committed content correctly', () => {
-            const message = 'text <committed>INSERT INTO $t0 ($t0c0) VALUES (1)</committed> more text';
+            const message = 'text <committed>INSERT INTO @t0 (@t0c0) VALUES (1)</committed> more text';
             const result = ChatMessageManager.extractCommitted(message);
-            expect(result).toBe('INSERT INTO $t0 ($t0c0) VALUES (1)');
+            expect(result).toBe('INSERT INTO @t0 (@t0c0) VALUES (1)');
         });
 
         it('should return null if no committed tag', () => {

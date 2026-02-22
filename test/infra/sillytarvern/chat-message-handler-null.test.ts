@@ -54,13 +54,13 @@ describe('ChatMessageHandler - NULL value and PRIMARY KEY', () => {
                 for (const entry of tableEntries as any) {
                     const [idxStr, schema]: [string, any] = entry;
                     const tableIdx = parseInt(idxStr);
-                    const tableId = `$t${tableIdx}`;
+                    const tableId = `@t${tableIdx}`;
                     const columnEntries = Object.entries(schema.columnSchemas);
                     columnEntries.sort((a: any, b: any) => b[1].name.length - a[1].name);
                     for (const colEntry of columnEntries as any) {
                         const [colIdxStr, colSchema]: [string, any] = colEntry;
                         const colIdx = parseInt(colIdxStr);
-                        const colId = `$t${tableIdx}c${colIdx}`;
+                        const colId = `@t${tableIdx}c${colIdx}`;
                         result = result.replace(new RegExp(`\\b${colSchema.name}\\b`, 'g'), colId);
                     }
                     result = result.replace(new RegExp(`\\b${schema.tableName}\\b`, 'g'), tableId);

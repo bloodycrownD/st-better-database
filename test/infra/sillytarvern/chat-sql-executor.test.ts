@@ -84,10 +84,10 @@ describe('ChatSqlExecutor', () => {
             expect(result.data).toBe(1);
             expect(mockChat.length).toBe(1);
             expect(mockChat[0].mes).toContain('<committed>');
-            expect(mockChat[0].mes).toContain('$t0');
-            expect(mockChat[0].mes).toContain('$t0c0');
-            expect(mockChat[0].mes).toContain('$t0c1');
-            expect(mockChat[0].mes).toContain('$t0c2');
+            expect(mockChat[0].mes).toContain('@t0');
+            expect(mockChat[0].mes).toContain('@t0c0');
+            expect(mockChat[0].mes).toContain('@t0c1');
+            expect(mockChat[0].mes).toContain('@t0c2');
             expect(mockSaveChat).toHaveBeenCalled();
         });
 
@@ -98,7 +98,7 @@ describe('ChatSqlExecutor', () => {
 
             expect(result.success).toBe(true);
             expect(result.data).toBe(1);
-            expect(mockChat[0].mes).toContain('UPDATE $t0 SET $t0c2 = 26 WHERE $t0c0 = 1');
+            expect(mockChat[0].mes).toContain('UPDATE @t0 SET @t0c2 = 26 WHERE @t0c0 = 1');
             expect(mockSaveChat).toHaveBeenCalled();
         });
 
@@ -110,7 +110,7 @@ describe('ChatSqlExecutor', () => {
 
             expect(result.success).toBe(true);
             expect(result.data).toBe(1);
-            expect(mockChat[0].mes).toContain('DELETE FROM $t0 WHERE $t0c0 = 1');
+            expect(mockChat[0].mes).toContain('DELETE FROM @t0 WHERE @t0c0 = 1');
             expect(mockSaveChat).toHaveBeenCalled();
         });
 
@@ -121,7 +121,7 @@ describe('ChatSqlExecutor', () => {
 
             expect(result.success).toBe(true);
             expect(result.data).toBe(1);
-            expect(mockChat[0].mes).toContain('APPEND INTO $t0 ($t0c1) VALUES (\' Smith\')');
+            expect(mockChat[0].mes).toContain('APPEND INTO @t0 (@t0c1) VALUES (\' Smith\')');
             expect(mockSaveChat).toHaveBeenCalled();
         });
 
@@ -131,7 +131,7 @@ describe('ChatSqlExecutor', () => {
 
             const committedContent = mockChat[0].mes.match(/<committed>([\s\S]*)<\/committed>/)?.[1];
             expect(committedContent).toBeDefined();
-            expect(committedContent).toContain('INSERT INTO $t0');
+            expect(committedContent).toContain('INSERT INTO @t0');
             expect(mockSaveChat).toHaveBeenCalled();
         });
     });
@@ -181,7 +181,7 @@ describe('ChatSqlExecutor', () => {
             expect(result.success).toBe(true);
             expect(result.data).toBe(1);
             expect(mockChat[0].mes).toContain('<committed>');
-            expect(mockChat[0].mes).toContain('$t1');
+            expect(mockChat[0].mes).toContain('@t1');
         });
 
         it('should handle DML followed by DQL', () => {
@@ -221,7 +221,7 @@ describe('ChatSqlExecutor', () => {
 
             const committedContent = mockChat[0].mes.match(/<committed>([\s\S]*)<\/committed>/)?.[1];
             expect(committedContent).toBeDefined();
-            expect(committedContent).toContain('INSERT INTO $t0');
+            expect(committedContent).toContain('INSERT INTO @t0');
         });
     });
 
@@ -290,22 +290,22 @@ describe('ChatSqlExecutor', () => {
     describe('compressDml and decompressDml', () => {
         it('should compress DML by replacing table and column names', () => {
             const compressed = executor.compressDml('INSERT INTO users (id, name) VALUES (1, "Alice")');
-            expect(compressed).toContain('$t0');
-            expect(compressed).toContain('$t0c0');
-            expect(compressed).toContain('$t0c1');
+            expect(compressed).toContain('@t0');
+            expect(compressed).toContain('@t0c0');
+            expect(compressed).toContain('@t0c1');
             expect(compressed).not.toContain('users');
             expect(compressed).not.toContain('id');
             expect(compressed).not.toContain('name');
         });
 
         it('should decompress DML by replacing IDs with names', () => {
-            const compressed = 'INSERT INTO $t0 ($t0c0, $t0c1) VALUES (1, "Alice")';
+            const compressed = 'INSERT INTO @t0 (@t0c0, @t0c1) VALUES (1, "Alice")';
             const decompressed = executor.decompressDml(compressed);
             expect(decompressed).toContain('users');
             expect(decompressed).toContain('id');
             expect(decompressed).toContain('name');
-            expect(decompressed).not.toContain('$t0');
-            expect(decompressed).not.toContain('$t0c0');
+            expect(decompressed).not.toContain('@t0');
+            expect(decompressed).not.toContain('@t0c0');
         });
 
         it('should handle round-trip compression', () => {

@@ -18,7 +18,7 @@ export class CompactSqlConverter {
         for (const [tableIdxStr, schema] of tableEntries) {
             const tableIdx = parseInt(tableIdxStr);
             const tableName = schema.tableName;
-            const tableId = `$t${tableIdx}`;
+            const tableId = `@t${tableIdx}`;
 
             const columnEntries = Object.entries(schema.columnSchemas);
 
@@ -31,12 +31,12 @@ export class CompactSqlConverter {
             for (const [colIdxStr, colSchema] of columnEntries) {
                 const colIdx = parseInt(colIdxStr);
                 const columnName = colSchema.name;
-                const colId = `$t${tableIdx}c${colIdx}`;
+                const colId = `@t${tableIdx}c${colIdx}`;
 
-                result = result.replace(new RegExp(`\\b${columnName.replace(/\$/g, '\\$')}\\b`, 'g'), colId);
+                result = result.replace(new RegExp(`\\b${columnName.replace(/@/g, '\\@')}\\b`, 'g'), colId);
             }
 
-            result = result.replace(new RegExp(`\\b${tableName.replace(/\$/g, '\\$')}\\b`, 'g'), tableId);
+            result = result.replace(new RegExp(`\\b${tableName.replace(/@/g, '\\@')}\\b`, 'g'), tableId);
         }
 
         return result;
@@ -59,7 +59,7 @@ export class CompactSqlConverter {
         for (const [tableIdxStr, schema] of tableEntries) {
             const tableIdx = parseInt(tableIdxStr);
             const tableName = schema.tableName;
-            const tableId = `$t${tableIdx}`;
+            const tableId = `@t${tableIdx}`;
 
             const columnEntries = Object.entries(schema.columnSchemas);
 
@@ -72,12 +72,12 @@ export class CompactSqlConverter {
             for (const [colIdxStr, colSchema] of columnEntries) {
                 const colIdx = parseInt(colIdxStr);
                 const columnName = colSchema.name;
-                const colId = `$t${tableIdx}c${colIdx}`;
+                const colId = `@t${tableIdx}c${colIdx}`;
 
-                result = result.replace(new RegExp(colId.replace(/\$/g, '\\$'), 'g'), columnName);
+                result = result.replace(new RegExp(colId.replace(/@/g, '\\@'), 'g'), columnName);
             }
 
-            result = result.replace(new RegExp(tableId.replace(/\$/g, '\\$'), 'g'), tableName);
+            result = result.replace(new RegExp(tableId.replace(/@/g, '\\@'), 'g'), tableName);
         }
 
         return result;

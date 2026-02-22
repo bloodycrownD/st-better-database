@@ -70,8 +70,8 @@ describe('ChatMessageHandler', () => {
 
             const mockTableTemplate = {
                 compressDml: vi.fn((sql: string) => {
-                    // Simple mock: replace table/col names with $t0, $t0c0 format
-                    return sql.replace(/users/g, '$t0').replace(/id/g, '$t0c0').replace(/name/g, '$t0c1');
+                    // Simple mock: replace table/col names with @t0, @t0c0 format
+                    return sql.replace(/users/g, '@t0').replace(/id/g, '@t0c0').replace(/name/g, '@t0c1');
                 }),
                 getTables: template.getTables.bind(template),
                 clone: template.clone.bind(template)
@@ -102,16 +102,16 @@ describe('ChatMessageHandler', () => {
 
             expect(mockChat[0].mes).not.toContain('<commit>');
             expect(mockChat[0].mes).toContain('<committed>');
-            expect(mockChat[0].mes).toContain('$t0');
-            expect(mockChat[0].mes).toContain('$t0c0');
-            expect(mockChat[0].mes).toContain('$t0c1');
+            expect(mockChat[0].mes).toContain('@t0');
+            expect(mockChat[0].mes).toContain('@t0c0');
+            expect(mockChat[0].mes).toContain('@t0c1');
             expect(mockSaveChat).toHaveBeenCalled();
         });
 
         it('should append to existing committed', () => {
             mockChat.push({
                 id: 0,
-                mes: '<committed>INSERT INTO $t0 ($t0c0, $t0c1) VALUES (2, \'Bob\')</committed> ' +
+                mes: '<committed>INSERT INTO @t0 (@t0c0, @t0c1) VALUES (2, \'Bob\')</committed> ' +
                      '<commit>INSERT INTO users (id, name) VALUES (1, \'Alice\')</commit>',
                 name: 'test',
                 role: 'assistant'
