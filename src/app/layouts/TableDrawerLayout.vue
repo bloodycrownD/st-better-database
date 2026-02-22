@@ -26,9 +26,7 @@ interface Props {
   showSyncButtons?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  showSyncButtons: false
-});
+const { drawerExpanded, tables, selectedTable, showSyncButtons = false } = defineProps<Props>();
 
 const emit = defineEmits<{
   'update:drawerExpanded': [value: boolean];

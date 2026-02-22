@@ -14,9 +14,7 @@ interface Props {
   fab?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  fab: false
-});
+const { expanded: _expanded, fab = false } = defineProps<Props>();
 
 const emit = defineEmits<{
   toggle: [];

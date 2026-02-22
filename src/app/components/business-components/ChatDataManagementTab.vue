@@ -131,10 +131,6 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits<{
-  refresh: [];
-}>();
-
 const currentTable = computed<TableSchema>(() => {
   return props.tables.find(t => t.tableName === props.selectedTable) || {} as TableSchema;
 });

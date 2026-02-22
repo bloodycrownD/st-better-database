@@ -2,7 +2,6 @@ import {
     DatabaseBuilder,
     type ExecutorStructure,
     ExportFormat,
-    type Row,
     SqlExecutionError,
     SqlSyntaxError,
     SqlType,
@@ -11,7 +10,7 @@ import {
 } from '../../index';
 import type {DataStorage, SqlExecutor, SqlResult, Statement} from '@/infra/sql';
 import {DdlExecutor, DmlExecutor, DqlExecutor, Parser, StatementType} from '@/infra/sql';
-import {DataExporter, RowConverter} from '../utils';
+import {DataExporter} from '../utils';
 
 export class SimpleSqlExecutor implements SqlExecutor {
     private structure: ExecutorStructure;
@@ -19,7 +18,6 @@ export class SimpleSqlExecutor implements SqlExecutor {
     private ddlExecutor: DdlExecutor;
     private dmlExecutor: DmlExecutor;
     private dqlExecutor: DqlExecutor;
-    private rowConverter: RowConverter;
     private dataExporter: DataExporter;
 
     constructor(dataStorage?: DataStorage, structure?: ExecutorStructure) {
@@ -41,7 +39,6 @@ export class SimpleSqlExecutor implements SqlExecutor {
             this.dataStorage,
             this.validateTableExists.bind(this)
         );
-        this.rowConverter = new RowConverter();
         this.dataExporter = new DataExporter();
     }
 
@@ -185,15 +182,6 @@ export class SimpleSqlExecutor implements SqlExecutor {
             table,
             this.getTableIdxByName.bind(this)
         );
-    }
-
-    dml2row(sql: string): Row[] {
-        const parseResult = Parser.parse(sql);
-        return this.rowConverter.dml2row(parseResult.statements, this.structure.tableSchemas, this.getTableIdxByName.bind(this));
-    }
-
-    row2dml(rows: Row[]): string {
-        return this.rowConverter.row2dml(rows, this.structure.tableSchemas, this.getTableNameByIdx.bind(this));
     }
 
     clone(): SqlExecutor {

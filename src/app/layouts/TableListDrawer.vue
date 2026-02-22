@@ -52,10 +52,7 @@ interface Props {
   showSyncButtons?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  isDrawer: true,
-  showSyncButtons: false
-});
+const { tables, selectedTable, isDrawer = true, showSyncButtons = false } = defineProps<Props>();
 
 const emit = defineEmits<{
   select: [tableName: string];
