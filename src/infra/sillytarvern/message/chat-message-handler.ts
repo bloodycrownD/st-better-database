@@ -1,4 +1,4 @@
-import {type Row} from '@/infra/sql';
+import {ChatSqlExecutor} from '@/infra/sql';
 import {ChatMessageManager} from '@/infra/sillytarvern/message/chat-message-manager.ts';
 import {ChatMetaManager} from "@/infra/sillytarvern/persistent/chat-meta-manager.ts";
 import {ExtensionSettingManager} from "@/infra/sillytarvern/persistent/extension-setting-manager.ts";
@@ -64,25 +64,21 @@ export class ChatMessageHandler {
         }
 
         try {
-            const commitRows = ChatMetaManager.instance.tableTemplate.dml2row(commitContent);
+            const tableTemplate = ChatMetaManager.instance.tableTemplate as ChatSqlExecutor;
+            const compressedDml = tableTemplate.compressDml(commitContent);
 
-            const rowContent = ChatMessageManager.extractRow(message.mes);
-            let existingRows: Row[] = [];
+            const committedContent = ChatMessageManager.extractCommitted(message.mes);
+            let existingCommitted = '';
 
-            if (rowContent) {
-                try {
-                    existingRows = JSON.parse(rowContent) as Row[];
-                } catch (e) {
-                    existingRows = [];
-                }
+            if (committedContent) {
+                existingCommitted = committedContent;
             }
 
-            const mergedRows = [...existingRows, ...commitRows];
-            const newRowContent = JSON.stringify(mergedRows);
+            const newCommitted = existingCommitted ? `${existingCommitted};\n${compressedDml}` : compressedDml;
 
-            ChatMessageManager.replaceCommitWithRow(messageId, newRowContent);
+            ChatMessageManager.replaceCommitWithCommitted(messageId, newCommitted);
         } catch (error) {
-            console.error('[ChatMessageHandler] Failed to convert commit to row:', error);
+            console.error('[ChatMessageHandler] Failed to compress commit:', error);
             return;
         }
     }

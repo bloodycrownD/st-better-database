@@ -1,28 +1,22 @@
-import {type Row} from "@/infra/sql";
-
 export class ChatMessageManager {
-    private static readonly ROW_START_TAG = '<row>'
-    private static readonly ROW_END_TAG = '</row>'
+    private static readonly COMMITTED_START_TAG = '<committed>'
+    private static readonly COMMITTED_END_TAG = '</committed>'
     private static readonly COMMIT_START_TAG = '<commit>'
     private static readonly COMMIT_END_TAG = '</commit>'
 
-    static getRows(): Row[] {
+    static getCommitted(): string {
         const context = SillyTavern.getContext();
         const chat = context?.chat || [];
-        const rows: Row[] = [];
+        const committedList: string[] = [];
         for (const message of chat) {
             if (message.mes) {
-                const content = this.extractTagContent(message.mes, ChatMessageManager.ROW_START_TAG, ChatMessageManager.ROW_END_TAG);
+                const content = this.extractTagContent(message.mes, ChatMessageManager.COMMITTED_START_TAG, ChatMessageManager.COMMITTED_END_TAG);
                 if (content) {
-                    try {
-                        const parsed = JSON.parse(content) as Row[];
-                        rows.push(...parsed);
-                    } catch (e) {
-                    }
+                    committedList.push(content);
                 }
             }
         }
-        return rows
+        return committedList.join(';\n');
     }
 
     static processMessage(index: number, startTag: string, endTag: string, processer: (content: string | null) => string) {
@@ -55,11 +49,11 @@ export class ChatMessageManager {
         return ChatMessageManager.processMessage(index, ChatMessageManager.COMMIT_START_TAG, ChatMessageManager.COMMIT_END_TAG, processer)
     }
 
-    static processRows(index: number, processer: (content: string | null) => string): void {
-        return ChatMessageManager.processMessage(index, ChatMessageManager.ROW_START_TAG, ChatMessageManager.ROW_END_TAG, processer)
+    static processCommitted(index: number, processer: (content: string | null) => string): void {
+        return ChatMessageManager.processMessage(index, ChatMessageManager.COMMITTED_START_TAG, ChatMessageManager.COMMITTED_END_TAG, processer)
     }
 
-    static processLastRows(processer: (content: string | null) => string) {
+    static processLastCommitted(processer: (content: string | null) => string) {
         const context = SillyTavern.getContext();
         const chat = context?.chat || [];
         if (chat.length == 0) {
@@ -71,18 +65,18 @@ export class ChatMessageManager {
                 date: Date.now(),
             })
         }
-        this.processRows(context?.chat.length - 1, processer)
+        this.processCommitted(context?.chat.length - 1, processer)
     }
 
     static extractCommit(message: string): string | null {
         return this.extractTagContent(message, ChatMessageManager.COMMIT_START_TAG, ChatMessageManager.COMMIT_END_TAG);
     }
 
-    static extractRow(message: string): string | null {
-        return this.extractTagContent(message, ChatMessageManager.ROW_START_TAG, ChatMessageManager.ROW_END_TAG);
+    static extractCommitted(message: string): string | null {
+        return this.extractTagContent(message, ChatMessageManager.COMMITTED_START_TAG, ChatMessageManager.COMMITTED_END_TAG);
     }
 
-    static replaceCommitWithRow(messageId: number, newRowContent: string): void {
+    static replaceCommitWithCommitted(messageId: number, newCommittedContent: string): void {
         const context = SillyTavern.getContext();
         const chat = context?.chat || [];
         const message = chat[messageId];
@@ -101,14 +95,14 @@ export class ChatMessageManager {
             }
         }
 
-        const rowEndPos = text.lastIndexOf(ChatMessageManager.ROW_END_TAG);
-        if (rowEndPos !== -1) {
-            const rowStartPos = text.lastIndexOf(ChatMessageManager.ROW_START_TAG, rowEndPos);
-            if (rowStartPos !== -1) {
-                text = text.substring(0, rowStartPos) + ChatMessageManager.ROW_START_TAG + newRowContent + ChatMessageManager.ROW_END_TAG + text.substring(rowEndPos + ChatMessageManager.ROW_END_TAG.length);
+        const committedEndPos = text.lastIndexOf(ChatMessageManager.COMMITTED_END_TAG);
+        if (committedEndPos !== -1) {
+            const committedStartPos = text.lastIndexOf(ChatMessageManager.COMMITTED_START_TAG, committedEndPos);
+            if (committedStartPos !== -1) {
+                text = text.substring(0, committedStartPos) + ChatMessageManager.COMMITTED_START_TAG + newCommittedContent + ChatMessageManager.COMMITTED_END_TAG + text.substring(committedEndPos + ChatMessageManager.COMMITTED_END_TAG.length);
             }
         } else {
-            text = text + ChatMessageManager.ROW_START_TAG + newRowContent + ChatMessageManager.ROW_END_TAG;
+            text = text + ChatMessageManager.COMMITTED_START_TAG + newCommittedContent + ChatMessageManager.COMMITTED_END_TAG;
         }
 
         message.mes = text;

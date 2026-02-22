@@ -1,19 +1,15 @@
 import {
     type DataStorage,
     ExportFormat,
-    type Row,
     type SqlExecutor,
     type SqlResult,
     SqlType,
     type TableSchema
 } from "@/infra/sql";
-import {ChatMessageManager} from "@/infra/sillytarvern/message/chat-message-manager.ts";
+import {ChatMessageManager} from '@/infra/sillytarvern/message/chat-message-manager.ts';
+import {CompactSqlConverter} from '@/infra/sql/impl/utils/compact-sql-converter.ts';
 
 export class ChatSqlExecutor implements SqlExecutor {
-    /**
-     * 表格执行器模板，一般不变
-     * @private
-     */
     private readonly tableTemplate: SqlExecutor;
 
     constructor(tableTemplate: SqlExecutor) {
@@ -28,8 +24,23 @@ export class ChatSqlExecutor implements SqlExecutor {
         return this.tableTemplate.clone();
     }
 
-    dml2row(sql: string): Row[] {
-        return this.tableTemplate.dml2row(sql);
+    compressDml(dml: string): string {
+        const tableSchemas = this.getTableSchemas();
+        return CompactSqlConverter.compressDml(dml, tableSchemas);
+    }
+
+    decompressDml(compressedDml: string): string {
+        const tableSchemas = this.getTableSchemas();
+        return CompactSqlConverter.decompressDml(compressedDml, tableSchemas);
+    }
+
+    private getTableSchemas(): Record<number, any> {
+        const tables = this.getTables();
+        const tableSchemas: Record<number, any> = {};
+        for (const table of tables) {
+            tableSchemas[this.getTableIdxByName(table.tableName)!] = table;
+        }
+        return tableSchemas;
     }
 
     execute(sql: string, sqlTypes: SqlType[]): SqlResult {
@@ -101,28 +112,24 @@ export class ChatSqlExecutor implements SqlExecutor {
     }
 
     private executeDml(sql: string): number {
-        const rows = this.tableTemplate.dml2row(sql);
-        ChatMessageManager.processLastRows(content => {
-            const origin = content ? JSON.parse(content) as Row[] : [];
-            origin.push(...rows);
-            return `<row>${JSON.stringify(origin)}</row>`;
+        const compressedDml = this.compressDml(sql);
+        ChatMessageManager.processLastCommitted(content => {
+            const origin = content || '';
+            const newCommitted = origin ? `${origin};\n${compressedDml}` : compressedDml;
+            return `<committed>${newCommitted}</committed>`;
         });
-        return rows.length;
+        return sql.split(';').map(s => s.trim()).filter(s => s.length > 0).length;
     }
 
     export(format: ExportFormat, table?: string): string {
         return this.storage.export(format, table);
     }
 
-    /**
-     * 填充数据后的执行器
-     * @private
-     */
     private get storage() {
-        const rows = ChatMessageManager.getRows();
-        const dml = this.tableTemplate.row2dml(rows);
+        const committed = ChatMessageManager.getCommitted();
         const sqlExecutor = this.tableTemplate.clone();
-        if (dml) {
+        if (committed) {
+            const dml = this.decompressDml(committed);
             sqlExecutor.execute(dml, [SqlType.DML]);
         }
         return sqlExecutor;
@@ -138,10 +145,6 @@ export class ChatSqlExecutor implements SqlExecutor {
 
     getTableNameByIdx(tableIdx: number): string | undefined {
         return this.tableTemplate.getTableNameByIdx(tableIdx);
-    }
-
-    row2dml(rows: Row[]): string {
-        return this.tableTemplate.row2dml(rows);
     }
 
     setDataStorage(_: DataStorage): void {

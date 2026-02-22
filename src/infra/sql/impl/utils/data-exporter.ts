@@ -1,5 +1,5 @@
-import type {DataStorage, Row, RowData, SqlValue, TableSchema} from '@/infra/sql';
-import {ActionType, ExportFormat, SQLBuilder, SqlExecutionError} from '@/infra/sql';
+import type {DataStorage, RowData, SqlValue, TableSchema} from '@/infra/sql';
+import {ExportFormat, SQLBuilder, SqlExecutionError} from '@/infra/sql';
 import {MarkdownExporter} from './markdown';
 
 export class DataExporter {
@@ -48,12 +48,10 @@ export class DataExporter {
         return results.join('\n\n');
     }
 
-    private exportTable(schema: TableSchema, data: RowData[], format: ExportFormat, tableIdx: number): string {
+    private exportTable(schema: TableSchema, data: RowData[], format: ExportFormat, _tableIdx: number): string {
         switch (format) {
             case ExportFormat.INSERT_SQL:
                 return this.exportAsInsertSql(schema, data);
-            case ExportFormat.ROW_JSON:
-                return this.exportAsRowJson(schema, data, tableIdx);
             case ExportFormat.TABLE_SCHEMA:
                 return JSON.stringify(schema, null, 2);
             case ExportFormat.DDL:
@@ -89,26 +87,6 @@ export class DataExporter {
         }
 
         return lines.join('\n');
-    }
-
-    private exportAsRowJson(schema: TableSchema, data: RowData[], tableIdx: number): string {
-        const rows: Row[] = [];
-
-        for (const row of data) {
-            const rowData: Record<number, any> = {};
-            for (const [fieldIdxStr] of Object.entries(schema.id2fieldName)) {
-                const fieldIdx = parseInt(fieldIdxStr);
-                rowData[fieldIdx] = row[fieldIdx];
-            }
-
-            rows.push({
-                action: ActionType.INSERT,
-                tableIdx,
-                after: rowData
-            });
-        }
-
-        return JSON.stringify(rows, null, 2);
     }
 
     private exportAsMarkdown(schema: TableSchema, data: RowData[]): string {

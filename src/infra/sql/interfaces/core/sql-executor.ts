@@ -1,4 +1,4 @@
-import type {DataStorage, Row, SqlResult, TableSchema} from '@/infra/sql';
+import type {DataStorage, SqlResult, TableSchema} from '@/infra/sql';
 import {ExportFormat, SqlType} from '../../index';
 
 /**
@@ -32,12 +32,9 @@ export interface SqlExecutor {
      *
      * // 混合执行
      * executor.execute(sql, [SqlType.DQL, SqlType.DML, SqlType.DDL]);
-     *
-     * // Row格式操作
-     * executor.execute(rowJson, [SqlType.ROW]);
      * ```
      *
-     * @param sql 要执行的SQL语句或Row格式的JSON字符串
+     * @param sql 要执行的SQL语句
      * @param sqlTypes 允许的SQL类型数组
      * @returns SQL执行结果
      * @throws SqlSyntaxError 语法错误时抛出
@@ -65,7 +62,6 @@ export interface SqlExecutor {
      *
      * 支持多种格式导出：
      * - INSERT_SQL: 导出为INSERT SQL语句
-     * - ROW_JSON: 导出为Row格式JSON
      * - TABLE_SCHEMA: 导出表结构定义
      *
      * @param format 导出格式
@@ -73,42 +69,6 @@ export interface SqlExecutor {
      * @returns 导出结果字符串
      */
     export(format: ExportFormat, table?: string): string;
-
-    /**
-     * 将DML语句转换为Row格式
-     *
-     * 将INSERT/UPDATE/DELETE/APPEND语句解析为Row对象数组
-     * 支持多条SQL语句，用分号';'分隔
-     *
-     * 转换示例：
-     * ```
-     * INSERT INTO users (name, age) VALUES ('张三', 25);
-     * ↓
-     * [{action: "insert", tableIdx: 0, after: {1: "张三", 2: 25}}]
-     * ```
-     *
-     * @param sql DML语句字符串，多条用';'分隔
-     * @returns Row对象数组
-     */
-    dml2row(sql: string): Row[];
-
-    /**
-     * 将Row格式转换为DML语句
-     *
-     * 将Row对象数组转换回INSERT/UPDATE/DELETE/APPEND语句
-     * 支持批量转换
-     *
-     * 转换示例：
-     * ```
-     * [{action: "insert", tableIdx: 0, after: {1: "张三"}}]
-     * ↓
-     * INSERT INTO users (name) VALUES ('张三');
-     * ```
-     *
-     * @param rows Row对象数组
-     * @returns DML语句字符串，多条用';'分隔
-     */
-    row2dml(rows: Row[]): string;
 
     /**
      * 根据表名获取表ID
