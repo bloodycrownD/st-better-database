@@ -8827,6 +8827,7 @@ class im {
     return c[l] = u, {
       action: Vt.APPEND,
       tableIdx: o,
+      before: e.where ? this.evaluateWhereToRowData(e.where, r, o) : void 0,
       after: c
     };
   }
@@ -8876,7 +8877,16 @@ class im {
     if (r === void 0)
       throw new mt("Invalid APPEND row data");
     const a = parseInt(r), l = e.id2fieldName[a], u = i ? i[a] : void 0;
-    return `APPEND INTO ${s} (${l}) VALUES (${this.valueToSql(u)})`;
+    let c = `APPEND INTO ${s} (${l}) VALUES (${this.valueToSql(u)})`;
+    const d = this.toRecord(n.before);
+    if (d && Object.keys(d).length > 0) {
+      const m = [];
+      Object.entries(d).forEach(([h, b]) => {
+        const y = parseInt(h), E = e.id2fieldName[y];
+        E && m.push(`${E} = ${this.valueToSql(b)}`);
+      }), m.length > 0 && (c += ` WHERE ${m.join(" AND ")}`);
+    }
+    return c;
   }
   valueToSql(e) {
     return e === null ? "NULL" : typeof e == "string" ? `'${e.replace(/'/g, "''")}'` : String(e);
