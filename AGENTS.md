@@ -1,18 +1,3 @@
-# 项目结构
-├─docs
-│  ├─plans
-│  └─sillytavern
-├─src
-│  ├─app
-│  │  ├─components
-│  │  │  ├─features
-│  │  │  └─shared
-│  │  ├─composables
-│  │  ├─layout
-│  │  └─pages
-│  ├─infra
-│  └─service
-└─test
 # 系统指令
 按照下面的思路执行任务
 1. 你需要重述用户需求，并question用户，以确保需求的精准

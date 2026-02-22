@@ -172,6 +172,7 @@ export class RowConverter {
         return {
             action: ActionType.APPEND,
             tableIdx,
+            before: stmt.where ? this.evaluateWhereToRowData(stmt.where, schema, tableIdx) : undefined,
             after
         };
     }
@@ -280,7 +281,25 @@ export class RowConverter {
         const colNameStr = schema.id2fieldName[fieldIdx];
         const value = afterRecord ? afterRecord[fieldIdx] : undefined;
 
-        return `APPEND INTO ${tableName} (${colNameStr}) VALUES (${this.valueToSql(value)})`;
+        let sql = `APPEND INTO ${tableName} (${colNameStr}) VALUES (${this.valueToSql(value)})`;
+
+        const beforeRecord = this.toRecord(row.before);
+        if (beforeRecord && Object.keys(beforeRecord).length > 0) {
+            const conditions: string[] = [];
+            Object.entries(beforeRecord).forEach(([fieldIdxStr, value]) => {
+                const fieldIdx = parseInt(fieldIdxStr);
+                const colName = schema.id2fieldName[fieldIdx];
+                if (colName) {
+                    conditions.push(`${colName} = ${this.valueToSql(value)}`);
+                }
+            });
+
+            if (conditions.length > 0) {
+                sql += ` WHERE ${conditions.join(' AND ')}`;
+            }
+        }
+
+        return sql;
     }
 
     private valueToSql(value: any): string {
