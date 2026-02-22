@@ -38,7 +38,10 @@ export class ChatSqlExecutor implements SqlExecutor {
         const tables = this.getTables();
         const tableSchemas: Record<number, any> = {};
         for (const table of tables) {
-            tableSchemas[this.getTableIdxByName(table.tableName)!] = table;
+            const tableIdx = this.getTableIdxByName(table.tableName);
+            if (tableIdx !== undefined) {
+                tableSchemas[tableIdx] = table;
+            }
         }
         return tableSchemas;
     }

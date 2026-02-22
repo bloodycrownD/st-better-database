@@ -158,7 +158,7 @@ describe('ChatMessageManager', () => {
                 return '<commit>new content</commit>';
             });
 
-            expect(mockChat[0].mes).toBe('<commit>new content</commit>');
+            expect(mockChat[0].mes).toBe('text without commit<commit>new content</commit>');
             expect(mockSaveChat).toHaveBeenCalled();
         });
     });

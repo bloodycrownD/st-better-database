@@ -40,12 +40,34 @@ describe('ChatMessageHandler - NULL value and PRIMARY KEY', () => {
         template.execute('CREATE TABLE story_setting (name STRING PRIMARY KEY, content STRING)', [SqlType.DDL]);
 
         const mockTableTemplate = {
-            dml2row: vi.fn((sql: string) => {
-                return template.dml2row(sql);
-            }),
             getTables: template.getTables.bind(template),
-            clone: template.clone.bind(template)
-        };
+            clone: template.clone.bind(template),
+            compressDml: (sql: string) => {
+                const tableSchemas: any = {};
+                const tables = template.getTables();
+                for (let i = 0; i < tables.length; i++) {
+                    tableSchemas[i] = tables[i];
+                }
+                const tableEntries = Object.entries(tableSchemas);
+                tableEntries.sort((a: any, b: any) => b[1].tableName.length - a[1].tableName.length);
+                let result = sql;
+                for (const entry of tableEntries as any) {
+                    const [idxStr, schema]: [string, any] = entry;
+                    const tableIdx = parseInt(idxStr);
+                    const tableId = `$t${tableIdx}`;
+                    const columnEntries = Object.entries(schema.columnSchemas);
+                    columnEntries.sort((a: any, b: any) => b[1].name.length - a[1].name);
+                    for (const colEntry of columnEntries as any) {
+                        const [colIdxStr, colSchema]: [string, any] = colEntry;
+                        const colIdx = parseInt(colIdxStr);
+                        const colId = `$t${tableIdx}c${colIdx}`;
+                        result = result.replace(new RegExp(`\\b${colSchema.name}\\b`, 'g'), colId);
+                    }
+                    result = result.replace(new RegExp(`\\b${schema.tableName}\\b`, 'g'), tableId);
+                }
+                return result;
+            }
+        } as any;
 
         vi.spyOn(ChatMetaManager, 'instance', 'get').mockReturnValue({
             get tableTemplate() {
@@ -68,7 +90,7 @@ describe('ChatMessageHandler - NULL value and PRIMARY KEY', () => {
         console.log('Final message:', mockChat[0].mes);
 
         expect(mockChat[0].mes).not.toContain('<commit>');
-        expect(mockChat[0].mes).toContain('<row>');
+        expect(mockChat[0].mes).toContain('<committed>');
         expect(mockSaveChat).toHaveBeenCalled();
     });
 });

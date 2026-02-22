@@ -33,10 +33,10 @@ export class CompactSqlConverter {
                 const columnName = colSchema.name;
                 const colId = `$t${tableIdx}c${colIdx}`;
 
-                result = result.replace(new RegExp(`\\b${columnName}\\b`, 'g'), colId);
+                result = result.replace(new RegExp(`\\b${columnName.replace(/\$/g, '\\$')}\\b`, 'g'), colId);
             }
 
-            result = result.replace(new RegExp(`\\b${tableName}\\b`, 'g'), tableId);
+            result = result.replace(new RegExp(`\\b${tableName.replace(/\$/g, '\\$')}\\b`, 'g'), tableId);
         }
 
         return result;
@@ -74,10 +74,10 @@ export class CompactSqlConverter {
                 const columnName = colSchema.name;
                 const colId = `$t${tableIdx}c${colIdx}`;
 
-                result = result.replace(new RegExp(`\\b${colId}\\b`, 'g'), columnName);
+                result = result.replace(new RegExp(colId.replace(/\$/g, '\\$'), 'g'), columnName);
             }
 
-            result = result.replace(new RegExp(`\\b${tableId}\\b`, 'g'), tableName);
+            result = result.replace(new RegExp(tableId.replace(/\$/g, '\\$'), 'g'), tableName);
         }
 
         return result;

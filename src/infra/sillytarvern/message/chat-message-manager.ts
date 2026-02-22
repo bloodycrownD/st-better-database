@@ -34,7 +34,7 @@ export class ChatMessageManager {
         const processed = processer(content);
 
         if (content === null) {
-            message.mes = processed;
+            message.mes = messageText + processed;
         } else {
             const endPos = messageText.lastIndexOf(endTag);
             const startPos = messageText.lastIndexOf(startTag, endPos);
@@ -91,7 +91,15 @@ export class ChatMessageManager {
         if (commitEndPos !== -1) {
             const commitStartPos = text.lastIndexOf(ChatMessageManager.COMMIT_START_TAG, commitEndPos);
             if (commitStartPos !== -1) {
-                text = text.substring(0, commitStartPos) + text.substring(commitEndPos + ChatMessageManager.COMMIT_END_TAG.length);
+                const beforeCommit = text.substring(0, commitStartPos);
+                const afterCommit = text.substring(commitEndPos + ChatMessageManager.COMMIT_END_TAG.length);
+                const hasBeforeSpace = /\s$/.test(beforeCommit);
+                const hasAfterSpace = /^\s/.test(afterCommit);
+                if (hasBeforeSpace && hasAfterSpace) {
+                    text = beforeCommit.replace(/\s$/, '') + afterCommit;
+                } else {
+                    text = beforeCommit + afterCommit;
+                }
             }
         }
 
@@ -99,7 +107,9 @@ export class ChatMessageManager {
         if (committedEndPos !== -1) {
             const committedStartPos = text.lastIndexOf(ChatMessageManager.COMMITTED_START_TAG, committedEndPos);
             if (committedStartPos !== -1) {
-                text = text.substring(0, committedStartPos) + ChatMessageManager.COMMITTED_START_TAG + newCommittedContent + ChatMessageManager.COMMITTED_END_TAG + text.substring(committedEndPos + ChatMessageManager.COMMITTED_END_TAG.length);
+                const beforeCommitted = text.substring(0, committedStartPos);
+                const afterCommitted = text.substring(committedEndPos + ChatMessageManager.COMMITTED_END_TAG.length);
+                text = beforeCommitted + ChatMessageManager.COMMITTED_START_TAG + newCommittedContent + ChatMessageManager.COMMITTED_END_TAG + afterCommitted;
             }
         } else {
             text = text + ChatMessageManager.COMMITTED_START_TAG + newCommittedContent + ChatMessageManager.COMMITTED_END_TAG;
