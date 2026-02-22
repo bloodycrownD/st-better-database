@@ -9434,16 +9434,16 @@ class $r {
       return l.tableName.length - a.tableName.length;
     });
     for (const [o, r] of i) {
-      const a = parseInt(o), l = r.tableName, u = `$t${a}`, c = Object.entries(r.columnSchemas);
+      const a = parseInt(o), l = r.tableName, u = `@t${a}`, c = Object.entries(r.columnSchemas);
       c.sort((d, m) => {
         const [, h] = d, [, b] = m;
         return b.name.length - h.name.length;
       });
       for (const [d, m] of c) {
-        const h = parseInt(d), b = m.name, E = `$t${a}c${h}`;
-        n = n.replace(new RegExp(`\\b${b.replace(/\$/g, "\\$")}\\b`, "g"), E);
+        const h = parseInt(d), b = m.name, E = `@t${a}c${h}`;
+        n = n.replace(new RegExp(`\\b${b.replace(/@/g, "\\@")}\\b`, "g"), E);
       }
-      n = n.replace(new RegExp(`\\b${l.replace(/\$/g, "\\$")}\\b`, "g"), u);
+      n = n.replace(new RegExp(`\\b${l.replace(/@/g, "\\@")}\\b`, "g"), u);
     }
     return n;
   }
@@ -9455,16 +9455,16 @@ class $r {
       return l.length - a.length;
     });
     for (const [o, r] of i) {
-      const a = parseInt(o), l = r.tableName, u = `$t${a}`, c = Object.entries(r.columnSchemas);
+      const a = parseInt(o), l = r.tableName, u = `@t${a}`, c = Object.entries(r.columnSchemas);
       c.sort((d, m) => {
         const [h] = d, [b] = m;
         return b.length - h.length;
       });
       for (const [d, m] of c) {
-        const h = parseInt(d), b = m.name, E = `$t${a}c${h}`;
-        n = n.replace(new RegExp(E.replace(/\$/g, "\\$"), "g"), b);
+        const h = parseInt(d), b = m.name, E = `@t${a}c${h}`;
+        n = n.replace(new RegExp(E.replace(/@/g, "\\@"), "g"), b);
       }
-      n = n.replace(new RegExp(u.replace(/\$/g, "\\$"), "g"), l);
+      n = n.replace(new RegExp(u.replace(/@/g, "\\@"), "g"), l);
     }
     return n;
   }
