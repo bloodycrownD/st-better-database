@@ -189,7 +189,7 @@ export interface NullExpression {
 export interface InsertNode extends AstNode {
     type: StatementType.INSERT;
     tableName: string;
-    columns: string[];
+    columns?: string[];
     values: (Expression[])[];
 }
 

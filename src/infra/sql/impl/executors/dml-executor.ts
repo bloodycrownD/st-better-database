@@ -32,16 +32,29 @@ export class DmlExecutor {
             const rowData: RowData = {};
 
             const providedColumns: Record<string, number> = {};
-            for (let i = 0; i < stmt.columns.length; i++) {
-                const colName = stmt.columns[i];
-                const fieldIdx = schema.fieldName2id[colName];
-                if (fieldIdx === undefined) {
-                    throw new SqlValidationError(
-                        `Column '${colName}' does not exist in table '${tableName}'`,
-                        `INSERT INTO ${tableName}`
-                    );
+            const columns = stmt.columns;
+            if (columns && columns.length > 0) {
+                for (let i = 0; i < columns.length; i++) {
+                    const colName = columns[i];
+                    const fieldIdx = schema.fieldName2id[colName];
+                    if (fieldIdx === undefined) {
+                        throw new SqlValidationError(
+                            `Column '${colName}' does not exist in table '${tableName}'`,
+                            `INSERT INTO ${tableName}`
+                        );
+                    }
+                    providedColumns[colName] = i;
                 }
-                providedColumns[colName] = i;
+            } else {
+                const columnEntries = Object.entries(schema.columnSchemas)
+                    .filter(([key]) => !isNaN(parseInt(key)))
+                    .sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
+                for (let i = 0; i < columnEntries.length; i++) {
+                    const entry = columnEntries[i];
+                    if (!entry) continue;
+                    const [_, colSchema] = entry;
+                    providedColumns[colSchema.name] = i;
+                }
             }
 
             for (const [fieldIdxStr, colSchema] of Object.entries(schema.columnSchemas)) {

@@ -28,6 +28,21 @@ describe('DML Operations', () => {
             expect(result.data).toBe(1);
         });
 
+        it('should insert without column names', () => {
+            const sql = 'INSERT INTO users VALUES (1, \'Bob\', 30)';
+            const result = executor.execute(sql, [SqlType.DML]);
+
+            expect(result.success).toBe(true);
+            expect(result.message).toContain("Inserted 1 row(s) into 'users'");
+            expect(result.data).toBe(1);
+
+            const selectResult = executor.execute('SELECT * FROM users WHERE id = 1', [SqlType.DQL]);
+            const row = (selectResult.data as any[])[0];
+            expect(row.id).toBe(1);
+            expect(row.name).toBe('Bob');
+            expect(row.age).toBe(30);
+        });
+
         it('should insert multiple rows', () => {
             const sql = 'INSERT INTO users (id, name, age) VALUES (1, \'Alice\', 25), (2, \'Bob\', 30)';
             const result = executor.execute(sql, [SqlType.DML]);

@@ -486,16 +486,21 @@ export class Parser {
     private parseInsert(): Statement {
         this.expectValue('INTO');
         const tableName = this.parseIdentifier();
-        this.expectType(TokenType.LPAREN);
 
-        const columns: string[] = [];
-        columns.push(this.parseIdentifier());
+        let columns: string[] | undefined;
+        if (this.isCurrentType(TokenType.LPAREN)) {
+            this.nextToken();
 
-        while (this.matchValue(',')) {
+            columns = [];
             columns.push(this.parseIdentifier());
+
+            while (this.matchValue(',')) {
+                columns.push(this.parseIdentifier());
+            }
+
+            this.expectType(TokenType.RPAREN);
         }
 
-        this.expectType(TokenType.RPAREN);
         this.expectValue('VALUES');
         this.expectType(TokenType.LPAREN);
 
