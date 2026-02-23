@@ -597,10 +597,25 @@ export class Parser {
         const tableName = this.parseIdentifier();
         this.expectType(TokenType.LPAREN);
 
-        const column = this.parseIdentifier();
+        const columns: string[] = [];
+        columns.push(this.parseIdentifier());
+
+        while (this.matchValue(',')) {
+            columns.push(this.parseIdentifier());
+        }
+
         this.expectType(TokenType.RPAREN);
         this.expectValue('VALUES');
-        const value = this.parseExpression();
+        this.expectType(TokenType.LPAREN);
+
+        const values: Expression[] = [];
+        values.push(this.parseExpression());
+
+        while (this.matchValue(',')) {
+            values.push(this.parseExpression());
+        }
+
+        this.expectType(TokenType.RPAREN);
 
         let where: Expression | undefined;
         if (this.matchValue('WHERE')) {
@@ -610,8 +625,8 @@ export class Parser {
         return {
             type: StatementType.APPEND,
             tableName,
-            column,
-            value,
+            columns,
+            values,
             where,
             position: this.current.position
         };

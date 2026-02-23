@@ -234,6 +234,37 @@ describe('DML Operations', () => {
             expect(row.content).toBe(' hello');
         });
 
+        it('should append to multiple columns', () => {
+            executor.execute('CREATE TABLE items (id NUMBER, name STRING, description STRING)', [SqlType.DDL]);
+            executor.execute('INSERT INTO items (id, name, description) VALUES (1, \'Item1\', \'Desc\')', [SqlType.DML]);
+
+            const sql = 'APPEND INTO items (name, description) VALUES (\'_New\', \'_New\') WHERE id = 1';
+            const result = executor.execute(sql, [SqlType.DML]);
+
+            expect(result.success).toBe(true);
+            expect(result.data).toBe(1);
+
+            const selectResult = executor.execute('SELECT * FROM items WHERE id = 1', [SqlType.DQL]);
+            const row = (selectResult.data as any[])[0];
+            expect(row.name).toBe('Item1_New');
+            expect(row.description).toBe('Desc_New');
+        });
+
+        it('should append to multiple columns with different values', () => {
+            executor.execute('CREATE TABLE products (id NUMBER, title STRING, note STRING)', [SqlType.DDL]);
+            executor.execute('INSERT INTO products (id, title, note) VALUES (1, \'Prod\', \'\')', [SqlType.DML]);
+
+            const sql = 'APPEND INTO products (title, note) VALUES (\'_v1\', \'_note\') WHERE id = 1';
+            const result = executor.execute(sql, [SqlType.DML]);
+
+            expect(result.success).toBe(true);
+
+            const selectResult = executor.execute('SELECT * FROM products WHERE id = 1', [SqlType.DQL]);
+            const row = (selectResult.data as any[])[0];
+            expect(row.title).toBe('Prod_v1');
+            expect(row.note).toBe('_note');
+        });
+
         it('should append only when WHERE condition matches', () => {
             executor.execute('INSERT INTO users (id, name, age) VALUES (3, \'Charlie\', 35)', [SqlType.DML]);
 

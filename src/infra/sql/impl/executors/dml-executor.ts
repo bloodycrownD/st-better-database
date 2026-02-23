@@ -1,4 +1,5 @@
 import type {DataStorage, ExecutorStructure, RowData, SqlResult, TableSchema} from '@/infra/sql';
+import type {Expression} from '@/infra/sql';
 import {ExpressionEvaluator, FieldType, SqlType, SqlValidationError} from '@/infra/sql';
 
 export class DmlExecutor {
@@ -183,33 +184,53 @@ export class DmlExecutor {
         const tableIdx = this.validateTableExists(tableName);
         const schema = this.tableSchemas[tableIdx]!;
 
-        const colName = stmt.column;
-        const fieldIdx = schema.fieldName2id[colName];
-        if (fieldIdx === undefined) {
+        const columns = stmt.columns;
+        const values = stmt.values;
+
+        if (columns.length !== values.length) {
             throw new SqlValidationError(
-                `Column '${colName}' does not exist in table '${tableName}'`,
+                `Number of columns (${columns.length}) does not match number of values (${values.length})`,
                 `APPEND INTO ${tableName}`
             );
         }
 
-        const colSchema = schema.columnSchemas[fieldIdx];
-        if (!colSchema) {
-            throw new SqlValidationError(
-                `Column '${colName}' does not exist in table '${tableName}'`,
-                `APPEND INTO ${tableName}`
-            );
-        }
-        if (colSchema.primitiveKey) {
-            throw new SqlValidationError(
-                `Cannot APPEND to primary key column '${colName}'`,
-                `APPEND INTO ${tableName}`
-            );
-        }
-        if (colSchema.type !== FieldType.STRING) {
-            throw new SqlValidationError(
-                `Column '${colName}' must be STRING type for APPEND operation`,
-                `APPEND INTO ${tableName}`
-            );
+        const appendConfigs: Array<{fieldIdx: number, colSchema: any, valueExpr: Expression}> = [];
+
+        for (let i = 0; i < columns.length; i++) {
+            const colName = columns[i];
+            const fieldIdx = schema.fieldName2id[colName];
+            if (fieldIdx === undefined) {
+                throw new SqlValidationError(
+                    `Column '${colName}' does not exist in table '${tableName}'`,
+                    `APPEND INTO ${tableName}`
+                );
+            }
+
+            const colSchema = schema.columnSchemas[fieldIdx];
+            if (!colSchema) {
+                throw new SqlValidationError(
+                    `Column '${colName}' does not exist in table '${tableName}'`,
+                    `APPEND INTO ${tableName}`
+                );
+            }
+            if (colSchema.primitiveKey) {
+                throw new SqlValidationError(
+                    `Cannot APPEND to primary key column '${colName}'`,
+                    `APPEND INTO ${tableName}`
+                );
+            }
+            if (colSchema.type !== FieldType.STRING) {
+                throw new SqlValidationError(
+                    `Column '${colName}' must be STRING type for APPEND operation`,
+                    `APPEND INTO ${tableName}`
+                );
+            }
+
+            appendConfigs.push({
+                fieldIdx,
+                colSchema,
+                valueExpr: values[i]
+            });
         }
 
         let affectedRows = 0;
@@ -218,12 +239,14 @@ export class DmlExecutor {
         for (const row of data) {
             const matchWhere = stmt.where === undefined || stmt.where === null || this.expressionEvaluator.evaluateWhere(stmt.where, schema, tableIdx, row);
             if (matchWhere) {
-                let currentValue = row[fieldIdx];
-                if (currentValue === null || currentValue === undefined) {
-                    currentValue = '';
+                for (const config of appendConfigs) {
+                    let currentValue = row[config.fieldIdx];
+                    if (currentValue === null || currentValue === undefined) {
+                        currentValue = '';
+                    }
+                    const appendValue = this.expressionEvaluator.evaluateExpression(config.valueExpr, schema, tableIdx, row) as string;
+                    row[config.fieldIdx] = (currentValue as string) + appendValue;
                 }
-                const appendValue = this.expressionEvaluator.evaluateExpression(stmt.value, schema, tableIdx, row) as string;
-                row[fieldIdx] = (currentValue as string) + appendValue;
                 affectedRows++;
             }
         }

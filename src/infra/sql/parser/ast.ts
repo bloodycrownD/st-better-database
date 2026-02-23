@@ -226,8 +226,8 @@ export interface DeleteNode extends AstNode {
 export interface AppendNode extends AstNode {
     type: StatementType.APPEND;
     tableName: string;
-    column: string;
-    value: Expression;
+    columns: string[];
+    values: Expression[];
     where?: Expression;
 }
 
