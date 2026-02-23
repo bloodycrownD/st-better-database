@@ -1,6 +1,73 @@
 import type {TableSchema} from '@/infra/sql';
+import {Parser} from '@/infra/sql';
+
+export class SqlValidationError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'SqlValidationError';
+    }
+}
 
 export class CompactSqlConverter {
+    static validateSql(sql: string): string[] {
+        const errors: string[] = [];
+        const parseResult = Parser.parse(sql);
+
+        for (const error of parseResult.errors) {
+            errors.push(error);
+        }
+
+        const sqlStatements = sql.split(';').map(s => s.trim()).filter(s => s.length > 0);
+        for (const stmt of sqlStatements) {
+            const errors2 = this.checkBasicSyntax(stmt);
+            errors.push(...errors2);
+        }
+
+        return errors;
+    }
+
+    private static checkBasicSyntax(sql: string): string[] {
+        const errors: string[] = [];
+
+        const singleQuotes = (sql.match(/'/g) || []).length;
+        if (singleQuotes % 2 !== 0) {
+            errors.push(`SQL 语句中的单引号未闭合: ${sql}`);
+        }
+
+        const parenthesisStack: string[] = [];
+        let inString = false;
+        let i = 0;
+
+        while (i < sql.length) {
+            const char = sql[i];
+            const nextChar = sql[i + 1];
+
+            if (char === "'" && (!inString || (inString && (nextChar !== "'" || sql[i - 1] === "'")))) {
+                inString = !inString;
+            }
+
+            if (!inString) {
+                if (char === '(') {
+                    parenthesisStack.push('(');
+                } else if (char === ')') {
+                    if (parenthesisStack.length === 0) {
+                        errors.push(`SQL 语句中有未匹配的右括号: ${sql}`);
+                        return errors;
+                    }
+                    parenthesisStack.pop();
+                }
+            }
+
+            i++;
+        }
+
+        if (parenthesisStack.length > 0) {
+            errors.push(`SQL 语句中有未闭合的括号: ${sql}`);
+        }
+
+        return errors;
+    }
+
     static compressDml(
         dml: string,
         tableSchemas: Record<number, TableSchema>

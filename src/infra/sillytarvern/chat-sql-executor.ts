@@ -115,13 +115,42 @@ export class ChatSqlExecutor implements SqlExecutor {
     }
 
     private executeDml(sql: string): number {
-        const compressedDml = this.compressDml(sql);
-        ChatMessageManager.processLastCommitted(content => {
-            const origin = content || '';
-            const newCommitted = origin ? `${origin};\n${compressedDml}` : compressedDml;
-            return `<committed>${newCommitted}</committed>`;
-        });
-        return sql.split(';').map(s => s.trim()).filter(s => s.length > 0).length;
+        const sqlStatements = sql.split(';').map(s => s.trim()).filter(s => s.length > 0);
+        const successfulStatements: string[] = [];
+        const errorStatements: string[] = [];
+
+        for (const stmt of sqlStatements) {
+            const errors = CompactSqlConverter.validateSql(stmt);
+            if (errors.length > 0) {
+                errorStatements.push(stmt);
+            } else {
+                successfulStatements.push(stmt);
+            }
+        }
+
+        let affectedRows = 0;
+
+        if (successfulStatements.length > 0) {
+            const successfulSql = successfulStatements.join(';\n');
+            const compressedDml = this.compressDml(successfulSql);
+            ChatMessageManager.processLastCommitted(content => {
+                const origin = content || '';
+                const newCommitted = origin ? `${origin};\n${compressedDml}` : compressedDml;
+                return `<committed>${newCommitted}</committed>`;
+            });
+            affectedRows = successfulStatements.length;
+        }
+
+        if (errorStatements.length > 0) {
+            const lastMessageId = SillyTavern.getContext()?.chat?.length || 1;
+            const errorMessage = errorStatements.map(stmt => {
+                const errors = CompactSqlConverter.validateSql(stmt);
+                return `错误SQL: ${stmt}\n错误原因: ${errors.join('; ')}`;
+            }).join('\n\n');
+            ChatMessageManager.appendError(lastMessageId - 1, errorMessage);
+        }
+
+        return affectedRows;
     }
 
     export(format: ExportFormat, table?: string): string {
@@ -131,10 +160,60 @@ export class ChatSqlExecutor implements SqlExecutor {
     private get storage() {
         const committed = ChatMessageManager.getCommitted();
         const sqlExecutor = this.tableTemplate.clone();
+
         if (committed) {
-            const dml = this.decompressDml(committed);
-            sqlExecutor.execute(dml, [SqlType.DML]);
+            try {
+                const dml = this.decompressDml(committed);
+                sqlExecutor.execute(dml, [SqlType.DML]);
+            } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                const context = SillyTavern.getContext();
+                const chat = context?.chat || [];
+
+                if (chat.length > 0) {
+                    const currentMessageId = chat.length - 1;
+
+                    if (currentMessageId > 0) {
+                        ChatMessageManager.convertCommittedToError(currentMessageId);
+                        const prevMessageId = currentMessageId - 1;
+                        const prevMessage = chat[prevMessageId];
+
+                        if (prevMessage && prevMessage.mes) {
+                            const prevCommitted = ChatMessageManager.extractCommitted(prevMessage.mes);
+                            if (prevCommitted) {
+                                try {
+                                    const prevDml = this.decompressDml(prevCommitted);
+                                    const prevExecutor = this.tableTemplate.clone();
+                                    prevExecutor.execute(prevDml, [SqlType.DML]);
+                                    return prevExecutor;
+                                } catch (prevError) {
+                                    const toastEvent = new CustomEvent('st-db-toast', {
+                                        detail: {
+                                            message: `回滚失败: ${prevError instanceof Error ? prevError.message : String(prevError)}`,
+                                            type: 'error'
+                                        }
+                                    });
+                                    window.dispatchEvent(toastEvent);
+                                }
+                            }
+                        }
+                    } else {
+                        ChatMessageManager.convertCommittedToError(currentMessageId);
+                    }
+
+                    const toastEvent = new CustomEvent('st-db-toast', {
+                        detail: {
+                            message: `数据库解析错误: ${errorMessage}\n正在尝试回滚...`,
+                            type: 'error'
+                        }
+                    });
+                    window.dispatchEvent(toastEvent);
+                }
+
+                throw error;
+            }
         }
+
         return sqlExecutor;
     }
 

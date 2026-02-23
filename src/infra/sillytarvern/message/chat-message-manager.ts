@@ -3,6 +3,8 @@ export class ChatMessageManager {
     private static readonly COMMITTED_END_TAG = '</committed>'
     private static readonly COMMIT_START_TAG = '<commit>'
     private static readonly COMMIT_END_TAG = '</commit>'
+    private static readonly ERROR_START_TAG = '<error>'
+    private static readonly ERROR_END_TAG = '</error>'
 
     static getCommitted(): string {
         const context = SillyTavern.getContext();
@@ -74,6 +76,79 @@ export class ChatMessageManager {
 
     static extractCommitted(message: string): string | null {
         return this.extractTagContent(message, ChatMessageManager.COMMITTED_START_TAG, ChatMessageManager.COMMITTED_END_TAG);
+    }
+
+    static extractError(message: string): string | null {
+        return this.extractTagContent(message, ChatMessageManager.ERROR_START_TAG, ChatMessageManager.ERROR_END_TAG);
+    }
+
+    static getErrors(): string[] {
+        const context = SillyTavern.getContext();
+        const chat = context?.chat || [];
+        const errorList: string[] = [];
+        for (const message of chat) {
+            if (message.mes) {
+                const content = this.extractTagContent(message.mes, ChatMessageManager.ERROR_START_TAG, ChatMessageManager.ERROR_END_TAG);
+                if (content) {
+                    errorList.push(content);
+                }
+            }
+        }
+        return errorList;
+    }
+
+    static appendError(messageId: number, errorContent: string): void {
+        const context = SillyTavern.getContext();
+        const chat = context?.chat || [];
+        const message = chat[messageId];
+
+        if (!message) {
+            return;
+        }
+
+        let text = message.mes || '';
+        const errorTag = `${ChatMessageManager.ERROR_START_TAG}${errorContent}${ChatMessageManager.ERROR_END_TAG}`;
+
+        const existingErrorPos = text.lastIndexOf(ChatMessageManager.ERROR_END_TAG);
+        if (existingErrorPos !== -1) {
+            const existingErrorStartPos = text.lastIndexOf(ChatMessageManager.ERROR_START_TAG, existingErrorPos);
+            if (existingErrorStartPos !== -1) {
+                const beforeError = text.substring(0, existingErrorStartPos);
+                const afterError = text.substring(existingErrorPos + ChatMessageManager.ERROR_END_TAG.length);
+                text = beforeError + errorTag + afterError;
+            }
+        } else {
+            text = text + errorTag;
+        }
+
+        message.mes = text;
+        context?.saveChat();
+    }
+
+    static convertCommittedToError(messageId: number): void {
+        const context = SillyTavern.getContext();
+        const chat = context?.chat || [];
+        const message = chat[messageId];
+
+        if (!message) {
+            return;
+        }
+
+        const text = message.mes || '';
+        const committedContent = this.extractTagContent(text, ChatMessageManager.COMMITTED_START_TAG, ChatMessageManager.COMMITTED_END_TAG);
+
+        if (committedContent) {
+            const committedEndPos = text.lastIndexOf(ChatMessageManager.COMMITTED_END_TAG);
+            const committedStartPos = text.lastIndexOf(ChatMessageManager.COMMITTED_START_TAG, committedEndPos);
+
+            if (committedStartPos !== -1) {
+                const beforeCommitted = text.substring(0, committedStartPos);
+                const afterCommitted = text.substring(committedEndPos + ChatMessageManager.COMMITTED_END_TAG.length);
+                const errorTag = `${ChatMessageManager.ERROR_START_TAG}${committedContent}${ChatMessageManager.ERROR_END_TAG}`;
+                message.mes = beforeCommitted + errorTag + afterCommitted;
+                context?.saveChat();
+            }
+        }
     }
 
     static replaceCommitWithCommitted(messageId: number, newCommittedContent: string): void {
