@@ -129,12 +129,38 @@ export class ChatSqlExecutor implements SqlExecutor {
     }
 
     private get storage() {
-        const committed = ChatMessageManager.getCommitted();
+        const committedList = ChatMessageManager.getCommitted();
         const sqlExecutor = this.tableTemplate.clone();
-        if (committed) {
-            const dml = this.decompressDml(committed);
-            sqlExecutor.execute(dml, [SqlType.DML]);
+
+        if (committedList.length === 0) {
+            return sqlExecutor;
         }
+
+        let endIndex = committedList.length;
+        const errorCommittedList: string[] = [];
+
+        while (endIndex > 0) {
+            const validCommitted = committedList.slice(0, endIndex);
+            const fullCommitted = validCommitted.join(';\n');
+
+            try {
+                const dml = this.decompressDml(fullCommitted);
+                sqlExecutor.execute(dml, [SqlType.DML]);
+                break;
+            } catch (error) {
+                const errorCommitted: string = committedList[endIndex - 1]!;
+                errorCommittedList.unshift(errorCommitted);
+                endIndex--;
+            }
+        }
+
+        if (errorCommittedList.length > 0) {
+            const errors = errorCommittedList.join(';\n');
+            ChatMessageManager.processLastError(() => {
+                return `<error>${errors}</error>`;
+            });
+        }
+
         return sqlExecutor;
     }
 

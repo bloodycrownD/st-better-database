@@ -104,9 +104,9 @@ describe('ChatMessageManager', () => {
     });
 
     describe('getCommitted', () => {
-        it('should return empty string for no messages', () => {
+        it('should return empty array for no messages', () => {
             const result = ChatMessageManager.getCommitted();
-            expect(result).toBe('');
+            expect(result).toEqual([]);
         });
 
         it('should extract committed from messages', () => {
@@ -115,7 +115,7 @@ describe('ChatMessageManager', () => {
 
             const result = ChatMessageManager.getCommitted();
 
-            expect(result).toBe('sql1;\nsql2');
+            expect(result).toEqual(['sql1', 'sql2']);
         });
 
         it('should skip messages with no committed tag', () => {
@@ -124,7 +124,7 @@ describe('ChatMessageManager', () => {
 
             const result = ChatMessageManager.getCommitted();
 
-            expect(result).toBe('sql');
+            expect(result).toEqual(['sql']);
         });
 
         it('should skip messages with invalid content', () => {
@@ -133,7 +133,7 @@ describe('ChatMessageManager', () => {
 
             const result = ChatMessageManager.getCommitted();
 
-            expect(result).toBe('');
+            expect(result).toEqual([]);
         });
     });
 

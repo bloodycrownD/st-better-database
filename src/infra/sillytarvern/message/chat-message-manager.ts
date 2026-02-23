@@ -3,8 +3,9 @@ export class ChatMessageManager {
     private static readonly COMMITTED_END_TAG = '</committed>'
     private static readonly COMMIT_START_TAG = '<commit>'
     private static readonly COMMIT_END_TAG = '</commit>'
-
-    static getCommitted(): string {
+    private static readonly ERROR_START_TAG = '<error>'
+    private static readonly ERROR_END_TAG = '</error>'
+    static getCommitted(): string[] {
         const context = SillyTavern.getContext();
         const chat = context?.chat || [];
         const committedList: string[] = [];
@@ -16,7 +17,7 @@ export class ChatMessageManager {
                 }
             }
         }
-        return committedList.join(';\n');
+        return committedList;
     }
 
     static processMessage(index: number, startTag: string, endTag: string, processer: (content: string | null) => string) {
@@ -68,6 +69,20 @@ export class ChatMessageManager {
         this.processCommitted(context?.chat.length - 1, processer)
     }
 
+    static processLastError(processer: (content: string | null) => string) {
+        const context = SillyTavern.getContext();
+        const chat = context?.chat || [];
+        if (chat.length == 0) {
+            context?.chat.push({
+                id: 0,
+                name: '',
+                role: 'assistant',
+                mes: '',
+                date: Date.now(),
+            })
+        }
+        return ChatMessageManager.processMessage(context?.chat.length - 1, ChatMessageManager.ERROR_START_TAG, ChatMessageManager.ERROR_END_TAG, processer)
+    }
     static extractCommit(message: string): string | null {
         return this.extractTagContent(message, ChatMessageManager.COMMIT_START_TAG, ChatMessageManager.COMMIT_END_TAG);
     }
