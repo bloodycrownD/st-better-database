@@ -136,29 +136,36 @@ export class ChatSqlExecutor implements SqlExecutor {
             return sqlExecutor;
         }
 
-        let endIndex = committedList.length;
-        const errorCommittedList: string[] = [];
+        const validStatements: string[] = [];
+        const errorStatements: string[] = [];
 
-        while (endIndex > 0) {
-            const validCommitted = committedList.slice(0, endIndex);
-            const fullCommitted = validCommitted.join(';\n');
+        for (const committedItem of committedList) {
+            const statements = committedItem.split(';').map(s => s.trim()).filter(s => s.length > 0);
 
-            try {
-                const dml = this.decompressDml(fullCommitted);
-                sqlExecutor.execute(dml, [SqlType.DML]);
-                break;
-            } catch (error) {
-                const errorCommitted: string = committedList[endIndex - 1]!;
-                errorCommittedList.unshift(errorCommitted);
-                endIndex--;
+            for (const stmt of statements) {
+                try {
+                    const dml = this.decompressDml(stmt);
+                    sqlExecutor.execute(dml, [SqlType.DML]);
+                    validStatements.push(stmt);
+                } catch (error) {
+                    errorStatements.push(stmt);
+                }
             }
         }
 
-        if (errorCommittedList.length > 0) {
-            const errors = errorCommittedList.join(';\n');
-            ChatMessageManager.processLastError(() => {
-                return `<error>${errors}</error>`;
-            });
+        if (errorStatements.length > 0) {
+            const newCommitted = validStatements.join(';\n');
+            const errors = errorStatements.join(';\n');
+
+            if (validStatements.length > 0) {
+                ChatMessageManager.processLastCommitted(() => {
+                    return `<committed>${newCommitted}</committed><error>${errors}</error>`;
+                });
+            } else {
+                ChatMessageManager.processLastCommitted(() => {
+                    return `<error>${errors}</error>`;
+                });
+            }
         }
 
         return sqlExecutor;

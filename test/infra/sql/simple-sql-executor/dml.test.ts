@@ -51,6 +51,20 @@ describe('DML Operations', () => {
             expect(result.data).toBe(2);
         });
 
+        it('should insert multiple rows without column names', () => {
+            const sql = 'INSERT INTO users VALUES (3, \'Charlie\', 35), (4, \'David\', 40)';
+            const result = executor.execute(sql, [SqlType.DML]);
+
+            expect(result.success).toBe(true);
+            expect(result.data).toBe(2);
+
+            const selectResult = executor.execute('SELECT * FROM users WHERE id IN (3, 4) ORDER BY id', [SqlType.DQL]);
+            const rows = selectResult.data as any[];
+            expect(rows.length).toBe(2);
+            expect(rows[0].name).toBe('Charlie');
+            expect(rows[1].name).toBe('David');
+        });
+
         it('should insert with default values', () => {
             executor.execute('CREATE TABLE items (id NUMBER, name STRING DEFAULT \'unknown\')', [SqlType.DDL]);
             const sql = 'INSERT INTO items (id) VALUES (1)';

@@ -333,5 +333,23 @@ describe('ChatSqlExecutor', () => {
             expect(exported).toContain('INSERT INTO users');
             expect(exported).toContain('Alice');
         });
+
+        describe('Error Handling', () => {
+            it('should handle invalid committed statements', () => {
+                executor.execute('INSERT INTO users (id, name, age) VALUES (1, \'Alice\', 25)', [SqlType.DML]);
+
+                const oldMes = mockChat[0].mes;
+                mockChat[0].mes = oldMes.replace(/<\/committed>$/, '; INSERT INTO nonexistent_table (id) VALUES (1)</committed>');
+
+                const storage = executor.getDataStorage();
+
+                const data = storage.getTableData(0);
+                expect(data.length).toBe(1);
+
+                expect(mockChat[0].mes).toContain('<error>');
+                expect(mockChat[0].mes).toContain('nonexistent_table');
+                expect(mockChat[0].mes).toContain('<committed>INSERT INTO @t0');
+            });
+        });
     });
 });
