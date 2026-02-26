@@ -11,6 +11,8 @@ import {CompactSqlConverter} from '@/infra/sql/impl/utils/compact-sql-converter.
 
 export class ChatSqlExecutor implements SqlExecutor {
     private readonly tableTemplate: SqlExecutor;
+    private cachedStorage: SqlExecutor | null = null;
+    private cachedCommittedHash: string = '';
 
     constructor(tableTemplate: SqlExecutor) {
         this.tableTemplate = tableTemplate.clone();
@@ -121,7 +123,18 @@ export class ChatSqlExecutor implements SqlExecutor {
             const newCommitted = origin ? `${origin};\n${compressedDml}` : compressedDml;
             return `<committed>${newCommitted}</committed>`;
         });
+        this.invalidateStorageCache();
         return sql.split(';').map(s => s.trim()).filter(s => s.length > 0).length;
+    }
+
+    private invalidateStorageCache(): void {
+        this.cachedStorage = null;
+        this.cachedCommittedHash = '';
+    }
+
+    private computeCommittedHash(): string {
+        const committedList = ChatMessageManager.getCommitted();
+        return committedList.join('|');
     }
 
     export(format: ExportFormat, table?: string): string {
@@ -129,25 +142,42 @@ export class ChatSqlExecutor implements SqlExecutor {
     }
 
     private get storage() {
+        const currentHash = this.computeCommittedHash();
+        console.log('[ChatSqlExecutor] Getting storage, cache hit:', !!this.cachedStorage && this.cachedCommittedHash === currentHash);
+
+        if (this.cachedStorage && this.cachedCommittedHash === currentHash) {
+            return this.cachedStorage;
+        }
+
+        console.log('[ChatSqlExecutor] Rebuilding storage from committed...');
         const committedList = ChatMessageManager.getCommitted();
+        console.log('[ChatSqlExecutor] Committed items count:', committedList.length);
         const sqlExecutor = this.tableTemplate.clone();
 
         if (committedList.length === 0) {
+            this.cachedStorage = sqlExecutor;
+            this.cachedCommittedHash = currentHash;
             return sqlExecutor;
         }
 
         const validStatements: string[] = [];
         const errorStatements: string[] = [];
+        let statementIndex = 0;
 
         for (const committedItem of committedList) {
             const statements = committedItem.split(';').map(s => s.trim()).filter(s => s.length > 0);
 
             for (const stmt of statements) {
                 try {
+                    statementIndex++;
+                    if (statementIndex % 100 === 0) {
+                        console.log(`[ChatSqlExecutor] Processed ${statementIndex} statements...`);
+                    }
                     const dml = this.decompressDml(stmt);
                     sqlExecutor.execute(dml, [SqlType.DML]);
                     validStatements.push(stmt);
                 } catch (error) {
+                    console.error('[ChatSqlExecutor] Error executing statement:', stmt, error);
                     errorStatements.push(stmt);
                 }
             }
@@ -168,6 +198,9 @@ export class ChatSqlExecutor implements SqlExecutor {
             }
         }
 
+        console.log('[ChatSqlExecutor] Storage rebuilt successfully');
+        this.cachedStorage = sqlExecutor;
+        this.cachedCommittedHash = currentHash;
         return sqlExecutor;
     }
 
