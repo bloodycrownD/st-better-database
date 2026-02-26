@@ -154,22 +154,29 @@ export class ChatSqlExecutor implements SqlExecutor {
         }
 
         console.log('[ChatSqlExecutor] Rebuilding storage from committed...');
-        const committedList = ChatMessageManager.getCommitted();
-        console.log('[ChatSqlExecutor] Committed items count:', committedList.length);
+        const context = SillyTavern.getContext();
+        const chat = context?.chat || [];
         const sqlExecutor = this.tableTemplate.clone();
 
-        if (committedList.length === 0) {
+        if (chat.length === 0) {
             this.cachedStorage = sqlExecutor;
             this.cachedCommittedHash = currentHash;
             return sqlExecutor;
         }
 
-        const validStatements: string[] = [];
-        const errorStatements: string[] = [];
+        const validStatementsByMessage: Map<number, string[]> = new Map();
         let statementIndex = 0;
+        let totalErrors = 0;
 
-        for (const committedItem of committedList) {
-            const statements = committedItem.split(';').map(s => s.trim()).filter(s => s.length > 0);
+        for (let messageIndex = 0; messageIndex < chat.length; messageIndex++) {
+            const message = chat[messageIndex];
+            if (!message || !message.mes) continue;
+
+            const committedContent = ChatMessageManager.extractCommitted(message.mes);
+            if (!committedContent) continue;
+
+            const statements = committedContent.split(';').map(s => s.trim()).filter(s => s.length > 0);
+            const validStatements: string[] = [];
 
             for (const stmt of statements) {
                 try {
@@ -179,7 +186,7 @@ export class ChatSqlExecutor implements SqlExecutor {
                     }
                     const dml = this.decompressDml(stmt);
                     if (statementIndex <= 10 || statementIndex % 500 === 0) {
-                        console.log(`[ChatSqlExecutor] Statement ${statementIndex}:`);
+                        console.log(`[ChatSqlExecutor] Statement ${statementIndex} (from message ${messageIndex}):`);
                         console.log(`  Compressed (first 150 chars): ${stmt.substring(0, 150)}`);
                         console.log(`  Decompressed (first 150 chars): ${dml.substring(0, 150)}`);
                         console.log(`  Full length: Compressed=${stmt.length}, Decompressed=${dml.length}`);
@@ -187,23 +194,37 @@ export class ChatSqlExecutor implements SqlExecutor {
                     sqlExecutor.execute(dml, [SqlType.DML]);
                     validStatements.push(stmt);
                 } catch (error) {
-                    console.error('[ChatSqlExecutor] Error executing statement:', stmt, error);
+                    console.error(`[ChatSqlExecutor] Error executing statement from message ${messageIndex}:`, stmt, error);
                     console.error('[ChatSqlExecutor] Full decompressed statement:', this.decompressDml(stmt));
-                    errorStatements.push(stmt);
+                    totalErrors++;
                 }
             }
+
+            validStatementsByMessage.set(messageIndex, validStatements);
         }
 
-        if (errorStatements.length > 0) {
-            const errors = errorStatements.join(';\n');
-            console.log('[ChatSqlExecutor] Found errors during rebuild. Valid:', validStatements.length, 'Error:', errorStatements.length);
-
-            ChatMessageManager.processLastCommitted((existingContent) => {
-                console.log('[ChatSqlExecutor] Updating last committed to remove error statements. Existing content length:', existingContent?.length);
-                const result = `<committed>${existingContent}</committed><error>${errors}</error>`;
-                console.log('[ChatSqlExecutor] New content length (with error tag):', result.length);
-                return result;
-            });
+        if (totalErrors > 0) {
+            console.log(`[ChatSqlExecutor] Found ${totalErrors} errors during rebuild. Cleaning up messages...`);
+            
+            for (const [messageIndex, validStatements] of validStatementsByMessage.entries()) {
+                const message = chat[messageIndex];
+                if (!message || !message.mes) continue;
+                
+                const originalContent = ChatMessageManager.extractCommitted(message.mes);
+                const newCommitted = validStatements.join(';\n');
+                
+                if (originalContent !== newCommitted) {
+                    console.log(`[ChatSqlExecutor] Updating message ${messageIndex}: ${originalContent?.length || 0} -> ${newCommitted.length} chars`);
+                    
+                    ChatMessageManager.processCommitted(messageIndex, () => {
+                        if (newCommitted.length > 0) {
+                            return `<committed>${newCommitted}</committed>`;
+                        } else {
+                            return '';
+                        }
+                    });
+                }
+            }
         }
 
         console.log('[ChatSqlExecutor] Storage rebuilt successfully');
