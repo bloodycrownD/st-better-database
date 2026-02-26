@@ -5,19 +5,20 @@ export class ChatMessageManager {
     private static readonly COMMIT_END_TAG = '</commit>'
     private static readonly ERROR_START_TAG = '<error>'
     private static readonly ERROR_END_TAG = '</error>'
-    static getCommitted(): string[] {
+    static getCommitted(): Map<number, string> {
         const context = SillyTavern.getContext();
         const chat = context?.chat || [];
-        const committedList: string[] = [];
-        for (const message of chat) {
-            if (message.mes) {
+        const committedMap = new Map<number, string>();
+        for (let messageIndex = 0; messageIndex < chat.length; messageIndex++) {
+            const message = chat[messageIndex];
+            if (message?.mes) {
                 const content = this.extractTagContent(message.mes, ChatMessageManager.COMMITTED_START_TAG, ChatMessageManager.COMMITTED_END_TAG);
                 if (content) {
-                    committedList.push(content);
+                    committedMap.set(messageIndex, content);
                 }
             }
         }
-        return committedList;
+        return committedMap;
     }
 
     static processMessage(index: number, startTag: string, endTag: string, processer: (content: string | null) => string) {

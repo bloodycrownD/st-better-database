@@ -87,8 +87,6 @@ describe('ChatMessageHandler - NULL value and PRIMARY KEY', () => {
         const handler = new ChatMessageHandler();
         (handler as any).processMessage(0);
 
-        console.log('Final message:', mockChat[0].mes);
-
         expect(mockChat[0].mes).not.toContain('<commit>');
         expect(mockChat[0].mes).toContain('<committed>');
         expect(mockSaveChat).toHaveBeenCalled();
