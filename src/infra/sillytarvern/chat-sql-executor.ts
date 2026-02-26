@@ -118,9 +118,13 @@ export class ChatSqlExecutor implements SqlExecutor {
 
     private executeDml(sql: string): number {
         const compressedDml = this.compressDml(sql);
+        console.log('[ChatSqlExecutor] executeDml: original SQL length:', sql.length, 'compressed length:', compressedDml.length);
+        console.log('[ChatSqlExecutor] executeDml: statements count:', sql.split(';').filter(s => s.trim()).length);
         ChatMessageManager.processLastCommitted(content => {
             const origin = content || '';
+            const originLength = origin.length;
             const newCommitted = origin ? `${origin};\n${compressedDml}` : compressedDml;
+            console.log('[ChatSqlExecutor] executeDml: appending to committed. Origin length:', originLength, 'new length:', newCommitted.length);
             return `<committed>${newCommitted}</committed>`;
         });
         this.invalidateStorageCache();
@@ -174,6 +178,9 @@ export class ChatSqlExecutor implements SqlExecutor {
                         console.log(`[ChatSqlExecutor] Processed ${statementIndex} statements...`);
                     }
                     const dml = this.decompressDml(stmt);
+                    if (statementIndex === 1 || statementIndex % 500 === 0) {
+                        console.log(`[ChatSqlExecutor] Statement ${statementIndex} decompressed (first 100 chars):`, dml.substring(0, 100));
+                    }
                     sqlExecutor.execute(dml, [SqlType.DML]);
                     validStatements.push(stmt);
                 } catch (error) {
@@ -186,16 +193,14 @@ export class ChatSqlExecutor implements SqlExecutor {
         if (errorStatements.length > 0) {
             const newCommitted = validStatements.join(';\n');
             const errors = errorStatements.join(';\n');
+            console.log('[ChatSqlExecutor] Found errors during rebuild. Valid:', validStatements.length, 'Error:', errorStatements.length);
 
-            if (validStatements.length > 0) {
-                ChatMessageManager.processLastCommitted(() => {
-                    return `<committed>${newCommitted}</committed><error>${errors}</error>`;
-                });
-            } else {
-                ChatMessageManager.processLastCommitted(() => {
-                    return `<error>${errors}</error>`;
-                });
-            }
+            ChatMessageManager.processLastCommitted((existingContent) => {
+                console.log('[ChatSqlExecutor] Updating last committed. Existing content length:', existingContent?.length);
+                const result = `<committed>${newCommitted}</committed><error>${errors}</error>`;
+                console.log('[ChatSqlExecutor] New content length:', result.length);
+                return result;
+            });
         }
 
         console.log('[ChatSqlExecutor] Storage rebuilt successfully');
