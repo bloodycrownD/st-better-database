@@ -8676,7 +8676,13 @@ class nm {
       const o = [];
       for (const [l] of Object.entries(e.id2fieldName)) {
         const a = parseInt(l), u = i[a];
-        u === null ? o.push("NULL") : typeof u == "string" ? o.push(`'${u.replace(/'/g, "''")}'`) : o.push(String(u));
+        if (u === null)
+          o.push("NULL");
+        else if (typeof u == "string") {
+          const c = u.replace(/\\/g, "\\\\").replace(/'/g, "''").replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/\t/g, "\\t");
+          o.push(`'${c}'`);
+        } else
+          o.push(String(u));
       }
       const r = Object.values(e.id2fieldName).join(", ");
       n.push(`INSERT INTO ${e.tableName} (${r}) VALUES (${o.join(", ")});`);
@@ -9643,19 +9649,18 @@ ${s}` : s;
         try {
           r++, r % 100 === 0 && console.log(`[ChatSqlExecutor] Processed ${r} statements...`);
           const c = this.decompressDml(u);
-          (r === 1 || r % 500 === 0) && console.log(`[ChatSqlExecutor] Statement ${r} decompressed (first 100 chars):`, c.substring(0, 100)), n.execute(c, [ee.DML]), i.push(u);
+          (r <= 10 || r % 500 === 0) && (console.log(`[ChatSqlExecutor] Statement ${r}:`), console.log(`  Compressed (first 150 chars): ${u.substring(0, 150)}`), console.log(`  Decompressed (first 150 chars): ${c.substring(0, 150)}`), console.log(`  Full length: Compressed=${u.length}, Decompressed=${c.length}`)), n.execute(c, [ee.DML]), i.push(u);
         } catch (c) {
-          console.error("[ChatSqlExecutor] Error executing statement:", u, c), o.push(u);
+          console.error("[ChatSqlExecutor] Error executing statement:", u, c), console.error("[ChatSqlExecutor] Full decompressed statement:", this.decompressDml(u)), o.push(u);
         }
     }
     if (o.length > 0) {
-      const l = i.join(`;
-`), a = o.join(`;
+      const l = o.join(`;
 `);
-      console.log("[ChatSqlExecutor] Found errors during rebuild. Valid:", i.length, "Error:", o.length), _e.processLastCommitted((u) => {
-        console.log("[ChatSqlExecutor] Updating last committed. Existing content length:", u?.length);
-        const c = `<committed>${l}</committed><error>${a}</error>`;
-        return console.log("[ChatSqlExecutor] New content length:", c.length), c;
+      console.log("[ChatSqlExecutor] Found errors during rebuild. Valid:", i.length, "Error:", o.length), _e.processLastCommitted((a) => {
+        console.log("[ChatSqlExecutor] Updating last committed to remove error statements. Existing content length:", a?.length);
+        const u = `<committed>${a}</committed><error>${l}</error>`;
+        return console.log("[ChatSqlExecutor] New content length (with error tag):", u.length), u;
       });
     }
     return console.log("[ChatSqlExecutor] Storage rebuilt successfully"), this.cachedStorage = n, this.cachedCommittedHash = e, n;
