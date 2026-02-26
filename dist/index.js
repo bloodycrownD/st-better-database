@@ -6,12 +6,12 @@ function Qt(t) {
   for (const s of t.split(",")) e[s] = 1;
   return (s) => s in e;
 }
-const ye = Rr.NODE_ENV !== "production" ? Object.freeze({}) : {}, ws = Rr.NODE_ENV !== "production" ? Object.freeze([]) : [], qe = () => {
+const _e = Rr.NODE_ENV !== "production" ? Object.freeze({}) : {}, ws = Rr.NODE_ENV !== "production" ? Object.freeze([]) : [], qe = () => {
 }, Lr = () => !1, an = (t) => t.charCodeAt(0) === 111 && t.charCodeAt(1) === 110 && // uppercase letter
 (t.charCodeAt(2) > 122 || t.charCodeAt(2) < 97), Rn = (t) => t.startsWith("onUpdate:"), Ve = Object.assign, Wi = (t, e) => {
   const s = t.indexOf(e);
   s > -1 && t.splice(s, 1);
-}, pl = Object.prototype.hasOwnProperty, Ee = (t, e) => pl.call(t, e), z = Array.isArray, hs = (t) => ln(t) === "[object Map]", Rs = (t) => ln(t) === "[object Set]", Do = (t) => ln(t) === "[object Date]", Z = (t) => typeof t == "function", Me = (t) => typeof t == "string", gt = (t) => typeof t == "symbol", ve = (t) => t !== null && typeof t == "object", Ki = (t) => (ve(t) || Z(t)) && Z(t.then) && Z(t.catch), kr = Object.prototype.toString, ln = (t) => kr.call(t), zi = (t) => ln(t).slice(8, -1), Pr = (t) => ln(t) === "[object Object]", Gi = (t) => Me(t) && t !== "NaN" && t[0] !== "-" && "" + parseInt(t, 10) === t, Ks = /* @__PURE__ */ Qt(
+}, pl = Object.prototype.hasOwnProperty, ye = (t, e) => pl.call(t, e), z = Array.isArray, hs = (t) => ln(t) === "[object Map]", Rs = (t) => ln(t) === "[object Set]", Do = (t) => ln(t) === "[object Date]", Z = (t) => typeof t == "function", Me = (t) => typeof t == "string", gt = (t) => typeof t == "symbol", ve = (t) => t !== null && typeof t == "object", Ki = (t) => (ve(t) || Z(t)) && Z(t.then) && Z(t.catch), kr = Object.prototype.toString, ln = (t) => kr.call(t), zi = (t) => ln(t).slice(8, -1), Pr = (t) => ln(t) === "[object Object]", Gi = (t) => Me(t) && t !== "NaN" && t[0] !== "-" && "" + parseInt(t, 10) === t, Ks = /* @__PURE__ */ Qt(
   // the leading comma is intentional so empty string "" is also included
   ",key,ref,ref_for,ref_key,onVnodeBeforeMount,onVnodeMounted,onVnodeBeforeUpdate,onVnodeUpdated,onVnodeBeforeUnmount,onVnodeUnmounted"
 ), hl = /* @__PURE__ */ Qt(
@@ -730,7 +730,7 @@ class Xr extends Jr {
           e[s]
         ), !0) : (o.value = n, !0);
     }
-    const a = r ? Number(s) < e.length : Ee(e, s), l = Reflect.set(
+    const a = r ? Number(s) < e.length : ye(e, s), l = Reflect.set(
       e,
       s,
       n,
@@ -739,7 +739,7 @@ class Xr extends Jr {
     return e === /* @__PURE__ */ ce(i) && (a ? st(n, o) && Vt(e, "set", s, n, o) : Vt(e, "add", s, n)), l;
   }
   deleteProperty(e, s) {
-    const n = Ee(e, s), i = e[s], o = Reflect.deleteProperty(e, s);
+    const n = ye(e, s), i = e[s], o = Reflect.deleteProperty(e, s);
     return o && n && Vt(e, "delete", s, void 0, i), o;
   }
   has(e, s) {
@@ -883,7 +883,7 @@ function Hl(t, e) {
 function ti(t, e) {
   const s = Hl(t, e);
   return (n, i, o) => i === "__v_isReactive" ? !t : i === "__v_isReadonly" ? t : i === "__v_raw" ? n : Reflect.get(
-    Ee(s, i) && i in n ? s : n,
+    ye(s, i) && i in n ? s : n,
     i,
     o
   );
@@ -1007,7 +1007,7 @@ function ce(t) {
   return e ? /* @__PURE__ */ ce(e) : t;
 }
 function Xl(t) {
-  return !Ee(t, "__v_skip") && Object.isExtensible(t) && Ln(t, "__v_skip", !0), t;
+  return !ye(t, "__v_skip") && Object.isExtensible(t) && Ln(t, "__v_skip", !0), t;
 }
 const Nt = (t) => ve(t) ? /* @__PURE__ */ _s(t) : t, Vs = (t) => ve(t) ? /* @__PURE__ */ Oi(t) : t;
 // @__NO_SIDE_EFFECTS__
@@ -1111,7 +1111,7 @@ function rc(t, e = !1, s = ds) {
     "onWatcherCleanup() was called when there was no active watcher to associate with."
   );
 }
-function ac(t, e, s = ye) {
+function ac(t, e, s = _e) {
   const { immediate: n, deep: i, once: o, scheduler: r, augmentJob: a, call: l } = s, u = (B) => {
     (s.onWarn || Et)(
       "Invalid watch source: ",
@@ -1354,7 +1354,7 @@ function xt(t, e, s, n) {
   );
 }
 function un(t, e, s, n = !0) {
-  const i = e ? e.vnode : null, { errorHandler: o, throwUnhandledErrorInProduction: r } = e && e.appContext.config || ye;
+  const i = e ? e.vnode : null, { errorHandler: o, throwUnhandledErrorInProduction: r } = e && e.appContext.config || _e;
   if (e) {
     let a = e.parent;
     const l = e.proxy, u = g.NODE_ENV !== "production" ? Zi[s] : `https://vuejs.org/error-reference/#runtime-${s}`;
@@ -1651,7 +1651,7 @@ function nt(t, e) {
     return g.NODE_ENV !== "production" && M("withDirectives can only be used inside render functions."), t;
   const s = ai(He), n = t.dirs || (t.dirs = []);
   for (let i = 0; i < e.length; i++) {
-    let [o, r, a, l = ye] = e[i];
+    let [o, r, a, l = _e] = e[i];
     o && (Z(o) && (o = {
       mounted: o,
       updated: o
@@ -1718,7 +1718,7 @@ function lt(t, e, s) {
     "`watch(fn, options?)` signature has been moved to a separate API. Use `watchEffect(fn, options?)` instead. `watch` now only supports `watch(source, cb, options?) signature."
   ), so(t, e, s);
 }
-function so(t, e, s = ye) {
+function so(t, e, s = _e) {
   const { immediate: n, deep: i, flush: o, once: r } = s;
   g.NODE_ENV !== "production" && !e && (n !== void 0 && M(
     'watch() "immediate" option is only respected when using the watch(source, callback, options?) signature.'
@@ -2272,9 +2272,9 @@ function Ys(t, e, s, n, i = !1) {
     );
     return;
   }
-  const u = e && e.r, c = a.refs === ye ? a.refs = {} : a.refs, d = a.setupState, m = /* @__PURE__ */ ce(d), h = d === ye ? Lr : (E) => g.NODE_ENV !== "production" && (Ee(m, E) && !/* @__PURE__ */ Fe(m[E]) && M(
+  const u = e && e.r, c = a.refs === _e ? a.refs = {} : a.refs, d = a.setupState, m = /* @__PURE__ */ ce(d), h = d === _e ? Lr : (E) => g.NODE_ENV !== "production" && (ye(m, E) && !/* @__PURE__ */ Fe(m[E]) && M(
     `Template ref "${E}" used on a non-ref value. It will not work in the production build.`
-  ), Bo.has(m[E])) || Fo(c, E) ? !1 : Ee(m, E), v = (E, y) => !(g.NODE_ENV !== "production" && Bo.has(E) || y && Fo(c, y));
+  ), Bo.has(m[E])) || Fo(c, E) ? !1 : ye(m, E), v = (E, y) => !(g.NODE_ENV !== "production" && Bo.has(E) || y && Fo(c, y));
   if (u != null && u !== l) {
     if (Uo(e), Me(u))
       c[u] = null, h(u) && (d[u] = null);
@@ -2470,7 +2470,7 @@ const Ii = (t) => t ? Za(t) ? ai(t) : Ii(t.parent) : null, gs = (
     $nextTick: (t) => t.n || (t.n = Lt.bind(t.proxy)),
     $watch: (t) => Vc.bind(t)
   })
-), no = (t) => t === "_" || t === "$", yi = (t, e) => t !== ye && !t.__isScriptSetup && Ee(t, e), $a = {
+), no = (t) => t === "_" || t === "$", yi = (t, e) => t !== _e && !t.__isScriptSetup && ye(t, e), $a = {
   get({ _: t }, e) {
     if (e === "__v_skip")
       return !0;
@@ -2493,11 +2493,11 @@ const Ii = (t) => t ? Za(t) ? ai(t) : Ii(t.parent) : null, gs = (
       else {
         if (yi(n, e))
           return r[e] = 1, n[e];
-        if (i !== ye && Ee(i, e))
+        if (i !== _e && ye(i, e))
           return r[e] = 2, i[e];
-        if (Ee(o, e))
+        if (ye(o, e))
           return r[e] = 3, o[e];
-        if (s !== ye && Ee(s, e))
+        if (s !== _e && ye(s, e))
           return r[e] = 4, s[e];
         Ri && (r[e] = 0);
       }
@@ -2511,16 +2511,16 @@ const Ii = (t) => t ? Za(t) ? ai(t) : Ii(t.parent) : null, gs = (
       (c = a.__cssModules) && (c = c[e])
     )
       return c;
-    if (s !== ye && Ee(s, e))
+    if (s !== _e && ye(s, e))
       return r[e] = 4, s[e];
     if (
       // global properties
-      d = l.config.globalProperties, Ee(d, e)
+      d = l.config.globalProperties, ye(d, e)
     )
       return d[e];
     g.NODE_ENV !== "production" && He && (!Me(e) || // #1091 avoid internal isRef/isVNode checks on component instance leading
     // to infinite warning loop
-    e.indexOf("__v") !== 0) && (i !== ye && no(e[0]) && Ee(i, e) ? M(
+    e.indexOf("__v") !== 0) && (i !== _e && no(e[0]) && ye(i, e) ? M(
       `Property ${JSON.stringify(
         e
       )} must be accessed via $data because it starts with a reserved character ("$" or "_") and is not proxied on the render context.`
@@ -2530,7 +2530,7 @@ const Ii = (t) => t ? Za(t) ? ai(t) : Ii(t.parent) : null, gs = (
   },
   set({ _: t }, e, s) {
     const { data: n, setupState: i, ctx: o } = t;
-    return yi(i, e) ? (i[e] = s, !0) : g.NODE_ENV !== "production" && i.__isScriptSetup && Ee(i, e) ? (M(`Cannot mutate <script setup> binding "${e}" from Options API.`), !1) : n !== ye && Ee(n, e) ? (n[e] = s, !0) : Ee(t.props, e) ? (g.NODE_ENV !== "production" && M(`Attempting to mutate prop "${e}". Props are readonly.`), !1) : e[0] === "$" && e.slice(1) in t ? (g.NODE_ENV !== "production" && M(
+    return yi(i, e) ? (i[e] = s, !0) : g.NODE_ENV !== "production" && i.__isScriptSetup && ye(i, e) ? (M(`Cannot mutate <script setup> binding "${e}" from Options API.`), !1) : n !== _e && ye(n, e) ? (n[e] = s, !0) : ye(t.props, e) ? (g.NODE_ENV !== "production" && M(`Attempting to mutate prop "${e}". Props are readonly.`), !1) : e[0] === "$" && e.slice(1) in t ? (g.NODE_ENV !== "production" && M(
       `Attempting to mutate public property "${e}". Properties starting with $ are reserved and readonly.`
     ), !1) : (g.NODE_ENV !== "production" && e in t.appContext.config.globalProperties ? Object.defineProperty(o, e, {
       enumerable: !0,
@@ -2542,10 +2542,10 @@ const Ii = (t) => t ? Za(t) ? ai(t) : Ii(t.parent) : null, gs = (
     _: { data: t, setupState: e, accessCache: s, ctx: n, appContext: i, props: o, type: r }
   }, a) {
     let l;
-    return !!(s[a] || t !== ye && a[0] !== "$" && Ee(t, a) || yi(e, a) || Ee(o, a) || Ee(n, a) || Ee(gs, a) || Ee(i.config.globalProperties, a) || (l = r.__cssModules) && l[a]);
+    return !!(s[a] || t !== _e && a[0] !== "$" && ye(t, a) || yi(e, a) || ye(o, a) || ye(n, a) || ye(gs, a) || ye(i.config.globalProperties, a) || (l = r.__cssModules) && l[a]);
   },
   defineProperty(t, e, s) {
-    return s.get != null ? t._.accessCache[e] = 0 : Ee(s, "value") && this.set(t, e, s.value, null), Reflect.defineProperty(t, e, s);
+    return s.get != null ? t._.accessCache[e] = 0 : ye(s, "value") && this.set(t, e, s.value, null), Reflect.defineProperty(t, e, s);
   }
 };
 g.NODE_ENV !== "production" && ($a.ownKeys = (t) => (M(
@@ -2963,7 +2963,7 @@ function iu(t, e) {
         ), t(null, u._container), g.NODE_ENV !== "production" && (u._instance = null, _c(u)), delete u._container.__vue_app__) : g.NODE_ENV !== "production" && M("Cannot unmount an app that is not mounted.");
       },
       provide(c, d) {
-        return g.NODE_ENV !== "production" && c in o.provides && (Ee(o.provides, c) ? M(
+        return g.NODE_ENV !== "production" && c in o.provides && (ye(o.provides, c) ? M(
           `App already provides property with key "${String(c)}". It will be overwritten with the new value.`
         ) : M(
           `App already provides property with key "${String(c)}" inherited from its parent element. It will be overwritten with the new value.`
@@ -2983,7 +2983,7 @@ function iu(t, e) {
   };
 }
 let $s = null;
-function oo(t, e, s = ye) {
+function oo(t, e, s = _e) {
   const n = ri();
   if (g.NODE_ENV !== "production" && !n)
     return M("useModel() called without active instance."), /* @__PURE__ */ q();
@@ -2991,7 +2991,7 @@ function oo(t, e, s = ye) {
   if (g.NODE_ENV !== "production" && !n.propsOptions[0][i])
     return M(`useModel() called with prop "${e}" which is not declared.`), /* @__PURE__ */ q();
   const o = Yt(e), r = Ia(t, i), a = nc((l, u) => {
-    let c, d = ye, m;
+    let c, d = _e, m;
     return Ac(() => {
       const h = t[i];
       st(c, h) && (c = h, u());
@@ -3001,7 +3001,7 @@ function oo(t, e, s = ye) {
       },
       set(h) {
         const v = s.set ? s.set(h) : h;
-        if (!st(v, c) && !(d !== ye && st(h, d)))
+        if (!st(v, c) && !(d !== _e && st(h, d)))
           return;
         const E = n.vnode.props;
         E && // check if parent has passed v-model
@@ -3013,7 +3013,7 @@ function oo(t, e, s = ye) {
     let l = 0;
     return {
       next() {
-        return l < 2 ? { value: l++ ? r || ye : a, done: !1 } : { done: !0 };
+        return l < 2 ? { value: l++ ? r || _e : a, done: !1 } : { done: !0 };
       }
     };
   }, a;
@@ -3021,7 +3021,7 @@ function oo(t, e, s = ye) {
 const Ia = (t, e) => e === "modelValue" || e === "model-value" ? t.modelModifiers : t[`${e}Modifiers`] || t[`${ut(e)}Modifiers`] || t[`${Yt(e)}Modifiers`];
 function ou(t, e, ...s) {
   if (t.isUnmounted) return;
-  const n = t.vnode.props || ye;
+  const n = t.vnode.props || _e;
   if (g.NODE_ENV !== "production") {
     const {
       emitsOptions: c,
@@ -3091,7 +3091,7 @@ function Ra(t, e, s = !1) {
   return !o && !a ? (ve(t) && n.set(t, null), null) : (z(o) ? o.forEach((l) => r[l] = null) : Ve(r, o), ve(t) && n.set(t, r), r);
 }
 function oi(t, e) {
-  return !t || !an(e) ? !1 : (e = e.slice(2).replace(/Once$/, ""), Ee(t, e[0].toLowerCase() + e.slice(1)) || Ee(t, Yt(e)) || Ee(t, e));
+  return !t || !an(e) ? !1 : (e = e.slice(2).replace(/Once$/, ""), ye(t, e[0].toLowerCase() + e.slice(1)) || ye(t, Yt(e)) || ye(t, e));
 }
 let ki = !1;
 function Wn() {
@@ -3307,7 +3307,7 @@ function pu(t, e, s, n) {
           continue;
         const h = e[m];
         if (l)
-          if (Ee(o, m))
+          if (ye(o, m))
             h !== o[m] && (o[m] = h, u = !0);
           else {
             const v = ut(m);
@@ -3329,9 +3329,9 @@ function pu(t, e, s, n) {
     let c;
     for (const d in a)
       (!e || // for camelCase
-      !Ee(e, d) && // it's possible the original props was passed in as kebab-case
+      !ye(e, d) && // it's possible the original props was passed in as kebab-case
       // and converted to camelCase (#955)
-      ((c = Yt(d)) === d || !Ee(e, c))) && (l ? s && // for camelCase
+      ((c = Yt(d)) === d || !ye(e, c))) && (l ? s && // for camelCase
       (s[d] !== void 0 || // for kebab-case
       s[c] !== void 0) && (i[d] = Pi(
         l,
@@ -3343,7 +3343,7 @@ function pu(t, e, s, n) {
       )) : delete i[d]);
     if (o !== a)
       for (const d in o)
-        (!e || !Ee(e, d)) && (delete o[d], u = !0);
+        (!e || !ye(e, d)) && (delete o[d], u = !0);
   }
   u && Vt(t.attrs, "set", ""), g.NODE_ENV !== "production" && qa(e || {}, i, t);
 }
@@ -3356,10 +3356,10 @@ function Ua(t, e, s, n) {
         continue;
       const u = e[l];
       let c;
-      i && Ee(i, c = ut(l)) ? !o || !o.includes(c) ? s[c] = u : (a || (a = {}))[c] = u : oi(t.emitsOptions, l) || (!(l in n) || u !== n[l]) && (n[l] = u, r = !0);
+      i && ye(i, c = ut(l)) ? !o || !o.includes(c) ? s[c] = u : (a || (a = {}))[c] = u : oi(t.emitsOptions, l) || (!(l in n) || u !== n[l]) && (n[l] = u, r = !0);
     }
   if (o) {
-    const l = /* @__PURE__ */ ce(s), u = a || ye;
+    const l = /* @__PURE__ */ ce(s), u = a || _e;
     for (let c = 0; c < o.length; c++) {
       const d = o[c];
       s[d] = Pi(
@@ -3368,7 +3368,7 @@ function Ua(t, e, s, n) {
         d,
         u[d],
         t,
-        !Ee(u, d)
+        !ye(u, d)
       );
     }
   }
@@ -3377,7 +3377,7 @@ function Ua(t, e, s, n) {
 function Pi(t, e, s, n, i, o) {
   const r = t[s];
   if (r != null) {
-    const a = Ee(r, "default");
+    const a = ye(r, "default");
     if (a && n === void 0) {
       const l = r.default;
       if (r.type !== Function && !r.skipFactory && Z(l)) {
@@ -3426,7 +3426,7 @@ function ja(t, e, s = !1) {
     for (let c = 0; c < o.length; c++) {
       g.NODE_ENV !== "production" && !Me(o[c]) && M("props must be strings when using array syntax.", o[c]);
       const d = ut(o[c]);
-      Go(d) && (r[d] = ye);
+      Go(d) && (r[d] = _e);
     }
   else if (o) {
     g.NODE_ENV !== "production" && !ve(o) && M("invalid props options", o);
@@ -3451,7 +3451,7 @@ function ja(t, e, s = !1) {
         ] = E, h[
           1
           /* shouldCastTrue */
-        ] = y, (E || Ee(h, "default")) && a.push(d);
+        ] = y, (E || ye(h, "default")) && a.push(d);
       }
     }
   }
@@ -3571,7 +3571,7 @@ const ao = (t) => t === "_" || t === "_ctx" || t === "$stable", lo = (t) => z(t)
   } else e && Wa(t, e);
 }, Nu = (t, e, s) => {
   const { vnode: n, slots: i } = t;
-  let o = !0, r = ye;
+  let o = !0, r = _e;
   if (n.shapeFlag & 32) {
     const a = e._;
     a ? g.NODE_ENV !== "production" && ht ? (Bi(i, e, s), Vt(t, "set", "$slots")) : s && a === 1 ? o = !1 : Bi(i, e, s) : (o = !e.$stable, Ha(e, i)), r = e;
@@ -3828,7 +3828,7 @@ function Cu(t, e) {
     g.NODE_ENV !== "production" && (F.__vnode = b);
     let { patchFlag: k, dynamicChildren: A, dirs: X } = b;
     k |= p.patchFlag & 16;
-    const j = p.props || ye, G = b.props || ye;
+    const j = p.props || _e, G = b.props || _e;
     let ie;
     if (N && as(N, !1), (ie = G.onVnodeBeforeUpdate) && Ot(ie, N, b, p), X && rs(b, p, N, "beforeUpdate"), N && as(N, !0), g.NODE_ENV !== "production" && ht && (k = 0, U = !1, A = null), (j.innerHTML && G.innerHTML == null || j.textContent && G.textContent == null) && c(F, ""), A ? (me(
       p.dynamicChildren,
@@ -3893,7 +3893,7 @@ function Cu(t, e) {
     }
   }, w = (p, b, N, V, D) => {
     if (b !== N) {
-      if (b !== ye)
+      if (b !== _e)
         for (const O in b)
           !Ks(O) && !(O in N) && o(
             p,
@@ -4794,17 +4794,17 @@ function Lu(t, e, s) {
     // to be set immediately
     emitted: null,
     // props default value
-    propsDefaults: ye,
+    propsDefaults: _e,
     // inheritAttrs
     inheritAttrs: n.inheritAttrs,
     // state
-    ctx: ye,
-    data: ye,
-    props: ye,
-    attrs: ye,
-    slots: ye,
-    refs: ye,
-    setupState: ye,
+    ctx: _e,
+    data: _e,
+    props: _e,
+    attrs: _e,
+    slots: _e,
+    refs: _e,
+    setupState: _e,
     setupContext: null,
     // suspense related
     suspense: s,
@@ -5113,7 +5113,7 @@ function Ku() {
   };
   function o(d) {
     const m = [];
-    d.type.props && d.props && m.push(r("props", /* @__PURE__ */ ce(d.props))), d.setupState !== ye && m.push(r("setup", d.setupState)), d.data !== ye && m.push(r("data", /* @__PURE__ */ ce(d.data)));
+    d.type.props && d.props && m.push(r("props", /* @__PURE__ */ ce(d.props))), d.setupState !== _e && m.push(r("setup", d.setupState)), d.data !== _e && m.push(r("data", /* @__PURE__ */ ce(d.data)));
     const h = l(d, "computed");
     h && m.push(r("computed", h));
     const v = l(d, "inject");
@@ -9378,7 +9378,7 @@ class fs {
     return new To();
   }
 }
-class _e {
+class Ee {
   static COMMITTED_START_TAG = "<committed>";
   static COMMITTED_END_TAG = "</committed>";
   static COMMIT_START_TAG = "<commit>";
@@ -9389,7 +9389,7 @@ class _e {
     const s = SillyTavern.getContext()?.chat || [], n = [];
     for (const i of s)
       if (i.mes) {
-        const o = this.extractTagContent(i.mes, _e.COMMITTED_START_TAG, _e.COMMITTED_END_TAG);
+        const o = this.extractTagContent(i.mes, Ee.COMMITTED_START_TAG, Ee.COMMITTED_END_TAG);
         o && n.push(o);
       }
     return n;
@@ -9408,10 +9408,10 @@ class _e {
     o?.saveChat();
   }
   static processCommit(e, s) {
-    return _e.processMessage(e, _e.COMMIT_START_TAG, _e.COMMIT_END_TAG, s);
+    return Ee.processMessage(e, Ee.COMMIT_START_TAG, Ee.COMMIT_END_TAG, s);
   }
   static processCommitted(e, s) {
-    return _e.processMessage(e, _e.COMMITTED_START_TAG, _e.COMMITTED_END_TAG, s);
+    return Ee.processMessage(e, Ee.COMMITTED_START_TAG, Ee.COMMITTED_END_TAG, s);
   }
   static processLastCommitted(e) {
     const s = SillyTavern.getContext();
@@ -9431,36 +9431,36 @@ class _e {
       role: "assistant",
       mes: "",
       date: Date.now()
-    }), _e.processMessage(s?.chat.length - 1, _e.ERROR_START_TAG, _e.ERROR_END_TAG, e);
+    }), Ee.processMessage(s?.chat.length - 1, Ee.ERROR_START_TAG, Ee.ERROR_END_TAG, e);
   }
   static extractCommit(e) {
-    return this.extractTagContent(e, _e.COMMIT_START_TAG, _e.COMMIT_END_TAG);
+    return this.extractTagContent(e, Ee.COMMIT_START_TAG, Ee.COMMIT_END_TAG);
   }
   static extractCommitted(e) {
-    return this.extractTagContent(e, _e.COMMITTED_START_TAG, _e.COMMITTED_END_TAG);
+    return this.extractTagContent(e, Ee.COMMITTED_START_TAG, Ee.COMMITTED_END_TAG);
   }
   static replaceCommitWithCommitted(e, s) {
     const n = SillyTavern.getContext(), o = (n?.chat || [])[e];
     if (!o)
       return;
     let r = o.mes || "";
-    const a = r.lastIndexOf(_e.COMMIT_END_TAG);
+    const a = r.lastIndexOf(Ee.COMMIT_END_TAG);
     if (a !== -1) {
-      const u = r.lastIndexOf(_e.COMMIT_START_TAG, a);
+      const u = r.lastIndexOf(Ee.COMMIT_START_TAG, a);
       if (u !== -1) {
-        const c = r.substring(0, u), d = r.substring(a + _e.COMMIT_END_TAG.length), m = /\s$/.test(c), h = /^\s/.test(d);
+        const c = r.substring(0, u), d = r.substring(a + Ee.COMMIT_END_TAG.length), m = /\s$/.test(c), h = /^\s/.test(d);
         m && h ? r = c.replace(/\s$/, "") + d : r = c + d;
       }
     }
-    const l = r.lastIndexOf(_e.COMMITTED_END_TAG);
+    const l = r.lastIndexOf(Ee.COMMITTED_END_TAG);
     if (l !== -1) {
-      const u = r.lastIndexOf(_e.COMMITTED_START_TAG, l);
+      const u = r.lastIndexOf(Ee.COMMITTED_START_TAG, l);
       if (u !== -1) {
-        const c = r.substring(0, u), d = r.substring(l + _e.COMMITTED_END_TAG.length);
-        r = c + _e.COMMITTED_START_TAG + s + _e.COMMITTED_END_TAG + d;
+        const c = r.substring(0, u), d = r.substring(l + Ee.COMMITTED_END_TAG.length);
+        r = c + Ee.COMMITTED_START_TAG + s + Ee.COMMITTED_END_TAG + d;
       }
     } else
-      r = r + _e.COMMITTED_START_TAG + s + _e.COMMITTED_END_TAG;
+      r = r + Ee.COMMITTED_START_TAG + s + Ee.COMMITTED_END_TAG;
     o.mes = r, n?.saveChat();
   }
   static extractTagContent(e, s, n) {
@@ -9547,6 +9547,8 @@ class $r {
 }
 class Ar {
   tableTemplate;
+  cachedStorage = null;
+  cachedCommittedHash = "";
   constructor(e) {
     this.tableTemplate = e.clone();
   }
@@ -9608,37 +9610,51 @@ class Ar {
   }
   executeDml(e) {
     const s = this.compressDml(e);
-    return _e.processLastCommitted((n) => {
+    return Ee.processLastCommitted((n) => {
       const i = n || "";
       return `<committed>${i ? `${i};
 ${s}` : s}</committed>`;
-    }), e.split(";").map((n) => n.trim()).filter((n) => n.length > 0).length;
+    }), this.invalidateStorageCache(), e.split(";").map((n) => n.trim()).filter((n) => n.length > 0).length;
+  }
+  invalidateStorageCache() {
+    this.cachedStorage = null, this.cachedCommittedHash = "";
+  }
+  computeCommittedHash() {
+    return Ee.getCommitted().join("|");
   }
   export(e, s) {
     return this.storage.export(e, s);
   }
   get storage() {
-    const e = _e.getCommitted(), s = this.tableTemplate.clone();
-    if (e.length === 0)
-      return s;
-    const n = [], i = [];
-    for (const o of e) {
-      const r = o.split(";").map((a) => a.trim()).filter((a) => a.length > 0);
-      for (const a of r)
+    const e = this.computeCommittedHash();
+    if (console.log("[ChatSqlExecutor] Getting storage, cache hit:", !!this.cachedStorage && this.cachedCommittedHash === e), this.cachedStorage && this.cachedCommittedHash === e)
+      return this.cachedStorage;
+    console.log("[ChatSqlExecutor] Rebuilding storage from committed...");
+    const s = Ee.getCommitted();
+    console.log("[ChatSqlExecutor] Committed items count:", s.length);
+    const n = this.tableTemplate.clone();
+    if (s.length === 0)
+      return this.cachedStorage = n, this.cachedCommittedHash = e, n;
+    const i = [], o = [];
+    let r = 0;
+    for (const a of s) {
+      const l = a.split(";").map((u) => u.trim()).filter((u) => u.length > 0);
+      for (const u of l)
         try {
-          const l = this.decompressDml(a);
-          s.execute(l, [ee.DML]), n.push(a);
-        } catch {
-          i.push(a);
+          r++, r % 100 === 0 && console.log(`[ChatSqlExecutor] Processed ${r} statements...`);
+          const c = this.decompressDml(u);
+          n.execute(c, [ee.DML]), i.push(u);
+        } catch (c) {
+          console.error("[ChatSqlExecutor] Error executing statement:", u, c), o.push(u);
         }
     }
-    if (i.length > 0) {
-      const o = n.join(`;
-`), r = i.join(`;
+    if (o.length > 0) {
+      const a = i.join(`;
+`), l = o.join(`;
 `);
-      n.length > 0 ? _e.processLastCommitted(() => `<committed>${o}</committed><error>${r}</error>`) : _e.processLastCommitted(() => `<error>${r}</error>`);
+      i.length > 0 ? Ee.processLastCommitted(() => `<committed>${a}</committed><error>${l}</error>`) : Ee.processLastCommitted(() => `<error>${l}</error>`);
     }
-    return s;
+    return console.log("[ChatSqlExecutor] Storage rebuilt successfully"), this.cachedStorage = n, this.cachedCommittedHash = e, n;
   }
   getDataStorage() {
     return this.storage.getDataStorage();
@@ -9936,15 +9952,15 @@ class Xs {
     const i = (SillyTavern.getContext().chat || [])[e];
     if (!i || !i.mes)
       return;
-    const o = _e.extractCommit(i.mes);
+    const o = Ee.extractCommit(i.mes);
     if (o)
       try {
-        const a = Pe.instance.tableTemplate.compressDml(o), l = _e.extractCommitted(i.mes);
+        const a = Pe.instance.tableTemplate.compressDml(o), l = Ee.extractCommitted(i.mes);
         let u = "";
         l && (u = l);
         const c = u ? `${u};
 ${a}` : a;
-        _e.replaceCommitWithCommitted(e, c);
+        Ee.replaceCommitWithCommitted(e, c);
       } catch (r) {
         console.error("[ChatMessageHandler] Failed to compress commit:", r);
         return;
