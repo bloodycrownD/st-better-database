@@ -117,9 +117,13 @@ export class ChatSqlExecutor implements SqlExecutor {
     }
 
     private executeDml(sql: string): number {
-        const compressedDml = this.compressDml(sql);
-        console.log('[ChatSqlExecutor] executeDml: original SQL length:', sql.length, 'compressed length:', compressedDml.length);
+        const filteredSql = this.filterUnsupportedSyntax(sql);
+        const compressedDml = this.compressDml(filteredSql);
+        console.log('[ChatSqlExecutor] executeDml: original SQL length:', sql.length, 'filtered length:', filteredSql.length, 'compressed length:', compressedDml.length);
         console.log('[ChatSqlExecutor] executeDml: statements count:', sql.split(';').filter(s => s.trim()).length);
+        if (sql !== filteredSql) {
+            console.log('[ChatSqlExecutor] executeDml: SQL was filtered to remove unsupported syntax');
+        }
         ChatMessageManager.processLastCommitted(content => {
             const origin = content || '';
             const originLength = origin.length;
@@ -129,6 +133,14 @@ export class ChatSqlExecutor implements SqlExecutor {
         });
         this.invalidateStorageCache();
         return sql.split(';').map(s => s.trim()).filter(s => s.length > 0).length;
+    }
+
+    private filterUnsupportedSyntax(sql: string): string {
+        let result = sql;
+        result = result.replace(/\s+ON\s+CONFLICT\s+\([^)]+\)\s+DO\s+UPDATE\s+SET\s+[^;]+/gi, '');
+        result = result.replace(/\s+OR\s+REPLACE/gi, '');
+        result = result.replace(/\s+OR\s+IGNORE/gi, '');
+        return result.trim();
     }
 
     private invalidateStorageCache(): void {
