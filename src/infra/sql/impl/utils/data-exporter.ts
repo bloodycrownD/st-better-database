@@ -76,7 +76,13 @@ export class DataExporter {
                 if (value === null) {
                     values.push('NULL');
                 } else if (typeof value === 'string') {
-                    values.push(`'${value.replace(/'/g, "''")}'`);
+                    const escapedValue = value
+                        .replace(/\\/g, '\\\\')
+                        .replace(/'/g, "''")
+                        .replace(/\n/g, '\\n')
+                        .replace(/\r/g, '\\r')
+                        .replace(/\t/g, '\\t');
+                    values.push(`'${escapedValue}'`);
                 } else {
                     values.push(String(value));
                 }

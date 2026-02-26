@@ -178,27 +178,30 @@ export class ChatSqlExecutor implements SqlExecutor {
                         console.log(`[ChatSqlExecutor] Processed ${statementIndex} statements...`);
                     }
                     const dml = this.decompressDml(stmt);
-                    if (statementIndex === 1 || statementIndex % 500 === 0) {
-                        console.log(`[ChatSqlExecutor] Statement ${statementIndex} decompressed (first 100 chars):`, dml.substring(0, 100));
+                    if (statementIndex <= 10 || statementIndex % 500 === 0) {
+                        console.log(`[ChatSqlExecutor] Statement ${statementIndex}:`);
+                        console.log(`  Compressed (first 150 chars): ${stmt.substring(0, 150)}`);
+                        console.log(`  Decompressed (first 150 chars): ${dml.substring(0, 150)}`);
+                        console.log(`  Full length: Compressed=${stmt.length}, Decompressed=${dml.length}`);
                     }
                     sqlExecutor.execute(dml, [SqlType.DML]);
                     validStatements.push(stmt);
                 } catch (error) {
                     console.error('[ChatSqlExecutor] Error executing statement:', stmt, error);
+                    console.error('[ChatSqlExecutor] Full decompressed statement:', this.decompressDml(stmt));
                     errorStatements.push(stmt);
                 }
             }
         }
 
         if (errorStatements.length > 0) {
-            const newCommitted = validStatements.join(';\n');
             const errors = errorStatements.join(';\n');
             console.log('[ChatSqlExecutor] Found errors during rebuild. Valid:', validStatements.length, 'Error:', errorStatements.length);
 
             ChatMessageManager.processLastCommitted((existingContent) => {
-                console.log('[ChatSqlExecutor] Updating last committed. Existing content length:', existingContent?.length);
-                const result = `<committed>${newCommitted}</committed><error>${errors}</error>`;
-                console.log('[ChatSqlExecutor] New content length:', result.length);
+                console.log('[ChatSqlExecutor] Updating last committed to remove error statements. Existing content length:', existingContent?.length);
+                const result = `<committed>${existingContent}</committed><error>${errors}</error>`;
+                console.log('[ChatSqlExecutor] New content length (with error tag):', result.length);
                 return result;
             });
         }
