@@ -7895,10 +7895,13 @@ class sm {
    * 跳过注释
    */
   skipComment() {
-    if (this.peek() === "-" && this.peek(1) === "-")
-      for (; this.pos < this.length && this.peek() !== `
+    for (; this.peek() === "-" && this.peek(1) === "-"; ) {
+      for (this.pos += 2; this.pos < this.length && this.peek() !== `
 `; )
         this.pos++;
+      this.pos < this.length && this.peek() === `
+` && this.pos++, this.skipWhitespace();
+    }
   }
   /**
    * 读取标识符或关键字
