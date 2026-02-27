@@ -1,8 +1,8 @@
 <template>
   <div class="data-form-wrapper" :style="modalStyle">
-    <PopupModal :visible="true" :title="title" :width="computedModalWidth" :height="modalHeight" :closable="false"
+    <PopupModal :visible="visible" :title="title" :width="computedModalWidth" :height="modalHeight" :closable="false"
                 @close="handleCancel">
-      <div v-if="isInitialized" class="data-form">
+      <div class="data-form">
         <div class="form-content">
           <div v-for="column in columns" :key="column.name" class="form-item">
             <label class="form-label">
@@ -30,9 +30,6 @@
           <Button type="primary" @click="handleSubmit">确定</Button>
         </div>
       </div>
-      <div v-else class="loading-container">
-        <div class="loading-spinner"></div>
-      </div>
     </PopupModal>
   </div>
 </template>
@@ -45,6 +42,7 @@ import AutoResizeTextarea from '@/app/components/pure-components/AutoResizeTexta
 import type {ColumnSchema, SqlValue} from '@/infra/sql';
 
 interface Props {
+  visible?: boolean;
   columns: ColumnSchema[];
   initialData?: any;
   title?: string;
@@ -53,6 +51,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  visible: true,
   title: '数据表单',
   modalWidth: '50vw',
   modalHeight: 'auto'
@@ -96,29 +95,20 @@ const modalStyle = computed(() => {
 const formData = reactive<Record<string, SqlValue>>({});
 const initialFormData = reactive<Record<string, SqlValue>>({});
 const modifiedFields = new Set<string>();
-const isInitialized = ref(false);
 
 const initFormData = () => {
   modifiedFields.clear();
-  isInitialized.value = false;
-  
-  requestAnimationFrame(() => {
-    props.columns.forEach(column => {
-      let value: SqlValue;
-      if (props.initialData && props.initialData[column.name] !== undefined) {
-        value = props.initialData[column.name];
-      } else if (column.defaultValue !== undefined) {
-        value = column.defaultValue;
-      } else {
-        value = '' as SqlValue;
-      }
-      formData[column.name] = value;
-      initialFormData[column.name] = value;
-    });
-    
-    requestAnimationFrame(() => {
-      isInitialized.value = true;
-    });
+  props.columns.forEach(column => {
+    let value: SqlValue;
+    if (props.initialData && props.initialData[column.name] !== undefined) {
+      value = props.initialData[column.name];
+    } else if (column.defaultValue !== undefined) {
+      value = column.defaultValue;
+    } else {
+      value = '' as SqlValue;
+    }
+    formData[column.name] = value;
+    initialFormData[column.name] = value;
   });
 };
 
@@ -198,8 +188,16 @@ const handleCancel = () => {
   emit('cancel');
 };
 
+watch(() => props.visible, (newVisible) => {
+  if (newVisible) {
+    initFormData();
+  }
+});
+
 watch(() => props.initialData, () => {
-  initFormData();
+  if (props.visible) {
+    initFormData();
+  }
 }, {immediate: true});
 </script>
 
@@ -281,31 +279,6 @@ watch(() => props.initialData, () => {
   margin-top: -4px;
   line-height: 1.5;
   padding-left: 2px;
-}
-
-.loading-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 300px;
-}
-
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid color-mix(in srgb, var(--SmartThemeBorderColor) 50%, transparent);
-  border-top: 4px solid var(--SmartThemeEmColor);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
 }
 
 .form-actions {

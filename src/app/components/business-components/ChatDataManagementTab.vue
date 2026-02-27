@@ -82,7 +82,8 @@
     />
 
     <DataForm
-        v-if="showAddDataModal"
+        v-show="showAddDataModal"
+        :visible="showAddDataModal"
         title="添加数据"
         :columns="columnList"
         modal-width="50vw"
@@ -91,10 +92,11 @@
     />
 
     <DataForm
-        v-if="showEditDataModal && editingData"
+        v-show="showEditDataModal"
+        :visible="showEditDataModal"
         title="编辑数据"
         :columns="columnList"
-        :initial-data="editingData.row"
+        :initial-data="editingData?.row"
         modal-width="50vw"
         @submit="handleEditData"
         @cancel="showEditDataModal = false"
