@@ -2,7 +2,7 @@
   <div class="data-form-wrapper" :style="modalStyle">
     <PopupModal :visible="true" :title="title" :width="computedModalWidth" :height="modalHeight" :closable="false"
                 @close="handleCancel">
-      <div class="data-form">
+      <div v-if="isInitialized" class="data-form">
         <div class="form-content">
           <div v-for="column in columns" :key="column.name" class="form-item">
             <label class="form-label">
@@ -11,14 +11,15 @@
             </label>
             <input
                 v-if="!isTextType(column.type)"
-                v-model="formData[column.name]"
+                :value="formData[column.name]"
+                @input="handleFieldChange(column.name, $event)"
                 :type="getInputType(column.type)"
                 class="form-input"
             />
             <AutoResizeTextarea
                 v-else
                 :model-value="String(formData[column.name] || '')"
-                @update:model-value="(val: string) => formData[column.name] = val"
+                @update:model-value="(val: string) => handleFieldChange(column.name, val)"
                 :min-rows="1"
                 :max-rows="10"
             />
@@ -28,6 +29,9 @@
           <Button @click="handleCancel">取消</Button>
           <Button type="primary" @click="handleSubmit">确定</Button>
         </div>
+      </div>
+      <div v-else class="loading-container">
+        <div class="loading-spinner"></div>
       </div>
     </PopupModal>
   </div>
@@ -90,16 +94,31 @@ const modalStyle = computed(() => {
 });
 
 const formData = reactive<Record<string, SqlValue>>({});
+const initialFormData = reactive<Record<string, SqlValue>>({});
+const modifiedFields = new Set<string>();
+const isInitialized = ref(false);
 
 const initFormData = () => {
-  props.columns.forEach(column => {
-    if (props.initialData && props.initialData[column.name] !== undefined) {
-      formData[column.name] = props.initialData[column.name];
-    } else if (column.defaultValue !== undefined) {
-      formData[column.name] = column.defaultValue;
-    } else {
-      formData[column.name] = '' as SqlValue;
-    }
+  modifiedFields.clear();
+  isInitialized.value = false;
+  
+  requestAnimationFrame(() => {
+    props.columns.forEach(column => {
+      let value: SqlValue;
+      if (props.initialData && props.initialData[column.name] !== undefined) {
+        value = props.initialData[column.name];
+      } else if (column.defaultValue !== undefined) {
+        value = column.defaultValue;
+      } else {
+        value = '' as SqlValue;
+      }
+      formData[column.name] = value;
+      initialFormData[column.name] = value;
+    });
+    
+    requestAnimationFrame(() => {
+      isInitialized.value = true;
+    });
   });
 };
 
@@ -118,9 +137,35 @@ const getInputType = (columnType: string): string => {
   return 'text';
 };
 
+const handleFieldChange = (columnName: string, event: Event | string) => {
+  let newValue: SqlValue;
+  
+  if (typeof event === 'string') {
+    newValue = event as SqlValue;
+  } else {
+    const target = event.target as HTMLInputElement;
+    newValue = target.type === 'number' ? parseFloat(target.value) as SqlValue : target.value as SqlValue;
+  }
+  
+  formData[columnName] = newValue;
+  
+  const initialValue = initialFormData[columnName];
+  if (String(newValue) !== String(initialValue)) {
+    modifiedFields.add(columnName);
+  } else {
+    modifiedFields.delete(columnName);
+  }
+};
+
 const handleSubmit = () => {
   const data = new Map<string, SqlValue>();
+  const isEditMode = props.initialData !== undefined;
+  
   props.columns.forEach(column => {
+    if (isEditMode && !modifiedFields.has(column.name)) {
+      return;
+    }
+    
     let rawValue = formData[column.name];
     let value: SqlValue;
 
@@ -236,6 +281,31 @@ watch(() => props.initialData, () => {
   margin-top: -4px;
   line-height: 1.5;
   padding-left: 2px;
+}
+
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid color-mix(in srgb, var(--SmartThemeBorderColor) 50%, transparent);
+  border-top: 4px solid var(--SmartThemeEmColor);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .form-actions {
