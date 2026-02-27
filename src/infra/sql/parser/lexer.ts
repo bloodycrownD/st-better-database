@@ -60,10 +60,15 @@ export class Lexer {
      * 跳过注释
      */
     private skipComment(): void {
-        if (this.peek() === '-' && this.peek(1) === '-') {
+        while (this.peek() === '-' && this.peek(1) === '-') {
+            this.pos += 2;
             while (this.pos < this.length && this.peek() !== '\n') {
                 this.pos++;
             }
+            if (this.pos < this.length && this.peek() === '\n') {
+                this.pos++;
+            }
+            this.skipWhitespace();
         }
     }
 
