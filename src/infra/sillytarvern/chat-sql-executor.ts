@@ -8,12 +8,9 @@ import {
 } from "@/infra/sql";
 import {ChatMessageManager} from '@/infra/sillytarvern/message/chat-message-manager.ts';
 import {CompactSqlConverter} from '@/infra/sql/impl/utils/compact-sql-converter.ts';
-import {logger} from '@/infra/logger.ts';
 
 export class ChatSqlExecutor implements SqlExecutor {
     private readonly tableTemplate: SqlExecutor;
-    private cachedStorage: SqlExecutor | null = null;
-    private cachedCommittedHash: string = '';
 
     constructor(tableTemplate: SqlExecutor) {
         this.tableTemplate = tableTemplate.clone();
@@ -118,31 +115,13 @@ export class ChatSqlExecutor implements SqlExecutor {
     }
 
     private executeDml(sql: string): number {
-        const filteredSql = this.filterUnsupportedSyntax(sql);
-        const compressedDml = this.compressDml(filteredSql);
-        if (sql !== filteredSql) {
-            console.log('[ChatSqlExecutor] executeDml: SQL was filtered to remove unsupported syntax');
-        }
+        const compressedDml = this.compressDml(sql);
         ChatMessageManager.processLastCommitted(content => {
             const origin = content || '';
             const newCommitted = origin ? `${origin};\n${compressedDml}` : compressedDml;
             return `<committed>${newCommitted}</committed>`;
         });
-        this.invalidateStorageCache();
         return sql.split(';').map(s => s.trim()).filter(s => s.length > 0).length;
-    }
-
-    private filterUnsupportedSyntax(sql: string): string {
-        let result = sql;
-        result = result.replace(/\s+ON\s+CONFLICT\s+\([^)]+\)\s+DO\s+UPDATE\s+SET\s+[^;]+/gi, '');
-        result = result.replace(/\s+OR\s+REPLACE/gi, '');
-        result = result.replace(/\s+OR\s+IGNORE/gi, '');
-        return result.trim();
-    }
-
-    private invalidateStorageCache(): void {
-        this.cachedStorage = null;
-        this.cachedCommittedHash = '';
     }
 
     export(format: ExportFormat, table?: string): string {
@@ -150,28 +129,9 @@ export class ChatSqlExecutor implements SqlExecutor {
     }
 
     private get storage() {
-        const startTime = performance.now();
         const committedMap = ChatMessageManager.getCommitted();
-        const hashParts: string[] = [];
-        for (const [idx, content] of committedMap.entries()) {
-            hashParts.push(`${idx}:${content.length}`);
-        }
-        const currentHash = hashParts.join('|');
-        if (this.cachedStorage && this.cachedCommittedHash === currentHash) {
-            logger.debug('ChatSqlExecutor', 'Cache hit - hash: ' + currentHash);
-            return this.cachedStorage;
-        }
-        logger.debug('ChatSqlExecutor', 'Cache miss - old hash: ' + this.cachedCommittedHash + ', new hash: ' + currentHash);
-        logger.debug('ChatSqlExecutor', 'Committed SQL count: ' + committedMap.size);
         const sqlExecutor = this.tableTemplate.clone();
 
-        if (committedMap.size === 0) {
-        this.cachedStorage = sqlExecutor;
-        this.cachedCommittedHash = currentHash;
-        const endTime = performance.now();
-        logger.debug('ChatSqlExecutor', 'Storage get time: ' + (endTime - startTime) + 'ms');
-        return sqlExecutor;
-    }
         for (const [idx, committedContent] of committedMap.entries()) {
             try {
                 sqlExecutor.execute(this.decompressDml(committedContent), [SqlType.DML]);
@@ -182,8 +142,6 @@ export class ChatSqlExecutor implements SqlExecutor {
             }
         }
 
-        this.cachedStorage = sqlExecutor;
-        this.cachedCommittedHash = currentHash;
         return sqlExecutor;
     }
 
