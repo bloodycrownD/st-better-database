@@ -1,8 +1,9 @@
-import {ChatSqlExecutor} from '@/infra/sql';
+import {ChatSqlExecutor, SqlType} from '@/infra/sql';
 import {ChatMessageManager} from '@/infra/sillytarvern/message/chat-message-manager.ts';
 import {ChatMetaManager} from "@/infra/sillytarvern/persistent/chat-meta-manager.ts";
 import {ExtensionSettingManager} from "@/infra/sillytarvern/persistent/extension-setting-manager.ts";
 import {TemplateRenderer} from '@/infra/sillytarvern/template-render';
+import {ToastUtil} from '@/utils/toast-utils.ts';
 
 export class ChatMessageHandler {
     private static instance: ChatMessageHandler;
@@ -74,11 +75,20 @@ export class ChatMessageHandler {
                 existingCommitted = committedContent;
             }
 
+            const testExecutor = tableTemplate.clone();
+            if (existingCommitted) {
+                testExecutor.execute(tableTemplate.decompressDml(existingCommitted), [SqlType.DML]);
+            }
+            testExecutor.execute(commitContent, [SqlType.DML]);
+
             const newCommitted = existingCommitted ? `${existingCommitted};\n${compressedDml}` : compressedDml;
 
             ChatMessageManager.replaceCommitWithCommitted(messageId, newCommitted);
         } catch (error) {
-            console.error('[ChatMessageHandler] Failed to compress commit:', error);
+            const errorMessage = error instanceof Error ? error.message : '未知错误';
+            console.error('[ChatMessageHandler] Failed to execute DML:', error);
+            ToastUtil.error(`消息 ${messageId} 的 DML 执行失败: ${errorMessage}`);
+            ChatMessageManager.replaceCommitWithError(messageId, commitContent);
             return;
         }
     }

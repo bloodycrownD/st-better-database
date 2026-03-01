@@ -211,3 +211,28 @@ describe('Parser - CREATE TABLE with Comments', () => {
     });
 });
 
+describe('Parser - Protection Mechanisms', () => {
+    it('should throw timeout error for infinite loop', () => {
+        const sql = 'UPDATE @t0 SET @t3c1 = "test" WHERE @t2c0 = "value"';
+        const result = Parser.parse(sql);
+
+        expect(result.errors.length).toBeGreaterThan(0);
+        expect(result.errors[0]).toContain('Unexpected character');
+    });
+
+    it('should reject unknown characters quickly', () => {
+        const sql = 'UPDATE users SET name = @invalid_syntax';
+        const result = Parser.parse(sql);
+
+        expect(result.errors.length).toBeGreaterThan(0);
+        expect(result.errors[0]).toContain('Unexpected character');
+    });
+
+    it('should handle multiple errors without hanging', () => {
+        const sql = 'UPDATE @t1 SET @x = 1; UPDATE @t2 SET @y = 2; UPDATE @t3 SET @z = 3;';
+        const result = Parser.parse(sql);
+
+        expect(result.errors.length).toBeGreaterThan(0);
+    });
+});
+

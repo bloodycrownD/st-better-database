@@ -25,11 +25,16 @@ export class Parser {
     private current: Token;
     private peekToken: Token;
     private errors: string[] = [];
+    private errorCount = 0;
+    private startTime: number;
+    private static readonly MAX_ERRORS = 100;
+    private static readonly TIMEOUT_MS = 5000;
 
     constructor(lexer: Lexer) {
         this.lexer = lexer;
         this.current = this.lexer.nextToken();
         this.peekToken = this.lexer.nextToken();
+        this.startTime = performance.now();
     }
 
     /**
@@ -824,6 +829,14 @@ export class Parser {
         const errors: string[] = [];
 
         while (!this.isCurrentType(TokenType.EOF)) {
+            if (performance.now() - this.startTime > Parser.TIMEOUT_MS) {
+                throw new Error(`Parser timeout after ${Parser.TIMEOUT_MS}ms. Possible infinite loop detected.`);
+            }
+
+            if (this.errorCount >= Parser.MAX_ERRORS) {
+                throw new Error(`Parser exceeded maximum error limit (${Parser.MAX_ERRORS}). Too many syntax errors.`);
+            }
+
             try {
                 const statement = this.parseStatement();
                 if (statement) {
@@ -832,10 +845,12 @@ export class Parser {
                 if (!this.matchValue(';')) {
                     if (!this.isCurrentType(TokenType.EOF)) {
                         errors.push(`Expected ';' at position ${this.current.position}`);
+                        this.errorCount++;
                     }
                 }
             } catch (e) {
                 errors.push((e as Error).message);
+                this.errorCount++;
                 while (!this.isCurrentType(TokenType.EOF) && !this.isCurrentType(TokenType.SEMICOLON)) {
                     this.nextToken();
                 }

@@ -70,6 +70,10 @@ export class ChatMessageManager {
         this.processCommitted(context?.chat.length - 1, processer)
     }
 
+    static processError(index: number, processer: (content: string | null) => string): void {
+        return ChatMessageManager.processMessage(index, ChatMessageManager.ERROR_START_TAG, ChatMessageManager.ERROR_END_TAG, processer)
+    }
+
     static processLastError(processer: (content: string | null) => string) {
         const context = SillyTavern.getContext();
         const chat = context?.chat || [];
@@ -129,6 +133,49 @@ export class ChatMessageManager {
             }
         } else {
             text = text + ChatMessageManager.COMMITTED_START_TAG + newCommittedContent + ChatMessageManager.COMMITTED_END_TAG;
+        }
+
+        message.mes = text;
+        context?.saveChat();
+    }
+
+    static replaceCommitWithError(messageId: number, errorContent: string): void {
+        const context = SillyTavern.getContext();
+        const chat = context?.chat || [];
+        const message = chat[messageId];
+
+        if (!message) {
+            return;
+        }
+
+        let text = message.mes || '';
+
+        const commitEndPos = text.lastIndexOf(ChatMessageManager.COMMIT_END_TAG);
+        if (commitEndPos !== -1) {
+            const commitStartPos = text.lastIndexOf(ChatMessageManager.COMMIT_START_TAG, commitEndPos);
+            if (commitStartPos !== -1) {
+                const beforeCommit = text.substring(0, commitStartPos);
+                const afterCommit = text.substring(commitEndPos + ChatMessageManager.COMMIT_END_TAG.length);
+                const hasBeforeSpace = /\s$/.test(beforeCommit);
+                const hasAfterSpace = /^\s/.test(afterCommit);
+                if (hasBeforeSpace && hasAfterSpace) {
+                    text = beforeCommit.replace(/\s$/, '') + afterCommit;
+                } else {
+                    text = beforeCommit + afterCommit;
+                }
+            }
+        }
+
+        const errorEndPos = text.lastIndexOf(ChatMessageManager.ERROR_END_TAG);
+        if (errorEndPos !== -1) {
+            const errorStartPos = text.lastIndexOf(ChatMessageManager.ERROR_START_TAG, errorEndPos);
+            if (errorStartPos !== -1) {
+                const beforeError = text.substring(0, errorStartPos);
+                const afterError = text.substring(errorEndPos + ChatMessageManager.ERROR_END_TAG.length);
+                text = beforeError + ChatMessageManager.ERROR_START_TAG + errorContent + ChatMessageManager.ERROR_END_TAG + afterError;
+            }
+        } else {
+            text = text + ChatMessageManager.ERROR_START_TAG + errorContent + ChatMessageManager.ERROR_END_TAG;
         }
 
         message.mes = text;

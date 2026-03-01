@@ -8,10 +8,10 @@ import {
 } from "@/infra/sql";
 import {ChatMessageManager} from '@/infra/sillytarvern/message/chat-message-manager.ts';
 import {CompactSqlConverter} from '@/infra/sql/impl/utils/compact-sql-converter.ts';
+import {ToastUtil} from '@/utils/toast-utils.ts';
 
 export class ChatSqlExecutor implements SqlExecutor {
     private readonly tableTemplate: SqlExecutor;
-
     constructor(tableTemplate: SqlExecutor) {
         this.tableTemplate = tableTemplate.clone();
     }
@@ -129,6 +129,7 @@ export class ChatSqlExecutor implements SqlExecutor {
     }
 
     private get storage() {
+        const startTime = Date.now();
         const committedMap = ChatMessageManager.getCommitted();
         const sqlExecutor = this.tableTemplate.clone();
 
@@ -136,12 +137,12 @@ export class ChatSqlExecutor implements SqlExecutor {
             try {
                 sqlExecutor.execute(this.decompressDml(committedContent), [SqlType.DML]);
             } catch (error) {
-                ChatMessageManager.processCommitted(idx, () => {
-                    return `<error>${committedContent}</error>`;
-                });
+                const errorMessage = error instanceof Error ? error.message : '未知错误';
+                ToastUtil.error(`消息 ${idx} 中的 SQL 执行失败: ${errorMessage}`);
+                return sqlExecutor;
             }
         }
-
+        console.log(`耗时 ${Date.now() - startTime} ms`)
         return sqlExecutor;
     }
 

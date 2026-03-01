@@ -25,6 +25,8 @@ export class Lexer {
     private input: string;
     private pos: number = 0;
     private length: number;
+    private tokenCount = 0;
+    private static readonly MAX_TOKENS = 10000;
 
     constructor(input: string) {
         this.input = input;
@@ -137,6 +139,11 @@ export class Lexer {
      * 获取下一个Token
      */
     public nextToken(): Token {
+        if (this.tokenCount >= Lexer.MAX_TOKENS) {
+            throw new Error(`Parser exceeded maximum token limit (${Lexer.MAX_TOKENS}). Possible infinite loop detected.`);
+        }
+        this.tokenCount++;
+
         this.skipWhitespace();
         this.skipComment();
 
@@ -206,6 +213,7 @@ export class Lexer {
             return {type: TokenType.OPERATOR, value, position};
         }
 
+        this.advance();
         throw new Error(`Unexpected character: ${ch} at position ${position}`);
     }
 
