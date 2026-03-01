@@ -8,6 +8,7 @@ import {
 } from "@/infra/sql";
 import {ChatMessageManager} from '@/infra/sillytarvern/message/chat-message-manager.ts';
 import {CompactSqlConverter} from '@/infra/sql/impl/utils/compact-sql-converter.ts';
+import {logger} from '@/infra/logger.ts';
 
 export class ChatSqlExecutor implements SqlExecutor {
     private readonly tableTemplate: SqlExecutor;
@@ -149,6 +150,7 @@ export class ChatSqlExecutor implements SqlExecutor {
     }
 
     private get storage() {
+        const startTime = performance.now();
         const committedMap = ChatMessageManager.getCommitted();
         const hashParts: string[] = [];
         for (const [idx, content] of committedMap.entries()) {
@@ -156,15 +158,20 @@ export class ChatSqlExecutor implements SqlExecutor {
         }
         const currentHash = hashParts.join('|');
         if (this.cachedStorage && this.cachedCommittedHash === currentHash) {
+            logger.debug('ChatSqlExecutor', 'Cache hit - hash: ' + currentHash);
             return this.cachedStorage;
         }
+        logger.debug('ChatSqlExecutor', 'Cache miss - old hash: ' + this.cachedCommittedHash + ', new hash: ' + currentHash);
+        logger.debug('ChatSqlExecutor', 'Committed SQL count: ' + committedMap.size);
         const sqlExecutor = this.tableTemplate.clone();
 
         if (committedMap.size === 0) {
-            this.cachedStorage = sqlExecutor;
-            this.cachedCommittedHash = currentHash;
-            return sqlExecutor;
-        }
+        this.cachedStorage = sqlExecutor;
+        this.cachedCommittedHash = currentHash;
+        const endTime = performance.now();
+        logger.debug('ChatSqlExecutor', 'Storage get time: ' + (endTime - startTime) + 'ms');
+        return sqlExecutor;
+    }
         for (const [idx, committedContent] of committedMap.entries()) {
             try {
                 sqlExecutor.execute(this.decompressDml(committedContent), [SqlType.DML]);

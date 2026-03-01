@@ -14,6 +14,17 @@
     <CardItem>
       <template #left>
         <div style="display: flex; align-items: center; gap: 10px;">
+          <i class="fa-solid fa-bug" style="margin-right: 6px;"></i>
+          <span>调试模式</span>
+        </div>
+      </template>
+      <template #right>
+        <ToggleSwitch :checked="debugMode" @change="debugMode = $event"/>
+      </template>
+    </CardItem>
+    <CardItem>
+      <template #left>
+        <div style="display: flex; align-items: center; gap: 10px;">
           <i class="fa-solid fa-paper-plane" style="margin-right: 6px;"></i>
           <span>对话状态栏</span>
         </div>
@@ -103,8 +114,11 @@ import TemplateManagementPanel from '@/app/screens/business-screens/TemplateMana
 import SystemDataManagementPanel from '@/app/screens/business-screens/SystemDataManagementPanel.vue';
 import PopupModal from '@/app/components/pure-components/PopupModal.vue';
 import {ExtensionSettingManager} from '@/infra/sillytarvern/persistent/extension-setting-manager.ts';
+import {logger} from '@/infra/logger.ts';
 
 const settings = ExtensionSettingManager.instance;
+
+logger.setDebugMode(settings.debugMode);
 
 const extensionSwitch = computed({
   get: () => settings.extensionSwitch,
@@ -114,6 +128,11 @@ const extensionSwitch = computed({
 const chatStatusBarSwitch = computed({
   get: () => settings.chatStatusBarSwitch,
   set: (v: boolean) => settings.chatStatusBarSwitch = v
+});
+
+const debugMode = computed({
+  get: () => settings.debugMode,
+  set: (v: boolean) => settings.debugMode = v
 });
 
 const codeModalVisible = ref(false);
@@ -134,6 +153,11 @@ watch(codeModalVisible, async (visible) => {
     }
   }
 });
+
+watch(debugMode, (value) => {
+  logger.setDebugMode(value);
+  logger.info('SettingsPanel', 'Debug mode changed to: ' + value);
+}, { immediate: true });
 
 const handleCodeEditClick = () => {
   codeModalVisible.value = true;

@@ -8,6 +8,7 @@ interface ExtensionSettings {
     chatStatusBarCode: string;
     extensionSwitch: boolean;
     systemSqlExecutor: any;
+    debugMode: boolean;
 }
 
 /**
@@ -48,6 +49,7 @@ export class ExtensionSettingManager {
     private _chatStatusBarSwitch: boolean = false;
     private _chatStatusBarCode: string = '';
     private _extensionSwitch: boolean = false;
+    private _debugMode: boolean = false;
     private _systemSqlExecutorCache: SqlExecutor | null = null;
     private _systemSqlExecutorProxy: SqlExecutor | null = null;
 
@@ -62,6 +64,7 @@ export class ExtensionSettingManager {
                 chatStatusBarSwitch: false,
                 chatStatusBarCode: '',
                 extensionSwitch: false,
+                debugMode: false,
                 systemSqlExecutor: null
             };
         }
@@ -86,6 +89,7 @@ export class ExtensionSettingManager {
             this._chatStatusBarSwitch = settings.chatStatusBarSwitch ?? false;
             this._chatStatusBarCode = settings.chatStatusBarCode ?? '';
             this._extensionSwitch = settings.extensionSwitch ?? false;
+            this._debugMode = settings.debugMode ?? false;
 
             if (settings.systemSqlExecutor) {
                 try {
@@ -108,6 +112,7 @@ export class ExtensionSettingManager {
                 chatStatusBarSwitch: false,
                 chatStatusBarCode: '',
                 extensionSwitch: false,
+                debugMode: false,
                 systemSqlExecutor: null
             };
             extensionSettings[ExtensionSettingManager.MODULE_NAME] = settings;
@@ -117,6 +122,7 @@ export class ExtensionSettingManager {
         settings.chatStatusBarSwitch = this._chatStatusBarSwitch;
         settings.chatStatusBarCode = this._chatStatusBarCode;
         settings.extensionSwitch = this._extensionSwitch;
+        settings.debugMode = this._debugMode;
         settings.systemSqlExecutor = this._systemSqlExecutorCache?.serialize();
 
         SillyTavern.getContext().saveSettingsDebounced();
@@ -184,6 +190,15 @@ export class ExtensionSettingManager {
 
     set extensionSwitch(v: boolean) {
         this._extensionSwitch = v;
+        this._saveToSettings();
+    }
+
+    get debugMode(): boolean {
+        return this._debugMode;
+    }
+
+    set debugMode(v: boolean) {
+        this._debugMode = v;
         this._saveToSettings();
     }
 
