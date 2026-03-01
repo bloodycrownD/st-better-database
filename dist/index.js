@@ -9844,6 +9844,8 @@ class Pe {
 const Cn = "chatTemplateContainer", im = "chat";
 class Vt {
   static _instance = null;
+  _lastRenderedTemplate = "";
+  _updateTimeout = null;
   constructor() {
   }
   static getInstance() {
@@ -9852,15 +9854,17 @@ class Vt {
   updateChatTemplateDisplay() {
     const e = Se.instance;
     if (!e.chatStatusBarSwitch) {
-      this.removeTemplateContainer();
+      this.removeTemplateContainer(), this._lastRenderedTemplate = "";
       return;
     }
     const s = e.chatStatusBarCode.trim();
     if (!s) {
-      this.removeTemplateContainer();
+      this.removeTemplateContainer(), this._lastRenderedTemplate = "";
       return;
     }
-    this.renderTemplateToChat(s);
+    s !== this._lastRenderedTemplate && (this._updateTimeout !== null && clearTimeout(this._updateTimeout), this._updateTimeout = window.setTimeout(() => {
+      this.renderTemplateToChat(s), this._lastRenderedTemplate = s, this._updateTimeout = null;
+    }, 50));
   }
   removeTemplateContainer() {
     const e = document.getElementById(Cn);
@@ -9870,7 +9874,12 @@ class Vt {
     const s = this.escapeIframeContent(e), n = document.getElementById(im);
     if (!n) return;
     const i = document.getElementById(Cn);
-    i && i.remove(), n.insertAdjacentHTML("beforeend", `<div class="wide100p" id="${Cn}">${s}</div>`);
+    if (i) {
+      if (i.innerHTML === s)
+        return;
+      i.remove();
+    }
+    n.insertAdjacentHTML("beforeend", `<div class="wide100p" id="${Cn}">${s}</div>`);
     const o = document.getElementById(Cn);
     o && this.attachTouchEventHandlers(o);
   }
