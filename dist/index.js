@@ -3766,7 +3766,7 @@ function Mu(t, e) {
     }
   }, he = (p, v, x, I, D, A, U, F) => {
     let B, M;
-    const { props: X, shapeFlag: j, transition: G, dirs: ie } = p;
+    const { props: X, shapeFlag: j, transition: Y, dirs: ie } = p;
     if (B = p.el = r(
       p.type,
       A,
@@ -3787,9 +3787,9 @@ function Mu(t, e) {
       "value" in X && o(B, "value", null, X.value, A), (M = X.onVnodeBeforeMount) && Ct(M, I, p);
     }
     g.NODE_ENV !== "production" && (kn(B, "__vnode", p, !0), kn(B, "__vueParentComponent", I, !0)), ie && rs(p, null, I, "beforeMount");
-    const Ee = Vu(D, G);
-    Ee && G.beforeEnter(B), n(B, v, x), ((M = X && X.onVnodeMounted) || Ee || ie) && ze(() => {
-      M && Ct(M, I, p), Ee && G.enter(B), ie && rs(p, null, I, "mounted");
+    const Ee = Vu(D, Y);
+    Ee && Y.beforeEnter(B), n(B, v, x), ((M = X && X.onVnodeMounted) || Ee || ie) && ze(() => {
+      M && Ct(M, I, p), Ee && Y.enter(B), ie && rs(p, null, I, "mounted");
     }, D);
   }, me = (p, v, x, I, D) => {
     if (x && h(p, x), I)
@@ -3828,9 +3828,9 @@ function Mu(t, e) {
     g.NODE_ENV !== "production" && (F.__vnode = v);
     let { patchFlag: B, dynamicChildren: M, dirs: X } = v;
     B |= p.patchFlag & 16;
-    const j = p.props || _e, G = v.props || _e;
+    const j = p.props || _e, Y = v.props || _e;
     let ie;
-    if (x && ls(x, !1), (ie = G.onVnodeBeforeUpdate) && Ct(ie, x, v, p), X && rs(v, p, x, "beforeUpdate"), x && ls(x, !0), g.NODE_ENV !== "production" && pt && (B = 0, U = !1, M = null), (j.innerHTML && G.innerHTML == null || j.textContent && G.textContent == null) && c(F, ""), M ? (be(
+    if (x && ls(x, !1), (ie = Y.onVnodeBeforeUpdate) && Ct(ie, x, v, p), X && rs(v, p, x, "beforeUpdate"), x && ls(x, !0), g.NODE_ENV !== "production" && pt && (B = 0, U = !1, M = null), (j.innerHTML && Y.innerHTML == null || j.textContent && Y.textContent == null) && c(F, ""), M ? (be(
       p.dynamicChildren,
       M,
       F,
@@ -3850,17 +3850,17 @@ function Mu(t, e) {
       !1
     ), B > 0) {
       if (B & 16)
-        C(F, j, G, x, D);
-      else if (B & 2 && j.class !== G.class && o(F, "class", null, G.class, D), B & 4 && o(F, "style", j.style, G.style, D), B & 8) {
+        C(F, j, Y, x, D);
+      else if (B & 2 && j.class !== Y.class && o(F, "class", null, Y.class, D), B & 4 && o(F, "style", j.style, Y.style, D), B & 8) {
         const Ee = v.dynamicProps;
         for (let Ce = 0; Ce < Ee.length; Ce++) {
-          const xe = Ee[Ce], tt = j[xe], st = G[xe];
+          const xe = Ee[Ce], tt = j[xe], st = Y[xe];
           (st !== tt || xe === "value") && o(F, xe, tt, st, D, x);
         }
       }
       B & 1 && p.children !== v.children && c(F, v.children);
-    } else !U && M == null && C(F, j, G, x, D);
-    ((ie = G.onVnodeUpdated) || X) && ze(() => {
+    } else !U && M == null && C(F, j, Y, x, D);
+    ((ie = Y.onVnodeUpdated) || X) && ze(() => {
       ie && Ct(ie, x, v, p), X && rs(v, p, x, "updated");
     }, I);
   }, be = (p, v, x, I, D, A, U) => {
@@ -3912,9 +3912,9 @@ function Mu(t, e) {
     }
   }, W = (p, v, x, I, D, A, U, F, B) => {
     const M = v.el = p ? p.el : l(""), X = v.anchor = p ? p.anchor : l("");
-    let { patchFlag: j, dynamicChildren: G, slotScopeIds: ie } = v;
+    let { patchFlag: j, dynamicChildren: Y, slotScopeIds: ie } = v;
     g.NODE_ENV !== "production" && // #5523 dev root fragment may inherit directives
-    (pt || j & 2048) && (j = 0, B = !1, G = null), ie && (F = F ? F.concat(ie) : ie), p == null ? (n(M, x, I), n(X, x, I), H(
+    (pt || j & 2048) && (j = 0, B = !1, Y = null), ie && (F = F ? F.concat(ie) : ie), p == null ? (n(M, x, I), n(X, x, I), H(
       // #10007
       // such fragment like `<></>` will be compiled into
       // a fragment which doesn't have a children.
@@ -3927,11 +3927,11 @@ function Mu(t, e) {
       U,
       F,
       B
-    )) : j > 0 && j & 64 && G && // #2715 the previous fragment could've been a BAILed one as a result
+    )) : j > 0 && j & 64 && Y && // #2715 the previous fragment could've been a BAILed one as a result
     // of renderSlot() with no valid children
-    p.dynamicChildren && p.dynamicChildren.length === G.length ? (be(
+    p.dynamicChildren && p.dynamicChildren.length === Y.length ? (be(
       p.dynamicChildren,
-      G,
+      Y,
       x,
       D,
       A,
@@ -4010,7 +4010,7 @@ function Mu(t, e) {
   }, ce = (p, v, x, I, D, A, U) => {
     const F = () => {
       if (p.isMounted) {
-        let { next: j, bu: G, u: ie, parent: Ee, vnode: Ce } = p;
+        let { next: j, bu: Y, u: ie, parent: Ee, vnode: Ce } = p;
         {
           const St = Gl(p);
           if (St) {
@@ -4023,7 +4023,7 @@ function Mu(t, e) {
           }
         }
         let xe = j, tt;
-        g.NODE_ENV !== "production" && Dn(j || p.vnode), ls(p, !1), j ? (j.el = Ce.el, fe(p, j, U)) : j = Ce, G && xs(G), (tt = j.props && j.props.onVnodeBeforeUpdate) && Ct(tt, Ee, j, Ce), ls(p, !0), g.NODE_ENV !== "production" && Ts(p, "render");
+        g.NODE_ENV !== "production" && Dn(j || p.vnode), ls(p, !1), j ? (j.el = Ce.el, fe(p, j, U)) : j = Ce, Y && xs(Y), (tt = j.props && j.props.onVnodeBeforeUpdate) && Ct(tt, Ee, j, Ce), ls(p, !0), g.NODE_ENV !== "production" && Ts(p, "render");
         const st = Go(p);
         g.NODE_ENV !== "production" && Ns(p, "render");
         const xt = p.subTree;
@@ -4043,7 +4043,7 @@ function Mu(t, e) {
         ), g.NODE_ENV !== "production" && ml(p), g.NODE_ENV !== "production" && On();
       } else {
         let j;
-        const { el: G, props: ie } = v, { bm: Ee, m: Ce, parent: xe, root: tt, type: st } = p, xt = Ds(v);
+        const { el: Y, props: ie } = v, { bm: Ee, m: Ce, parent: xe, root: tt, type: st } = p, xt = Ds(v);
         ls(p, !1), Ee && xs(Ee), !xt && (j = ie && ie.onVnodeBeforeMount) && Ct(j, xe, v), ls(p, !0);
         {
           tt.ce && tt.ce._hasShadowRoot() && tt.ce._injectChildStyle(st), g.NODE_ENV !== "production" && Ts(p, "render");
@@ -4078,9 +4078,9 @@ function Mu(t, e) {
     const I = p.vnode.props;
     p.vnode = v, p.next = null, Eu(p, v.props, I, x), Ou(p, v.children, x), gt(), Lo(p), Et();
   }, J = (p, v, x, I, D, A, U, F, B = !1) => {
-    const M = p && p.children, X = p ? p.shapeFlag : 0, j = v.children, { patchFlag: G, shapeFlag: ie } = v;
-    if (G > 0) {
-      if (G & 128) {
+    const M = p && p.children, X = p ? p.shapeFlag : 0, j = v.children, { patchFlag: Y, shapeFlag: ie } = v;
+    if (Y > 0) {
+      if (Y & 128) {
         Oe(
           M,
           j,
@@ -4093,7 +4093,7 @@ function Mu(t, e) {
           B
         );
         return;
-      } else if (G & 256) {
+      } else if (Y & 256) {
         L(
           M,
           j,
@@ -4131,11 +4131,11 @@ function Mu(t, e) {
   }, L = (p, v, x, I, D, A, U, F, B) => {
     p = p || ws, v = v || ws;
     const M = p.length, X = v.length, j = Math.min(M, X);
-    let G;
-    for (G = 0; G < j; G++) {
-      const ie = v[G] = B ? qt(v[G]) : ft(v[G]);
+    let Y;
+    for (Y = 0; Y < j; Y++) {
+      const ie = v[Y] = B ? qt(v[Y]) : ft(v[Y]);
       y(
-        p[G],
+        p[Y],
         ie,
         x,
         null,
@@ -4167,8 +4167,8 @@ function Mu(t, e) {
   }, Oe = (p, v, x, I, D, A, U, F, B) => {
     let M = 0;
     const X = v.length;
-    let j = p.length - 1, G = X - 1;
-    for (; M <= j && M <= G; ) {
+    let j = p.length - 1, Y = X - 1;
+    for (; M <= j && M <= Y; ) {
       const ie = p[M], Ee = v[M] = B ? qt(v[M]) : ft(v[M]);
       if (ps(ie, Ee))
         y(
@@ -4186,8 +4186,8 @@ function Mu(t, e) {
         break;
       M++;
     }
-    for (; M <= j && M <= G; ) {
-      const ie = p[j], Ee = v[G] = B ? qt(v[G]) : ft(v[G]);
+    for (; M <= j && M <= Y; ) {
+      const ie = p[j], Ee = v[Y] = B ? qt(v[Y]) : ft(v[Y]);
       if (ps(ie, Ee))
         y(
           ie,
@@ -4202,12 +4202,12 @@ function Mu(t, e) {
         );
       else
         break;
-      j--, G--;
+      j--, Y--;
     }
     if (M > j) {
-      if (M <= G) {
-        const ie = G + 1, Ee = ie < X ? v[ie].el : I;
-        for (; M <= G; )
+      if (M <= Y) {
+        const ie = Y + 1, Ee = ie < X ? v[ie].el : I;
+        for (; M <= Y; )
           y(
             null,
             v[M] = B ? qt(v[M]) : ft(v[M]),
@@ -4220,12 +4220,12 @@ function Mu(t, e) {
             B
           ), M++;
       }
-    } else if (M > G)
+    } else if (M > Y)
       for (; M <= j; )
         dt(p[M], D, A, !0), M++;
     else {
       const ie = M, Ee = M, Ce = /* @__PURE__ */ new Map();
-      for (M = Ee; M <= G; M++) {
+      for (M = Ee; M <= Y; M++) {
         const Ye = v[M] = B ? qt(v[M]) : ft(v[M]);
         Ye.key != null && (g.NODE_ENV !== "production" && Ce.has(Ye.key) && R(
           "Duplicate keys found during update:",
@@ -4234,7 +4234,7 @@ function Mu(t, e) {
         ), Ce.set(Ye.key, M));
       }
       let xe, tt = 0;
-      const st = G - Ee + 1;
+      const st = Y - Ee + 1;
       let xt = !1, St = 0;
       const Bs = new Array(st);
       for (M = 0; M < st; M++) Bs[M] = 0;
@@ -4248,7 +4248,7 @@ function Mu(t, e) {
         if (Ye.key != null)
           wt = Ce.get(Ye.key);
         else
-          for (xe = Ee; xe <= G; xe++)
+          for (xe = Ee; xe <= Y; xe++)
             if (Bs[xe - Ee] === 0 && ps(Ye, v[xe])) {
               wt = xe;
               break;
@@ -4313,7 +4313,7 @@ function Mu(t, e) {
       if (I === 0)
         F.beforeEnter(A), n(A, v, x), ze(() => F.enter(A), D);
       else {
-        const { leave: j, delayLeave: G, afterLeave: ie } = F, Ee = () => {
+        const { leave: j, delayLeave: Y, afterLeave: ie } = F, Ee = () => {
           p.ctx.isUnmounted ? i(A) : n(A, v, x);
         }, Ce = () => {
           A._isLeaving && A[Ot](
@@ -4323,7 +4323,7 @@ function Mu(t, e) {
             Ee(), ie && ie();
           });
         };
-        G ? G(A, Ee, Ce) : Ce();
+        Y ? Y(A, Ee, Ce) : Ce();
       }
     else
       n(A, v, x);
@@ -4336,14 +4336,14 @@ function Mu(t, e) {
       dynamicChildren: M,
       shapeFlag: X,
       patchFlag: j,
-      dirs: G,
+      dirs: Y,
       cacheIndex: ie
     } = p;
     if (j === -2 && (D = !1), F != null && (gt(), Js(F, null, x, p, !0), Et()), ie != null && (v.renderCache[ie] = void 0), X & 256) {
       v.ctx.deactivate(p);
       return;
     }
-    const Ee = X & 1 && G, Ce = !Ds(p);
+    const Ee = X & 1 && Y, Ce = !Ds(p);
     let xe;
     if (Ce && (xe = U && U.onVnodeBeforeUnmount) && Ct(xe, v, p), X & 6)
       ga(p.component, x, I);
@@ -7794,7 +7794,7 @@ class ns extends To {
     super(pi.EXECUTION_ERROR, e, void 0, s), this.name = "SqlExecutionError";
   }
 }
-var Y = /* @__PURE__ */ ((t) => (t.KEYWORD = "KEYWORD", t.IDENTIFIER = "IDENTIFIER", t.STRING = "STRING", t.NUMBER = "NUMBER", t.OPERATOR = "OPERATOR", t.COMMA = "COMMA", t.SEMICOLON = "SEMICOLON", t.LPAREN = "LPAREN", t.RPAREN = "RPAREN", t.DOT = "DOT", t.EOF = "EOF", t))(Y || {}), $e = /* @__PURE__ */ ((t) => (t.CREATE_TABLE = "CREATE_TABLE", t.ALTER_TABLE = "ALTER_TABLE", t.DROP_TABLE = "DROP_TABLE", t.INSERT = "INSERT", t.UPDATE = "UPDATE", t.DELETE = "DELETE", t.APPEND = "APPEND", t.SELECT = "SELECT", t.ROW = "ROW", t))($e || {}), Xt = /* @__PURE__ */ ((t) => (t.ADD_COLUMN = "ADD_COLUMN", t.DROP_COLUMN = "DROP_COLUMN", t.RENAME = "RENAME", t.RENAME_COLUMN = "RENAME_COLUMN", t.MODIFY_COLUMN_COMMENT = "MODIFY_COLUMN_COMMENT", t.MODIFY_COLUMN_PRIMITIVE_KEY = "MODIFY_COLUMN_PRIMITIVE_KEY", t.ALTER_TABLE_COMMENT = "ALTER_TABLE_COMMENT", t))(Xt || {});
+var G = /* @__PURE__ */ ((t) => (t.KEYWORD = "KEYWORD", t.IDENTIFIER = "IDENTIFIER", t.STRING = "STRING", t.NUMBER = "NUMBER", t.OPERATOR = "OPERATOR", t.COMMA = "COMMA", t.SEMICOLON = "SEMICOLON", t.LPAREN = "LPAREN", t.RPAREN = "RPAREN", t.DOT = "DOT", t.EOF = "EOF", t))(G || {}), $e = /* @__PURE__ */ ((t) => (t.CREATE_TABLE = "CREATE_TABLE", t.ALTER_TABLE = "ALTER_TABLE", t.DROP_TABLE = "DROP_TABLE", t.INSERT = "INSERT", t.UPDATE = "UPDATE", t.DELETE = "DELETE", t.APPEND = "APPEND", t.SELECT = "SELECT", t.ROW = "ROW", t))($e || {}), Xt = /* @__PURE__ */ ((t) => (t.ADD_COLUMN = "ADD_COLUMN", t.DROP_COLUMN = "DROP_COLUMN", t.RENAME = "RENAME", t.RENAME_COLUMN = "RENAME_COLUMN", t.MODIFY_COLUMN_COMMENT = "MODIFY_COLUMN_COMMENT", t.MODIFY_COLUMN_PRIMITIVE_KEY = "MODIFY_COLUMN_PRIMITIVE_KEY", t.ALTER_TABLE_COMMENT = "ALTER_TABLE_COMMENT", t))(Xt || {});
 const nm = /* @__PURE__ */ new Set([
   "SELECT",
   "FROM",
@@ -7837,7 +7837,7 @@ const nm = /* @__PURE__ */ new Set([
   "DEFAULT",
   "COMMENT",
   "MODIFY"
-]), Dr = ["=", "!=", "<>", ">", "<", ">=", "<="];
+]), Dr = ["=", "!=", "<>", ">", "<", ">=", "<=", "||"];
 class Xn {
   input;
   pos = 0;
@@ -7927,39 +7927,45 @@ class Xn {
     if (this.tokenCount >= Xn.MAX_TOKENS)
       throw new Error(`Parser exceeded maximum token limit (${Xn.MAX_TOKENS}). Possible infinite loop detected.`);
     if (this.tokenCount++, this.skipWhitespace(), this.skipComment(), this.pos >= this.length)
-      return { type: Y.EOF, value: "", position: this.pos };
+      return { type: G.EOF, value: "", position: this.pos };
     const e = this.pos, s = this.peek();
     if (s === "(")
-      return this.advance(), { type: Y.LPAREN, value: "(", position: e };
+      return this.advance(), { type: G.LPAREN, value: "(", position: e };
     if (s === ")")
-      return this.advance(), { type: Y.RPAREN, value: ")", position: e };
+      return this.advance(), { type: G.RPAREN, value: ")", position: e };
     if (s === ",")
-      return this.advance(), { type: Y.COMMA, value: ",", position: e };
+      return this.advance(), { type: G.COMMA, value: ",", position: e };
     if (s === ";")
-      return this.advance(), { type: Y.SEMICOLON, value: ";", position: e };
+      return this.advance(), { type: G.SEMICOLON, value: ";", position: e };
     if (s === ".")
-      return this.advance(), { type: Y.DOT, value: ".", position: e };
+      return this.advance(), { type: G.DOT, value: ".", position: e };
     if (s === "'") {
       const n = this.readString(s);
-      return { type: Y.STRING, value: n, position: e };
+      return { type: G.STRING, value: n, position: e };
     }
     if (s === '"') {
       const n = this.readString(s);
-      return { type: Y.STRING, value: n, position: e };
+      return { type: G.STRING, value: n, position: e };
+    }
+    if (s === "`") {
+      let n = "";
+      for (this.advance(); this.pos < this.length && this.peek() !== "`"; )
+        n += this.advance();
+      return this.pos < this.length && this.peek() === "`" && this.advance(), { type: G.IDENTIFIER, value: n, position: e };
     }
     if (s === "*")
-      return this.advance(), { type: Y.KEYWORD, value: "*", position: e };
+      return this.advance(), { type: G.KEYWORD, value: "*", position: e };
     if (/[\d]/.test(s)) {
       const n = this.readNumber();
-      return { type: Y.NUMBER, value: n, position: e };
+      return { type: G.NUMBER, value: n, position: e };
     }
     if (/[a-zA-Z_]/.test(s)) {
       const n = this.readIdentifier(), i = n.toUpperCase();
-      return nm.has(i) ? { type: Y.KEYWORD, value: i, position: e } : { type: Y.IDENTIFIER, value: n, position: e };
+      return nm.has(i) ? { type: G.KEYWORD, value: i, position: e } : { type: G.IDENTIFIER, value: n, position: e };
     }
     if (Dr.some((n) => n.startsWith(s))) {
       const n = this.readOperator();
-      return { type: Y.OPERATOR, value: n, position: e };
+      return { type: G.OPERATOR, value: n, position: e };
     }
     throw this.advance(), new Error(`Unexpected character: ${s} at position ${e}`);
   }
@@ -7971,7 +7977,7 @@ class Xn {
     let s;
     do
       s = this.nextToken(), e.push(s);
-    while (s.type !== Y.EOF);
+    while (s.type !== G.EOF);
     return e;
   }
 }
@@ -7984,8 +7990,13 @@ class ss {
   startTime;
   static MAX_ERRORS = 100;
   static TIMEOUT_MS = 5e3;
-  constructor(e) {
-    this.lexer = e, this.current = this.lexer.nextToken(), this.peekToken = this.lexer.nextToken(), this.startTime = performance.now();
+  constructor(e, s = []) {
+    this.lexer = e, this.startTime = performance.now(), this.errors = s;
+    try {
+      this.current = this.lexer.nextToken(), this.peekToken = this.lexer.nextToken();
+    } catch (n) {
+      this.current = { type: G.EOF, value: "", position: 0 }, this.peekToken = { type: G.EOF, value: "", position: 0 }, this.errors.push(n.message);
+    }
   }
   /**
    * 前进一个Token
@@ -8003,7 +8014,7 @@ class ss {
    * 检查当前Token值
    */
   isCurrentValue(e) {
-    return (this.current.type === Y.KEYWORD || this.current.type === Y.OPERATOR) && this.current.value === e;
+    return (this.current.type === G.KEYWORD || this.current.type === G.OPERATOR) && this.current.value === e;
   }
   /**
    * 期望当前Token是特定类型
@@ -8027,13 +8038,13 @@ class ss {
    * 如果当前Token是特定值，则消耗它
    */
   matchValue(e) {
-    return this.current.value === e && (this.current.type === Y.KEYWORD || this.current.type === Y.OPERATOR || this.current.type === Y.COMMA || this.current.type === Y.SEMICOLON) ? (this.nextToken(), !0) : !1;
+    return this.current.value === e && (this.current.type === G.KEYWORD || this.current.type === G.OPERATOR || this.current.type === G.COMMA || this.current.type === G.SEMICOLON) ? (this.nextToken(), !0) : !1;
   }
   /**
    * 解析标识符
    */
   parseIdentifier() {
-    if (this.isCurrentType(Y.IDENTIFIER) || this.isCurrentType(Y.KEYWORD)) {
+    if (this.isCurrentType(G.IDENTIFIER) || this.isCurrentType(G.KEYWORD)) {
       const e = this.current.value;
       return this.nextToken(), e;
     }
@@ -8055,16 +8066,16 @@ class ss {
   parseColumnDef() {
     const e = this.parseIdentifier(), s = this.parseFieldType(), n = { name: e, type: s };
     if (this.matchValue("PRIMARY") && (this.expectValue("KEY"), n.primitiveKey = !0), this.matchValue("DEFAULT"))
-      if (this.isCurrentType(Y.STRING))
+      if (this.isCurrentType(G.STRING))
         n.defaultValue = this.current.value, this.nextToken();
-      else if (this.isCurrentType(Y.NUMBER))
+      else if (this.isCurrentType(G.NUMBER))
         n.defaultValue = Number(this.current.value), this.nextToken();
       else if (this.matchValue("NULL"))
         n.defaultValue = null;
       else
         throw new Error(`Expected default value at position ${this.current.position}`);
     if (this.matchValue("COMMENT"))
-      if (this.isCurrentType(Y.STRING))
+      if (this.isCurrentType(G.STRING))
         n.comment = this.current.value, this.nextToken();
       else
         throw new Error(`Expected string value for COMMENT at position ${this.current.position}`);
@@ -8075,6 +8086,14 @@ class ss {
    */
   parseExpression() {
     return this.parseLogicalOr();
+  }
+  parseConcat() {
+    let e = this.parseAdditive();
+    for (; this.matchValue("||"); ) {
+      const s = this.parseAdditive();
+      e = { type: "binary", operator: "||", left: e, right: s };
+    }
+    return e;
   }
   /**
    * 解析逻辑OR表达式
@@ -8121,11 +8140,11 @@ class ss {
       e = { type: "binary", operator: n, left: e, right: i };
     }
     if (this.matchValue("IN")) {
-      this.expectType(Y.LPAREN);
+      this.expectType(G.LPAREN);
       const n = [];
       for (n.push(this.parseExpression()); this.matchValue(","); )
         n.push(this.parseExpression());
-      return this.expectType(Y.RPAREN), { type: "in", value: e, values: n };
+      return this.expectType(G.RPAREN), { type: "in", value: e, values: n };
     }
     if (this.matchValue("BETWEEN")) {
       const n = this.parseAdditive();
@@ -8139,7 +8158,7 @@ class ss {
    * 解析IS表达式
    */
   parseIs() {
-    const e = this.parseAdditive();
+    const e = this.parseConcat();
     if (this.matchValue("IS"))
       if (this.matchValue("NOT")) {
         const s = this.parseAdditive();
@@ -8180,22 +8199,22 @@ class ss {
    * 解析基础表达式
    */
   parsePrimary() {
-    if (this.isCurrentType(Y.NUMBER)) {
+    if (this.isCurrentType(G.NUMBER)) {
       const e = Number(this.current.value);
       return this.nextToken(), { type: "value", value: e };
     }
-    if (this.isCurrentType(Y.STRING)) {
+    if (this.isCurrentType(G.STRING)) {
       const e = this.current.value;
       return this.nextToken(), { type: "value", value: e };
     }
     if (this.matchValue("NULL"))
       return { type: "null", value: { type: "value", value: null } };
-    if (this.isCurrentType(Y.IDENTIFIER) || this.isCurrentType(Y.KEYWORD))
+    if (this.isCurrentType(G.IDENTIFIER) || this.isCurrentType(G.KEYWORD))
       return this.parseColumnExpression();
-    if (this.isCurrentType(Y.LPAREN)) {
+    if (this.isCurrentType(G.LPAREN)) {
       this.nextToken();
       const e = this.parseExpression();
-      return this.expectType(Y.RPAREN), e;
+      return this.expectType(G.RPAREN), e;
     }
     throw new Error(`Unexpected token at position ${this.current.position}`);
   }
@@ -8216,11 +8235,11 @@ class ss {
   parseCreateTable() {
     this.expectValue("TABLE");
     const e = this.parseIdentifier();
-    this.expectType(Y.LPAREN);
+    this.expectType(G.LPAREN);
     const s = [];
     for (s.push(this.parseColumnDef()); this.matchValue(","); )
       s.push(this.parseColumnDef());
-    this.expectType(Y.RPAREN);
+    this.expectType(G.RPAREN);
     const n = {
       type: $e.CREATE_TABLE,
       tableName: e,
@@ -8228,7 +8247,7 @@ class ss {
       position: this.current.position
     };
     if (this.matchValue("COMMENT"))
-      if (this.isCurrentType(Y.STRING))
+      if (this.isCurrentType(G.STRING))
         n.comment = this.current.value, this.nextToken();
       else
         throw new Error(`Expected string value for COMMENT at position ${this.current.position}`);
@@ -8252,7 +8271,7 @@ class ss {
       const a = this.parseFieldType();
       let u = !1;
       if (this.matchValue("PRIMARY") && (this.expectValue("KEY"), u = !0), this.matchValue("COMMENT"))
-        if (this.isCurrentType(Y.STRING))
+        if (this.isCurrentType(G.STRING))
           l = this.current.value, this.nextToken();
         else
           throw new Error(`Expected string value for COMMENT at position ${this.current.position}`);
@@ -8263,7 +8282,7 @@ class ss {
       else
         throw new Error(`Expected PRIMARY KEY or COMMENT after MODIFY COLUMN at position ${this.current.position}`);
     } else if (this.matchValue("COMMENT"))
-      if (s = Xt.ALTER_TABLE_COMMENT, this.isCurrentType(Y.STRING))
+      if (s = Xt.ALTER_TABLE_COMMENT, this.isCurrentType(G.STRING))
         l = this.current.value, this.nextToken();
       else
         throw new Error(`Expected string value for COMMENT at position ${this.current.position}`);
@@ -8300,21 +8319,21 @@ class ss {
     this.expectValue("INTO");
     const e = this.parseIdentifier();
     let s;
-    if (this.isCurrentType(Y.LPAREN)) {
+    if (this.isCurrentType(G.LPAREN)) {
       for (this.nextToken(), s = [], s.push(this.parseIdentifier()); this.matchValue(","); )
         s.push(this.parseIdentifier());
-      this.expectType(Y.RPAREN);
+      this.expectType(G.RPAREN);
     }
-    this.expectValue("VALUES"), this.expectType(Y.LPAREN);
+    this.expectValue("VALUES"), this.expectType(G.LPAREN);
     const n = [], i = [];
     for (i.push(this.parseExpression()); this.matchValue(","); )
       i.push(this.parseExpression());
-    for (n.push(i), this.expectType(Y.RPAREN); this.matchValue(","); ) {
-      this.expectType(Y.LPAREN);
+    for (n.push(i), this.expectType(G.RPAREN); this.matchValue(","); ) {
+      this.expectType(G.LPAREN);
       const o = [];
       for (o.push(this.parseExpression()); this.matchValue(","); )
         o.push(this.parseExpression());
-      n.push(o), this.expectType(Y.RPAREN);
+      n.push(o), this.expectType(G.RPAREN);
     }
     return {
       type: $e.INSERT,
@@ -8368,15 +8387,15 @@ class ss {
   parseAppend() {
     this.expectValue("INTO");
     const e = this.parseIdentifier();
-    this.expectType(Y.LPAREN);
+    this.expectType(G.LPAREN);
     const s = [];
     for (s.push(this.parseIdentifier()); this.matchValue(","); )
       s.push(this.parseIdentifier());
-    this.expectType(Y.RPAREN), this.expectValue("VALUES"), this.expectType(Y.LPAREN);
+    this.expectType(G.RPAREN), this.expectValue("VALUES"), this.expectType(G.LPAREN);
     const n = [];
     for (n.push(this.parseExpression()); this.matchValue(","); )
       n.push(this.parseExpression());
-    this.expectType(Y.RPAREN);
+    this.expectType(G.RPAREN);
     let i;
     return this.matchValue("WHERE") && (i = this.parseExpression()), {
       type: $e.APPEND,
@@ -8494,19 +8513,19 @@ class ss {
    * 解析所有语句
    */
   parse() {
-    const e = [], s = [];
-    for (; !this.isCurrentType(Y.EOF); ) {
+    const e = [], s = this.errors;
+    for (; !this.isCurrentType(G.EOF); ) {
       if (performance.now() - this.startTime > ss.TIMEOUT_MS)
         throw new Error(`Parser timeout after ${ss.TIMEOUT_MS}ms. Possible infinite loop detected.`);
       if (this.errorCount >= ss.MAX_ERRORS)
         throw new Error(`Parser exceeded maximum error limit (${ss.MAX_ERRORS}). Too many syntax errors.`);
       try {
         const n = this.parseStatement();
-        n && e.push(n), this.matchValue(";") || this.isCurrentType(Y.EOF) || (s.push(`Expected ';' at position ${this.current.position}`), this.errorCount++);
+        n && e.push(n), this.matchValue(";") || this.isCurrentType(G.EOF) || (s.push(`Expected ';' at position ${this.current.position}`), this.errorCount++);
       } catch (n) {
-        for (s.push(n.message), this.errorCount++; !this.isCurrentType(Y.EOF) && !this.isCurrentType(Y.SEMICOLON); )
+        for (s.push(n.message), this.errorCount++; !this.isCurrentType(G.EOF) && !this.isCurrentType(G.SEMICOLON); )
           this.nextToken();
-        this.isCurrentType(Y.SEMICOLON) && this.nextToken();
+        this.isCurrentType(G.SEMICOLON) && this.nextToken();
       }
     }
     return { statements: e, errors: s };
@@ -8516,7 +8535,7 @@ class ss {
    */
   static parse(e) {
     const s = new Xn(e);
-    return new ss(s).parse();
+    return new ss(s, []).parse();
   }
 }
 class pa {
@@ -8534,6 +8553,8 @@ class pa {
     if (e.type === "binary") {
       const o = this.evaluateExpression(e.left, s, n, i), r = this.evaluateExpression(e.right, s, n, i);
       switch (e.operator) {
+        case "||":
+          return String(o) + String(r);
         case "+":
           return Number(o) + Number(r);
         case "-":
