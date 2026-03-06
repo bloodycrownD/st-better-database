@@ -30,6 +30,8 @@ export class ExpressionEvaluator {
             const right = this.evaluateExpression(expr.right, schema, tableIdx, row);
 
             switch (expr.operator) {
+                case '||':
+                    return String(left) + String(right);
                 case '+':
                     return Number(left) + Number(right);
                 case '-':

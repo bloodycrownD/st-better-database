@@ -16,7 +16,7 @@ const KEYWORDS = new Set([
 /**
  * 运算符集合
  */
-const OPERATORS = ['=', '!=', '<>', '>', '<', '>=', '<='];
+const OPERATORS = ['=', '!=', '<>', '>', '<', '>=', '<=', '||'];
 
 /**
  * 词法分析器
@@ -187,6 +187,18 @@ export class Lexer {
         if (ch === '"') {
             const value = this.readString(ch);
             return {type: TokenType.STRING, value, position};
+        }
+
+        if (ch === '`') {
+            let result = '';
+            this.advance();
+            while (this.pos < this.length && this.peek() !== '`') {
+                result += this.advance();
+            }
+            if (this.pos < this.length && this.peek() === '`') {
+                this.advance();
+            }
+            return {type: TokenType.IDENTIFIER, value: result, position};
         }
 
         if (ch === '*') {

@@ -30,11 +30,18 @@ export class Parser {
     private static readonly MAX_ERRORS = 100;
     private static readonly TIMEOUT_MS = 5000;
 
-    constructor(lexer: Lexer) {
+    constructor(lexer: Lexer, initialErrors: string[] = []) {
         this.lexer = lexer;
-        this.current = this.lexer.nextToken();
-        this.peekToken = this.lexer.nextToken();
         this.startTime = performance.now();
+        this.errors = initialErrors;
+        try {
+            this.current = this.lexer.nextToken();
+            this.peekToken = this.lexer.nextToken();
+        } catch (e) {
+            this.current = {type: TokenType.EOF, value: '', position: 0};
+            this.peekToken = {type: TokenType.EOF, value: '', position: 0};
+            this.errors.push((e as Error).message);
+        }
     }
 
     /**
@@ -169,6 +176,17 @@ export class Parser {
         return this.parseLogicalOr();
     }
 
+    private parseConcat(): Expression {
+        let left = this.parseAdditive();
+
+        while (this.matchValue('||')) {
+            const right = this.parseAdditive();
+            left = {type: 'binary', operator: '||', left, right};
+        }
+
+        return left;
+    }
+
     /**
      * 解析逻辑OR表达式
      */
@@ -250,7 +268,7 @@ export class Parser {
      * 解析IS表达式
      */
     private parseIs(): Expression {
-        const left = this.parseAdditive();
+        const left = this.parseConcat();
 
         if (this.matchValue('IS')) {
             if (this.matchValue('NOT')) {
@@ -826,7 +844,7 @@ export class Parser {
      */
     public parse(): ParseResult {
         const statements: Statement[] = [];
-        const errors: string[] = [];
+        const errors = this.errors;
 
         while (!this.isCurrentType(TokenType.EOF)) {
             if (performance.now() - this.startTime > Parser.TIMEOUT_MS) {
@@ -868,7 +886,7 @@ export class Parser {
      */
     public static parse(sql: string): ParseResult {
         const lexer = new Lexer(sql);
-        const parser = new Parser(lexer);
+        const parser = new Parser(lexer, []);
         return parser.parse();
     }
 }
