@@ -195,7 +195,7 @@ describe('Parser - CREATE TABLE with Comments', () => {
         const result = Parser.parse(sql);
 
         expect(result.errors.length).toBeGreaterThan(0);
-        expect(result.errors[0]).toContain('Parse error');
+        expect(result.errors[0]).toContain('Expected');
     });
 
     it('should accept COMMENT after PRIMARY KEY', () => {

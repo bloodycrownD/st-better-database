@@ -137,6 +137,24 @@ describe('DML Operations', () => {
                 executor.execute('UPDATE users SET nonexist = 1', [SqlType.DML]);
             }).toThrow(SqlValidationError);
         });
+
+        it('should support SET with arithmetic expression', () => {
+            const sql = 'UPDATE users SET age = age + 1 WHERE id = 1';
+            executor.execute(sql, [SqlType.DML]);
+
+            const selectResult = executor.execute('SELECT * FROM users WHERE id = 1', [SqlType.DQL]);
+            const row = (selectResult.data as any[])[0];
+            expect(row.age).toBe(26);
+        });
+
+        it('should support SET with complex arithmetic expression', () => {
+            const sql = 'UPDATE users SET age = age * 2 WHERE id = 2';
+            executor.execute(sql, [SqlType.DML]);
+
+            const selectResult = executor.execute('SELECT * FROM users WHERE id = 2', [SqlType.DQL]);
+            const row = (selectResult.data as any[])[0];
+            expect(row.age).toBe(60);
+        });
     });
 
     describe('DELETE', () => {

@@ -346,9 +346,9 @@ describe('ChatSqlExecutor', () => {
                 const data = storage.getTableData(0);
                 expect(data.length).toBe(1);
 
-                expect(mockChat[0].mes).toContain('<error>');
                 expect(mockChat[0].mes).toContain('nonexistent_table');
                 expect(mockChat[0].mes).toContain('<committed>INSERT INTO @t0');
+                expect(mockChat[0].mes).not.toContain('<error>');
             });
         });
     });
